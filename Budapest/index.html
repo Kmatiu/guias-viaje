@@ -1,0 +1,2874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#C65D3A">
+<title>Budapest: 4 días en la Perla del Danubio</title>
+
+<!-- PWA: permite "Añadir a pantalla de inicio" en iOS y Android como app fullscreen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Guía">
+
+<!-- Icono para pantalla de inicio (una brújula mediterránea en SVG data URL) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='38' fill='%23C65D3A'/><circle cx='90' cy='90' r='55' fill='none' stroke='%23FAF4E8' stroke-width='4'/><polygon points='90,45 100,90 90,135 80,90' fill='%23FAF4E8'/><polygon points='45,90 90,100 135,90 90,80' fill='%23E6A23C' opacity='0.85'/><circle cx='90' cy='90' r='6' fill='%23FAF4E8'/></svg>">
+
+<!-- Web App Manifest embebido como data URL (funciona en Chrome/Edge Android) -->
+<link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Gu%C3%ADa%20de%20viaje%22%2C%22short_name%22%3A%22Gu%C3%ADa%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FAF4E8%22%2C%22theme_color%22%3A%22%23C65D3A%22%2C%22orientation%22%3A%22portrait%22%2C%22start_url%22%3A%22.%22%7D">
+
+<!-- Leaflet para el mapa interactivo -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
+
+<!-- Tipografías -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   TOKENS — paleta editorial mediterránea
+   ========================================================= */
+:root {
+  --c-terracotta: #C65D3A;
+  --c-terracotta-dark: #A34A2C;
+  --c-teal: #0F4C5C;
+  --c-teal-dark: #0A3540;
+  --c-cream: #FAF4E8;
+  --c-cream-2: #F2EADB;
+  --c-gold: #E6A23C;
+  --c-ink: #1A1A1A;
+  --c-ink-soft: #3A3A3A;
+  --c-muted: #6B6B6B;
+  --c-line: #E5DCC8;
+  --c-danger: #B84A3A;
+  --c-success: #4A7C59;
+
+  --bg: var(--c-cream);
+  --bg-card: #FFFFFF;
+  --bg-elev: var(--c-cream-2);
+  --text: var(--c-ink);
+  --text-soft: var(--c-ink-soft);
+  --text-muted: var(--c-muted);
+  --line: var(--c-line);
+  --accent: var(--c-terracotta);
+  --accent-ink: #FFFFFF;
+  --brand: var(--c-teal);
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+
+  --shadow-sm: 0 1px 2px rgba(26,26,26,0.04), 0 1px 3px rgba(26,26,26,0.06);
+  --shadow: 0 4px 12px rgba(26,26,26,0.08), 0 2px 4px rgba(26,26,26,0.04);
+  --shadow-lg: 0 12px 32px rgba(26,26,26,0.12), 0 4px 8px rgba(26,26,26,0.06);
+
+  --tabbar-height: 68px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --bg: #14110E;
+  --bg-card: #1F1B15;
+  --bg-elev: #2A251D;
+  --text: #F2EADB;
+  --text-soft: #D4CAB4;
+  --text-muted: #9A9485;
+  --line: #2F2921;
+  --accent: #E07A57;
+  --accent-ink: #14110E;
+  --brand: #4A9CAE;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow: 0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.6);
+}
+
+/* =========================================================
+   RESET & BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-bottom: calc(var(--tabbar-height) + var(--safe-bottom));
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; margin: 0; }
+h1 { font-size: clamp(28px, 7vw, 42px); }
+h2 { font-size: clamp(22px, 5.5vw, 30px); }
+h3 { font-size: 19px; }
+h4 { font-size: 16px; }
+p { margin: 0 0 12px; color: var(--text-soft); }
+small { color: var(--text-muted); }
+a { color: var(--accent); text-decoration: none; }
+button { font-family: inherit; border: none; cursor: pointer; background: none; color: inherit; }
+input, textarea, select { font-family: inherit; font-size: 16px; }
+
+/* =========================================================
+   LAYOUT — header + páginas + tabbar
+   ========================================================= */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: calc(14px + var(--safe-top)) 20px 14px;
+  background: var(--bg);  /* fallback opaco para navegadores sin color-mix */
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+@supports (background: color-mix(in srgb, red, blue)) {
+  .app-header {
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+  }
+}
+.app-header__title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+.app-header__actions { display: flex; gap: 4px; }
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text-soft);
+  transition: background var(--transition);
+}
+.icon-btn:hover, .icon-btn:active { background: var(--bg-elev); }
+.icon-btn svg { width: 20px; height: 20px; }
+
+.page { display: none; padding: 20px 20px 40px; max-width: 720px; margin: 0 auto; }
+.page.is-active { display: block; animation: fade-in 240ms ease; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Tabbar inferior */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  height: calc(var(--tabbar-height) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: var(--bg-card);  /* fallback opaco */
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+@supports (background: color-mix(in srgb, red, blue)) {
+  .tabbar {
+    background: color-mix(in srgb, var(--bg-card) 96%, transparent);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+  }
+}
+.tabbar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 8px 4px;
+  transition: color var(--transition);
+  position: relative;
+}
+.tabbar__item svg { width: 22px; height: 22px; }
+.tabbar__item.is-active { color: var(--accent); }
+.tabbar__item.is-active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--accent);
+}
+
+/* =========================================================
+   HOME
+   ========================================================= */
+.hero {
+  position: relative;
+  padding: 28px 22px 30px;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 85% 15%, rgba(230,162,60,0.22), transparent 55%),
+    linear-gradient(135deg, var(--c-teal) 0%, var(--c-teal-dark) 100%);
+  color: #F6EED9;
+  margin-bottom: 22px;
+  overflow: hidden;
+}
+.hero--with-image {
+  padding: 40px 22px 30px;
+  /* Mantiene el gradient base como fallback si la imagen no carga (404, red lenta) */
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.hero--with-image .hero__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+.hero--with-image .hero__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.75) 100%);
+}
+.hero--with-image > *:not(.hero__bg) {
+  position: relative;
+  z-index: 1;
+}
+.hero--with-image .hero__title,
+.hero--with-image .hero__subtitle,
+.hero--with-image .hero__meta {
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3CfeColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.90 0 0 0 0 0.80 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.55;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+.hero__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-gold);
+  margin-bottom: 14px;
+}
+.hero__title {
+  color: #FAF4E8;
+  font-size: clamp(28px, 7vw, 38px);
+  margin-bottom: 6px;
+}
+.hero__subtitle {
+  color: rgba(250,244,232,0.85);
+  font-size: 15px;
+  line-height: 1.45;
+  margin-bottom: 18px;
+}
+.hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  font-size: 13px;
+  color: rgba(250,244,232,0.75);
+}
+.hero__meta-item { display: flex; align-items: center; gap: 6px; }
+
+.today-card {
+  margin-bottom: 22px;
+  padding: 18px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+.today-card__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.today-card__title { font-size: 17px; font-weight: 600; font-family: var(--font-display); margin-bottom: 6px; }
+.today-card__summary { font-size: 14px; color: var(--text-soft); margin: 0 0 12px; }
+.today-card__link { font-size: 13px; font-weight: 700; color: var(--accent); }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 28px 0 14px;
+  letter-spacing: -0.01em;
+}
+.section-title--small { font-size: 18px; margin: 22px 0 10px; }
+
+.props-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 520px) { .props-grid { grid-template-columns: 1fr 1fr; } }
+
+.prop-card {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.prop-card:active { transform: scale(0.98); }
+.prop-card__icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  background: var(--bg-elev);
+  border-radius: 10px;
+}
+.prop-card__title { font-size: 14px; font-weight: 700; margin-bottom: 2px; font-family: var(--font-body); }
+.prop-card__text { font-size: 13px; color: var(--text-soft); line-height: 1.45; }
+
+/* Historia colapsable */
+.history {
+  padding: 18px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+}
+.history__summary { font-size: 14px; color: var(--text-soft); margin: 0 0 10px; }
+.history__toggle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.history__detail { display: none; margin-top: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+.history.is-open .history__detail { display: block; }
+.history.is-open .history__toggle .chev { transform: rotate(180deg); }
+.chev { transition: transform 220ms ease; display: inline-block; }
+.history__period { margin-bottom: 14px; }
+.history__period-range {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 700;
+}
+.history__period-title { font-size: 16px; font-weight: 700; font-family: var(--font-display); margin: 2px 0 6px; }
+.history__period-text { font-size: 13.5px; color: var(--text-soft); line-height: 1.55; }
+
+/* =========================================================
+   DÍAS — lista y detalle
+   ========================================================= */
+.days-list { display: flex; flex-direction: column; gap: 10px; }
+.day-card {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  text-align: left;
+  width: 100%;
+  transition: transform var(--transition), border-color var(--transition);
+}
+.day-card:active { transform: scale(0.985); border-color: var(--accent); }
+.day-card__num {
+  flex-shrink: 0;
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elev);
+  border-radius: 10px;
+  padding: 8px 4px;
+}
+.day-card__num-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; }
+.day-card__num-value { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; }
+.day-card__date { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 3px; }
+.day-card__title { font-family: var(--font-display); font-size: 16px; font-weight: 600; margin-bottom: 4px; line-height: 1.25; }
+.day-card__summary { font-size: 13px; color: var(--text-soft); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.day-card__progress { margin-top: 8px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
+.progress-bar { flex: 1; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress-bar__fill { height: 100%; background: var(--c-success); transition: width 300ms ease; }
+
+/* Detalle día */
+.day-detail__head {
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.day-detail__eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 4px; }
+.day-detail__title { font-family: var(--font-display); font-size: 26px; font-weight: 600; line-height: 1.15; margin-bottom: 12px; }
+.day-detail__logistics {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.day-detail__logistics-item { display: flex; align-items: center; gap: 5px; }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: var(--line);
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 14px 14px 16px;
+  transition: border-color var(--transition), opacity var(--transition);
+}
+.tl-item.is-done { opacity: 0.55; }
+.tl-item.is-done .tl-item__title { text-decoration: line-through; }
+.tl-item::before {
+  content: attr(data-icon);
+  position: absolute;
+  left: -33px;
+  top: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.tl-item__head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.tl-item__time {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+.tl-item__check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--bg);
+  transition: all var(--transition);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.tl-item__check:hover { border-color: var(--accent); }
+.tl-item.is-done .tl-item__check { background: var(--c-success); border-color: var(--c-success); }
+.tl-item.is-done .tl-item__check::after {
+  content: "✓";
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+}
+.tl-item__title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.tl-item__description { font-size: 13.5px; color: var(--text-soft); line-height: 1.5; }
+.tl-item__place {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 8px;
+}
+
+/* Ficha de lugar */
+.place-card {
+  background: var(--bg-elev);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-top: 14px;
+}
+.place-card__name { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.place-card__review { font-size: 13px; color: var(--text-soft); line-height: 1.55; margin-bottom: 10px; }
+.place-card__meta { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 12.5px; margin-bottom: 10px; }
+.place-card__meta-item { display: flex; gap: 6px; }
+.place-card__meta-label { color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
+.place-card__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  transition: transform var(--transition), background var(--transition);
+}
+.btn:active { transform: scale(0.96); }
+.btn--primary { background: var(--accent); color: var(--accent-ink); }
+.btn--ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.btn--sm { padding: 6px 12px; font-size: 12px; }
+.btn svg { width: 14px; height: 14px; }
+
+/* Restaurantes */
+.restaurants { margin-top: 20px; }
+.rest-card {
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+.rest-card__head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.rest-card__name { font-weight: 700; font-size: 14.5px; }
+.rest-card__price { font-family: var(--font-display); color: var(--accent); font-weight: 700; font-size: 14px; }
+.rest-card__spec { font-size: 13px; color: var(--text-soft); }
+.rest-card__meal { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; background: var(--bg-elev); padding: 2px 8px; border-radius: 999px; color: var(--text-muted); margin-top: 6px; }
+
+/* Planes alternativos */
+.alt-plans { margin-top: 20px; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--line); overflow: hidden; }
+.alt-plan { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.alt-plan:last-child { border-bottom: none; }
+.alt-plan__label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--accent); margin-bottom: 3px; }
+.alt-plan__text { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+
+/* Info complementaria */
+.info-block { margin-top: 20px; }
+.info-block__title { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.info-block__list { list-style: none; padding: 0; margin: 0; }
+.info-block__list li { font-size: 13px; color: var(--text-soft); padding: 6px 0; border-bottom: 1px dashed var(--line); line-height: 1.45; }
+.info-block__list li:last-child { border-bottom: none; }
+
+/* Notas del día */
+.day-notes { margin-top: 24px; background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+.day-notes__label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; }
+.day-notes__textarea {
+  width: 100%;
+  min-height: 80px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  resize: vertical;
+  outline: none;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   MAPA
+   ========================================================= */
+#map-container { position: relative; height: calc(100vh - var(--tabbar-height) - var(--safe-bottom) - 70px); margin: -20px -20px 0; }
+#map { height: 100%; width: 100%; }
+.map-legend {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  z-index: 500;
+  background: color-mix(in srgb, var(--bg-card) 95%, transparent);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--text-soft);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+}
+.leaflet-popup-content-wrapper { border-radius: var(--radius) !important; }
+.leaflet-popup-content { font-family: var(--font-body) !important; margin: 12px 14px !important; }
+.leaflet-popup-content strong { font-family: var(--font-display); font-size: 14px; }
+
+/* =========================================================
+   CONSEJOS
+   ========================================================= */
+.tip-group { margin-bottom: 16px; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--line); overflow: hidden; }
+.tip-group__head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  text-align: left;
+}
+.tip-group__head-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.tip-group__icon { font-size: 22px; }
+.tip-group__title { font-family: var(--font-display); font-size: 17px; font-weight: 600; }
+.tip-group__body { display: none; padding: 0 16px 12px; }
+.tip-group.is-open .tip-group__body { display: block; }
+.tip-group.is-open .chev { transform: rotate(180deg); }
+.tip-item { padding: 10px 0; border-top: 1px solid var(--line); }
+.tip-item__subtitle { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.tip-item__text { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+
+/* =========================================================
+   YO — checklist, notas, presupuesto, packing
+   ========================================================= */
+.me-tabs { display: flex; gap: 6px; margin-bottom: 18px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.me-tabs::-webkit-scrollbar { display: none; }
+.me-tab {
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1.5px solid var(--line);
+  white-space: nowrap;
+  transition: all var(--transition);
+}
+.me-tab.is-active { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+.me-pane { display: none; }
+.me-pane.is-active { display: block; }
+
+/* Stats globales */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; }
+.stat-card { padding: 14px 10px; background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); text-align: center; }
+.stat-card__value { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+.stat-card__label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+
+/* Presupuesto */
+.budget-summary { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+.budget-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.budget-row__label { font-size: 13px; color: var(--text-soft); }
+.budget-row__value { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+.budget-row--total { padding-top: 10px; border-top: 1px solid var(--line); }
+.budget-row--total .budget-row__value { font-size: 22px; color: var(--accent); }
+.budget-progress { height: 8px; background: var(--bg-elev); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+.budget-progress__fill { height: 100%; background: linear-gradient(90deg, var(--c-success), var(--c-gold)); transition: width 400ms ease; }
+.budget-progress__fill.is-over { background: linear-gradient(90deg, var(--c-gold), var(--c-danger)); }
+
+.expense-form {
+  display: grid;
+  grid-template-columns: 1fr 90px 110px auto;
+  gap: 6px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+}
+.expense-form input, .expense-form select {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  min-width: 0;
+}
+.expense-form button { background: var(--accent); color: var(--accent-ink); border-radius: 8px; font-weight: 700; padding: 8px 14px; font-size: 13px; }
+.expense-list { list-style: none; padding: 0; margin: 0; }
+.expense-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+}
+.expense-item__desc { font-size: 13.5px; }
+.expense-item__cat { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.expense-item__amount { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+.expense-item__del { color: var(--c-danger); font-size: 12px; font-weight: 700; margin-left: 6px; }
+
+/* Packing */
+.packing-group { margin-bottom: 16px; }
+.packing-group__title { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.packing-group__title::before { content: ""; width: 4px; height: 16px; background: var(--accent); border-radius: 2px; }
+.packing-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.packing-item.is-packed { opacity: 0.5; }
+.packing-item.is-packed .packing-item__text { text-decoration: line-through; }
+.packing-item__box {
+  width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--line);
+  display: grid; place-items: center; flex-shrink: 0; transition: all var(--transition);
+}
+.packing-item.is-packed .packing-item__box { background: var(--c-success); border-color: var(--c-success); }
+.packing-item.is-packed .packing-item__box::after { content: "✓"; color: white; font-size: 12px; font-weight: 700; }
+.packing-item__text { font-size: 14px; }
+
+/* Conversor */
+.tool-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+.tool-card__title { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+.tool-card__row { display: grid; grid-template-columns: 1fr 80px; gap: 8px; margin-bottom: 8px; }
+.tool-card input, .tool-card select { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); width: 100%; }
+.tool-card__result {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  text-align: right;
+}
+
+/* Weather */
+.weather-grid { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+.weather-grid::-webkit-scrollbar { display: none; }
+.weather-day {
+  flex: 0 0 90px;
+  padding: 12px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.weather-day__date { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 4px; }
+.weather-day__icon { font-size: 26px; margin: 4px 0; }
+.weather-day__temp { font-family: var(--font-display); font-size: 14px; font-weight: 700; }
+.weather-day__temp-min { color: var(--text-muted); font-weight: 400; }
+
+/* =========================================================
+   MODAL DE BÚSQUEDA
+   ========================================================= */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);  /* fallback opaco */
+  z-index: 100;
+  padding: calc(20px + var(--safe-top)) 20px 20px;
+  display: none;
+  overflow-y: auto;
+}
+@supports (background: color-mix(in srgb, red, blue)) {
+  .search-overlay {
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+.search-overlay.is-open { display: block; animation: fade-in 180ms ease; }
+.search-overlay__head { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; }
+.search-overlay__input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+}
+.search-overlay__input:focus { border-color: var(--accent); }
+.search-results { display: flex; flex-direction: column; gap: 6px; }
+.search-result {
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+.search-result:hover { border-color: var(--accent); }
+.search-result__type { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); font-weight: 700; }
+.search-result__title { font-weight: 700; font-size: 14px; margin: 2px 0; }
+.search-result__snippet { font-size: 12.5px; color: var(--text-soft); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* =========================================================
+   MISC
+   ========================================================= */
+.empty-state { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px; }
+.divider { height: 1px; background: var(--line); margin: 20px 0; border: none; }
+
+@media (min-width: 640px) {
+  .props-grid { grid-template-columns: 1fr 1fr 1fr; }
+  .expense-form { grid-template-columns: 2fr 1fr 1fr auto; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================================================
+     HEADER
+     ========================================================= -->
+<header class="app-header">
+  <div class="app-header__title" id="header-title">Guía de viaje</div>
+  <div class="app-header__actions">
+    <button class="icon-btn" id="btn-search" aria-label="Buscar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+    </button>
+    <button class="icon-btn" id="btn-theme" aria-label="Tema">
+      <svg id="icon-theme" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+    </button>
+  </div>
+</header>
+
+<!-- =========================================================
+     PÁGINAS
+     ========================================================= -->
+
+<!-- HOME -->
+<main class="page is-active" id="page-home"></main>
+
+<!-- DÍAS (lista) -->
+<main class="page" id="page-days"></main>
+
+<!-- DÍA DETALLE -->
+<main class="page" id="page-day"></main>
+
+<!-- MAPA -->
+<main class="page" id="page-map">
+  <h2 class="section-title" style="margin-top:0">Mapa del viaje</h2>
+  <div id="map-container">
+    <div id="map"></div>
+    <div class="map-legend">Toca un marcador para ver detalles. Los números indican el día de visita.</div>
+  </div>
+</main>
+
+<!-- CONSEJOS -->
+<main class="page" id="page-tips"></main>
+
+<!-- YO -->
+<main class="page" id="page-me"></main>
+
+<!-- =========================================================
+     SEARCH OVERLAY
+     ========================================================= -->
+<div class="search-overlay" id="search-overlay">
+  <div class="search-overlay__head">
+    <input class="search-overlay__input" id="search-input" placeholder="Buscar lugares, consejos, restaurantes…" autocomplete="off">
+    <button class="icon-btn" id="search-close" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+    </button>
+  </div>
+  <div class="search-results" id="search-results"></div>
+</div>
+
+<!-- =========================================================
+     TABBAR
+     ========================================================= -->
+<nav class="tabbar">
+  <button class="tabbar__item is-active" data-tab="home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    Inicio
+  </button>
+  <button class="tabbar__item" data-tab="days">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+    Días
+  </button>
+  <button class="tabbar__item" data-tab="map">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+    Mapa
+  </button>
+  <button class="tabbar__item" data-tab="tips">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.74V17h8v-2.26A7 7 0 0 0 12 2z"></path></svg>
+    Consejos
+  </button>
+  <button class="tabbar__item" data-tab="me">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    Yo
+  </button>
+</nav>
+
+<!-- =========================================================
+     DATOS DE LA GUÍA (JSON embebido)
+     ========================================================= -->
+<script type="application/json" id="guide-data">
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "Budapest: 4 días en la Perla del Danubio",
+    "subtitle": "Historia, termas y gastronomía húngara para dos",
+    "destination": {
+      "name": "Budapest",
+      "country": "Hungría",
+      "region": "Budapest"
+    },
+    "origin": {
+      "city": "Alicante",
+      "country": "España"
+    },
+    "dates": {
+      "start": "2026-06-06",
+      "end": "2026-06-09",
+      "days": 4
+    },
+    "travelers": {
+      "adults": 2,
+      "children": 0,
+      "children_ages": []
+    },
+    "budget": {
+      "level": "medio",
+      "total_estimated": 700,
+      "breakdown": {
+        "flights": 0,
+        "accommodation": 0,
+        "transport": 60,
+        "food": 300,
+        "activities": 200,
+        "shopping": 80,
+        "other": 60
+      }
+    },
+    "interests": [
+      "historia",
+      "arquitectura",
+      "gastronomía",
+      "termas",
+      "crucero"
+    ],
+    "transport": {
+      "to_destination": "avion",
+      "on_site": [
+        "metro",
+        "a_pie"
+      ]
+    },
+    "language": "es",
+    "currency": "EUR",
+    "cover_image": "cover.jpg",
+    "theme_color": "#1B6B93"
+  },
+  "intro": {
+    "narrative": "Budapest no es una ciudad: son dos. Buda, la colina aristocrática con su castillo medieval y sus miradores sobre el Danubio, y Pest, la llanura vibrante de bulevares imperiales, cafés centenarios y ruinbars. En 4 días intensos recorrerás ambas orillas del río más importante de Europa Central, te sumergirás en aguas termales a 38°C, navegarás bajo los puentes iluminados y descubrirás una gastronomía que va mucho más allá del gulash.",
+    "value_props": [
+      {
+        "icon": "🏛",
+        "title": "Arquitectura imperial",
+        "text": "Parlamento neogótico, Basílica de San Esteban, Ópera Estatal y el Bastión de los Pescadores con vistas panorámicas."
+      },
+      {
+        "icon": "♨️",
+        "title": "Termas milenarias",
+        "text": "Széchenyi, las termas más grandes de Europa: 18 piscinas en un palacio neobarroco de 1913."
+      },
+      {
+        "icon": "🍷",
+        "title": "Gastronomía auténtica",
+        "text": "Gulash, lángos, chicken paprikash, kürtőskalács y vinos Tokaji en locales donde comen los húngaros."
+      },
+      {
+        "icon": "🚢",
+        "title": "Crucero nocturno por el Danubio",
+        "text": "El Parlamento iluminado reflejado en el agua: una de las estampas más bellas de Europa."
+      },
+      {
+        "icon": "🕍",
+        "title": "Herencia judía",
+        "text": "La sinagoga más grande de Europa, el barrio judío y sus ruinbars únicos en el mundo."
+      },
+      {
+        "icon": "🚶",
+        "title": "Free tours con guías locales",
+        "text": "Dos recorridos gratuitos matutinos para conocer la historia y los secretos de Buda y Pest."
+      }
+    ],
+    "guide_features": [
+      "Itinerario día a día con horarios",
+      "Restaurantes auténticos locales (€-€€)",
+      "2 free tours reservados por las mañanas",
+      "Crucero nocturno por el Danubio",
+      "Plan alternativo a las termas",
+      "Lista de equipaje personalizada"
+    ]
+  },
+  "history": {
+    "title": "De Aquincum a la Perla del Danubio",
+    "summary": "Budapest nace de la unión en 1873 de tres ciudades: Buda, Óbuda y Pest. Su historia abarca desde campamentos romanos hasta el imperio austrohúngaro, pasando por la ocupación otomana que dejó las primeras termas y la herida del siglo XX bajo nazis y soviéticos.",
+    "periods": [
+      {
+        "range": "Siglo I-IV d.C.",
+        "title": "Aquincum romana",
+        "text": "Los romanos fundan Aquincum en la actual Óbuda. Llegan a tener 30.000 habitantes y ya aprovechan las aguas termales naturales de la zona."
+      },
+      {
+        "range": "1541-1686",
+        "title": "Ocupación otomana",
+        "text": "Los turcos gobiernan Buda durante 145 años. Construyen baños termales (Rudas, Király) que aún funcionan hoy, y mezquitas que luego se reconvierten en iglesias."
+      },
+      {
+        "range": "1867-1918",
+        "title": "Edad de Oro austrohúngara",
+        "text": "Budapest se convierte en cocapital del Imperio Austrohúngaro junto a Viena. Se construyen el Parlamento, la Ópera, la Basílica, los grandes bulevares y el metro continental más antiguo del mundo (línea M1, 1896)."
+      },
+      {
+        "range": "1944-1989",
+        "title": "Heridas del siglo XX",
+        "text": "La ocupación nazi arrasa el gueto judío. La dominación soviética (1945-1989) culmina con la revolución de 1956, brutalmente aplastada. El Telón de Acero cae en 1989 con la apertura de la frontera húngara con Austria."
+      },
+      {
+        "range": "1989-presente",
+        "title": "Renacimiento cultural",
+        "text": "Budapest se reinventa como destino cultural europeo. Las ruinbars del barrio judío, la restauración del Castillo y la escena gastronómica la sitúan como una de las capitales más vibrantes del continente."
+      }
+    ]
+  },
+  "overview_map": {
+    "center": {
+      "lat": 47.497,
+      "lng": 19.04
+    },
+    "zoom": 13,
+    "markers": [
+      {
+        "day": 1,
+        "name": "Airbnb (Rumbach Sebestyén u.)",
+        "coords": {
+          "lat": 47.4965,
+          "lng": 19.0597
+        }
+      },
+      {
+        "day": 1,
+        "name": "Gran Sinagoga Dohány",
+        "coords": {
+          "lat": 47.4955,
+          "lng": 19.0612
+        }
+      },
+      {
+        "day": 1,
+        "name": "Szimpla Kert",
+        "coords": {
+          "lat": 47.4972,
+          "lng": 19.0634
+        }
+      },
+      {
+        "day": 2,
+        "name": "Bastión de los Pescadores",
+        "coords": {
+          "lat": 47.502,
+          "lng": 19.0345
+        }
+      },
+      {
+        "day": 2,
+        "name": "Castillo de Buda",
+        "coords": {
+          "lat": 47.4961,
+          "lng": 19.0396
+        }
+      },
+      {
+        "day": 2,
+        "name": "Széchenyi Termas",
+        "coords": {
+          "lat": 47.5188,
+          "lng": 19.0823
+        }
+      },
+      {
+        "day": 3,
+        "name": "Parlamento",
+        "coords": {
+          "lat": 47.5073,
+          "lng": 19.0458
+        }
+      },
+      {
+        "day": 3,
+        "name": "Basílica de San Esteban",
+        "coords": {
+          "lat": 47.5009,
+          "lng": 19.0538
+        }
+      },
+      {
+        "day": 3,
+        "name": "Mercado Central",
+        "coords": {
+          "lat": 47.4873,
+          "lng": 19.059
+        }
+      },
+      {
+        "day": 4,
+        "name": "Colina Gellért",
+        "coords": {
+          "lat": 47.4863,
+          "lng": 19.0404
+        }
+      }
+    ]
+  },
+  "summary": [
+    {
+      "day": 1,
+      "date": "2026-06-06",
+      "weekday": "Sa",
+      "title": "Llegada, barrio judío y ruinbars",
+      "summary": "Vuelo desde Alicante, check-in en el Airbnb del barrio judío, Gran Sinagoga, paseo por el barrio, cena húngara y Szimpla Kert."
+    },
+    {
+      "day": 2,
+      "date": "2026-06-07",
+      "weekday": "Do",
+      "title": "Free Tour Buda, termas y crucero nocturno",
+      "summary": "Free Tour del Castillo de Buda por la mañana, Bastión de los Pescadores, Iglesia de Matías. Tarde en las Termas Széchenyi (o alternativa). Crucero nocturno por el Danubio."
+    },
+    {
+      "day": 3,
+      "date": "2026-06-08",
+      "weekday": "Lu",
+      "title": "Free Tour Pest, Parlamento y Mercado Central",
+      "summary": "Free Tour de Pest a las 9:00, visita guiada al Parlamento, Basílica de San Esteban, Ópera, avenida Andrássy y Mercado Central."
+    },
+    {
+      "day": 4,
+      "date": "2026-06-09",
+      "weekday": "Ma",
+      "title": "Gellért, compras y vuelta a casa",
+      "summary": "Subida a la Colina Gellért, paseo por Váci utca, almuerzo de despedida y traslado al aeropuerto."
+    }
+  ],
+  "days": [
+    {
+      "day": 1,
+      "date": "2026-06-06",
+      "title": "Llegada a Budapest y descubrimiento del barrio judío",
+      "hero_image": "",
+      "timeline": [
+        {
+          "time": "09:15",
+          "icon": "✈️",
+          "title": "Vuelo Alicante → Budapest",
+          "description": "Vuelo directo de ~3h. Aprovechad para descansar y repasar la guía.",
+          "type": "transport"
+        },
+        {
+          "time": "12:15",
+          "icon": "🛬",
+          "title": "Llegada al aeropuerto Budapest (BUD)",
+          "description": "Aeropuerto Ferenc Liszt. Recoged equipaje y tomad el bus 100E al centro (2.200 HUF/persona, ~30 min hasta Deák Ferenc tér).",
+          "type": "transport"
+        },
+        {
+          "time": "13:15",
+          "icon": "🏠",
+          "title": "Check-in en el Airbnb",
+          "description": "Rumbach Sebestyén utca 7, en pleno barrio judío (distrito VII). A 2 minutos de la Gran Sinagoga y de las ruinbars.",
+          "type": "checkin",
+          "place_id": "airbnb"
+        },
+        {
+          "time": "14:00",
+          "icon": "🍽",
+          "title": "Almuerzo en Frici Papa",
+          "description": "Kifőzde (cantina húngara) con gulash, chicken paprikash y platos del día por 2.000-3.500 HUF. Ambiente 100% local.",
+          "type": "meal"
+        },
+        {
+          "time": "15:30",
+          "icon": "🕍",
+          "title": "Gran Sinagoga de la calle Dohány",
+          "description": "La sinagoga más grande de Europa (3.000 asientos). Arquitectura morisco-bizantina de 1859. Incluye Museo Judío, cementerio del Holocausto y el Árbol de la Vida. Visita guiada incluida en la entrada (~13.000 HUF/persona).",
+          "type": "visit",
+          "place_id": "sinagoga",
+          "duration_min": 90
+        },
+        {
+          "time": "17:30",
+          "icon": "🚶",
+          "title": "Paseo por el barrio judío",
+          "description": "Calle Kazinczy, arte urbano, patios interiores con bares escondidos, la segunda sinagoga ortodoxa y las fachadas art nouveau del distrito VII.",
+          "type": "visit",
+          "duration_min": 60
+        },
+        {
+          "time": "19:00",
+          "icon": "🍽",
+          "title": "Cena en Kék Rózsa Étterem",
+          "description": "Restaurante húngaro auténtico junto a la Gran Sinagoga. Gulash, rakott krumpli (gratinado de patata) y estofado de ternera. Precios locales, menú en inglés disponible.",
+          "type": "meal"
+        },
+        {
+          "time": "21:00",
+          "icon": "🍻",
+          "title": "Szimpla Kert",
+          "description": "La ruinbar original y más famosa de Budapest, abierta desde 2002 en un edificio industrial abandonado. Cócteles, música en directo y decoración caótica. No os lo perdáis.",
+          "type": "activity",
+          "place_id": "szimpla"
+        }
+      ],
+      "places": [
+        {
+          "id": "airbnb",
+          "name": "Airbnb — Rumbach Sebestyén u. 7",
+          "coords": {
+            "lat": 47.4965,
+            "lng": 19.0597
+          },
+          "review": "Ubicación inmejorable en el corazón del barrio judío, a pasos de la Gran Sinagoga, las ruinbars y la parada de metro Astoria (M2). Zona muy animada por las noches.",
+          "tips": "Metro más cercano: Astoria (M2, línea roja). Deák Ferenc tér (M1/M2/M3) a 5 min andando."
+        },
+        {
+          "id": "sinagoga",
+          "name": "Gran Sinagoga de la calle Dohány",
+          "coords": {
+            "lat": 47.4955,
+            "lng": 19.0612
+          },
+          "review": "La mayor sinagoga de Europa y segunda del mundo. Construida entre 1854 y 1859 por Ludwig Förster en estilo morisco-bizantino. Su interior con 3.000 asientos, el órgano de 5.000 tubos y el Árbol de la Vida en el jardín memorial son sobrecogedores.",
+          "hours": "Jun: Dom-Jue 10:00-20:00, Vie 10:00-16:00. Cerrado sábados.",
+          "price": "~13.000 HUF (~€34). Incluye visita guiada y museo.",
+          "tips": "Vestimenta modesta: hombros y rodillas cubiertos. Los hombres reciben kipá en la entrada. Comprad entradas online con antelación para evitar colas.",
+          "gmaps_url": "https://maps.app.goo.gl/dohany"
+        },
+        {
+          "id": "szimpla",
+          "name": "Szimpla Kert",
+          "coords": {
+            "lat": 47.4972,
+            "lng": 19.0634
+          },
+          "review": "El primer y más emblemático ruin bar de Budapest. Abierto en 2002 en una antigua fábrica del barrio judío. Cada rincón tiene una decoración diferente: bañeras convertidas en asientos, coches colgantes, plantas trepadoras. Los domingos por la mañana hay mercado de productores.",
+          "hours": "Lun-Sáb 12:00-04:00, Dom 09:00-04:00",
+          "price": "Entrada gratuita. Cervezas ~1.000-1.500 HUF.",
+          "tips": "Id pronto (21:00-22:00) para encontrar sitio. A partir de medianoche se llena mucho.",
+          "gmaps_url": "https://maps.app.goo.gl/szimpla"
+        }
+      ],
+      "restaurants": [
+        {
+          "name": "Frici Papa Kifőzdéje",
+          "meal": "almuerzo",
+          "speciality": "Kifőzde (cantina) tradicional: gulash, chicken paprikash, menú del día",
+          "price_range": "€",
+          "reservation_required": false,
+          "coords": {
+            "lat": 47.4998,
+            "lng": 19.0622
+          },
+          "notes": "Calle Király utca. Solo efectivo. Menú del día (napi menü) completo desde 2.000 HUF."
+        },
+        {
+          "name": "Kék Rózsa Étterem",
+          "meal": "cena",
+          "speciality": "Cocina húngara casera: gulash, rakott krumpli, estofado de ternera en vino tinto",
+          "price_range": "€€",
+          "reservation_required": true,
+          "coords": {
+            "lat": 47.496,
+            "lng": 19.0595
+          },
+          "notes": "Wesselényi utca, junto a la Gran Sinagoga. Menú en inglés. Abierto hasta 20:00, id pronto."
+        }
+      ],
+      "alternative_plans": {
+        "more_time": "Añadid el Hospital de la Roca (Sziklakórház), hospital militar secreto excavado bajo el Castillo de Buda, o la segunda sinagoga ortodoxa en Kazinczy utca.",
+        "less_time": "Saltad la visita interior de la sinagoga y dedicad ese tiempo a explorar los patios y ruinbars del barrio judío."
+      },
+      "logistics": {
+        "driving_km": 0,
+        "driving_time_min": 0,
+        "walking_km": 4,
+        "walking_time_min": 90
+      },
+      "info": {
+        "travel_tips": [
+          "Bus 100E: billete especial de 2.200 HUF (no vale el abono normal). Comprad en la máquina del aeropuerto.",
+          "Cambio de moneda: evitad las casetas del aeropuerto. Usad cajeros automáticos (ATM) con tarjeta para mejor tipo de cambio. 1 EUR ≈ 395-400 HUF.",
+          "El florín húngaro (HUF) es la moneda oficial. Algunos sitios aceptan euros pero con mal cambio.",
+          "Budapest es muy segura para turistas. Precaución normal con carteristas en metro y zonas turísticas."
+        ],
+        "access": [
+          "Aeropuerto → Centro: Bus 100E hasta Deák Ferenc tér (~30 min, 2.200 HUF). Taxi/Bolt: ~10.000 HUF.",
+          "Metro: 4 líneas. M1 (amarilla, la más antigua de Europa continental) conecta centro con Széchenyi.",
+          "Tranvía 2: recorre la orilla de Pest junto al Danubio, con vistas al Castillo y Parlamento."
+        ],
+        "facts": [
+          "Propinas: 10-15% en restaurantes. No dejéis monedas sueltas, es mejor decir el total al pagar.",
+          "Temperatura junio: 16-27°C. Posibilidad de chaparrones (llevad chubasquero ligero).",
+          "Budapest tiene más de 120 manantiales termales y es la única capital del mundo con termas naturales.",
+          "El Puente de las Cadenas (Széchenyi Lánchíd) fue el primer puente permanente entre Buda y Pest (1849)."
+        ]
+      }
+    },
+    {
+      "day": 2,
+      "date": "2026-06-07",
+      "title": "Free Tour Buda, termas Széchenyi y crucero nocturno",
+      "hero_image": "",
+      "timeline": [
+        {
+          "time": "08:00",
+          "icon": "🥐",
+          "title": "Desayuno en el Airbnb o café cercano",
+          "description": "Opciones en el barrio: My Little Melbourne (café australiano en Madách tér) o Cirkusz Café.",
+          "type": "meal"
+        },
+        {
+          "time": "09:00",
+          "icon": "🚶",
+          "title": "Free Tour del Castillo de Buda",
+          "description": "Punto de encuentro: Batthyány tér (lado Buda, junto al metro M2). Tour de ~2.5h por el distrito del Castillo, Bastión de los Pescadores, Iglesia de Matías y Palacio Real. Guías con licencia de TripToBudapest.hu. Propina recomendada: 10-15€/persona.",
+          "type": "activity",
+          "place_id": "bastion",
+          "duration_min": 150
+        },
+        {
+          "time": "12:00",
+          "icon": "🍽",
+          "title": "Almuerzo en el Castillo",
+          "description": "Fortuna Önkiszolgáló Étterem: cantina de autoservicio para trabajadores locales en la colina de Buda. Comida casera húngara a precios de risa.",
+          "type": "meal"
+        },
+        {
+          "time": "13:30",
+          "icon": "🏛",
+          "title": "Galería Nacional o paseo libre por Buda",
+          "description": "Opcional: Galería Nacional Húngara (en el Palacio Real, gratuita). Alternativa: bajad por las escaleras del Castillo hasta el Danubio y cruzad el Puente de las Cadenas.",
+          "type": "free",
+          "duration_min": 90
+        },
+        {
+          "time": "15:30",
+          "icon": "♨️",
+          "title": "Termas Széchenyi",
+          "description": "Las termas medicinales más grandes de Europa. 18 piscinas (3 exteriores + 15 interiores) en un palacio neobarroco de 1913. Abierto 7:00-20:00 entre semana. Llevad bañador, chanclas y toalla. Entrada con taquilla: ~13.200 HUF entre semana, ~14.800 HUF fin de semana. Metro M1 hasta Széchenyi fürdő.",
+          "type": "activity",
+          "place_id": "szechenyi",
+          "duration_min": 150
+        },
+        {
+          "time": "18:30",
+          "icon": "🍽",
+          "title": "Cena temprana en Bors GasztroBar",
+          "description": "Baguettes gourmet, sopas cremativas y cócteles. Pequeño, sin reserva, cola rápida. Kazinczy utca.",
+          "type": "meal"
+        },
+        {
+          "time": "21:00",
+          "icon": "🚢",
+          "title": "Crucero nocturno por el Danubio",
+          "description": "Crucero de ~70 min con audioguía y bebida de bienvenida. El Parlamento, el Castillo, el Bastión y los puentes iluminados reflejados en el agua. Embarcadero junto al Puente Isabel (Pest). Desde ~€14/persona. Reservad online con antelación (junio es temporada alta).",
+          "type": "activity",
+          "place_id": "crucero",
+          "duration_min": 70
+        }
+      ],
+      "places": [
+        {
+          "id": "bastion",
+          "name": "Bastión de los Pescadores (Halászbástya)",
+          "coords": {
+            "lat": 47.502,
+            "lng": 19.0345
+          },
+          "review": "Terraza neorromántica construida entre 1895-1902 con 7 torres que representan las 7 tribus magiares fundadoras. Ofrece la panorámica más espectacular de Budapest: el Parlamento, el Danubio y toda Pest a vuestros pies. Junto a la Iglesia de Matías (siglo XIII, reconstruida en estilo neogótico).",
+          "hours": "Acceso libre 24h. Terraza superior de pago (1.200 HUF) en temporada alta, pero el nivel inferior es gratuito y tiene las mismas vistas.",
+          "price": "Nivel inferior gratuito. Terraza superior: 1.200 HUF.",
+          "tips": "Amanecer o atardecer para las mejores fotos. Id temprano si queréis evitar grupos."
+        },
+        {
+          "id": "szechenyi",
+          "name": "Termas Széchenyi",
+          "coords": {
+            "lat": 47.5188,
+            "lng": 19.0823
+          },
+          "review": "Inauguradas en 1913, alimentadas por dos manantiales a 74°C y 77°C. El edificio neobarroco amarillo es icónico. Las piscinas exteriores humeantes son la estampa clásica de Budapest. Los locales juegan al ajedrez flotante en el agua caliente. Experiencia imprescindible.",
+          "hours": "Lun-Jue 7:00-20:00, Vie-Dom 8:00-20:00. Sábados: fiesta Sparty nocturna (21:30-02:00).",
+          "price": "Entrada con taquilla: ~13.200 HUF (L-J) / ~14.800 HUF (V-D). Online con skip-the-line: ~€36-45.",
+          "tips": "Llevad bañador, chanclas obligatorias y toalla propia (no alquilan). Gorro de natación solo para piscina de nado, no para las termales. Metro M1 (amarilla) hasta Széchenyi fürdő, la parada está en la puerta.",
+          "gmaps_url": "https://maps.app.goo.gl/szechenyi"
+        },
+        {
+          "id": "crucero",
+          "name": "Crucero nocturno por el Danubio",
+          "coords": {
+            "lat": 47.4901,
+            "lng": 19.0511
+          },
+          "review": "Crucero de 60-70 min por el tramo central del Danubio. El Parlamento, el Castillo, la Ciudadela y los puentes iluminados se reflejan en el agua. Varias compañías operan desde los embarcaderos de Pest (zona del Puente Isabel/Marriott). Incluyen bebida de bienvenida y audioguía.",
+          "hours": "Salidas nocturnas cada hora aprox. desde las 19:00. En junio anochece ~21:00, idealmente salid a las 21:00-21:30.",
+          "price": "Desde ~€14 (sightseeing básico) hasta ~€35 (prosecco ilimitado). Cruceros con cena: ~€50-80.",
+          "tips": "Reservad online con 2-3 días de antelación. Sentaos en la cubierta superior para mejores fotos. Llevad algo de abrigo ligero: sobre el agua refresca."
+        }
+      ],
+      "restaurants": [
+        {
+          "name": "Fortuna Önkiszolgáló Étterem",
+          "meal": "almuerzo",
+          "speciality": "Cantina de autoservicio en el Castillo de Buda. Platos húngaros caseros a precios locales.",
+          "price_range": "€",
+          "reservation_required": false,
+          "notes": "Puede no tener menú en inglés. Usad Google Translate con cámara."
+        },
+        {
+          "name": "Bors GasztroBar",
+          "meal": "cena",
+          "speciality": "Baguettes gourmet y sopas creativas. Pequeño y popular.",
+          "price_range": "€",
+          "reservation_required": false,
+          "coords": {
+            "lat": 47.4973,
+            "lng": 19.0619
+          },
+          "notes": "Kazinczy utca 10. Cola rápida, merece la pena. Solo para llevar/en pie."
+        }
+      ],
+      "alternative_plans": {
+        "more_time": "Visitad el Laberinto del Castillo de Buda (cuevas bajo la colina) o la Galería Nacional Húngara.",
+        "less_time": "Saltad la Galería Nacional y id directos del free tour a las termas.",
+        "rainy_day": "Las termas son ideales con lluvia: las piscinas interiores son espectaculares.",
+        "with_kids": "El Zoo de Budapest está junto a las termas Széchenyi, en el Parque de la Ciudad."
+      },
+      "logistics": {
+        "driving_km": 0,
+        "driving_time_min": 0,
+        "walking_km": 8,
+        "walking_time_min": 180
+      },
+      "info": {
+        "travel_tips": [
+          "Plan alternativo a las termas: si preferís no ir, subid a la Colina Gellért (vistas espectaculares), visitad el Mercado de Fény utca (mercado local, no turístico) en Buda, o explorad la isla Margarita (parque de 2.5 km en medio del Danubio, ideal para pasear).",
+          "Gellért Baths está cerrado por renovación hasta 2028. Alternativa termal: Rudas Bath (piscina en la azotea con vistas al Danubio).",
+          "El Free Tour es gratuito pero se basa en propinas. 10-15€ por persona es lo habitual.",
+          "Comprad entradas del crucero online: en junio se agotan."
+        ],
+        "access": [
+          "Metro M2 hasta Batthyány tér para el Free Tour de Buda.",
+          "Metro M1 (amarilla) hasta Széchenyi fürdő para las termas.",
+          "Crucero: embarcaderos en Jane Haining rkp. 7 (junto al Puente Isabel, lado Pest)."
+        ],
+        "facts": [
+          "En junio anochece en Budapest sobre las 21:00. El crucero es más espectacular a partir de las 21:30.",
+          "Las termas Széchenyi se alimentan de manantiales a 74°C y 77°C.",
+          "El Bastión de los Pescadores nunca tuvo función defensiva real: es una terraza decorativa de 1902."
+        ]
+      }
+    },
+    {
+      "day": 3,
+      "date": "2026-06-08",
+      "title": "Free Tour Pest, Parlamento, Basílica y Mercado Central",
+      "hero_image": "",
+      "timeline": [
+        {
+          "time": "08:00",
+          "icon": "🥐",
+          "title": "Desayuno",
+          "description": "Cirkusz Café (Dob utca 23): tortitas, huevos y café especial. Ambiente acogedor.",
+          "type": "meal"
+        },
+        {
+          "time": "09:00",
+          "icon": "🚶",
+          "title": "Free Tour de Pest (centro y monumentos)",
+          "description": "Punto de encuentro: Erzsébet tér (junto a la noria Budapest Eye y la Fuente Danubius). Tour de ~2h por el Parlamento (exterior), Puente de las Cadenas, Basílica de San Esteban, Plaza de la Libertad y la historia del siglo XX húngaro. Guías de TripToBudapest.hu. Propina: 10-15€/persona.",
+          "type": "activity",
+          "duration_min": 120
+        },
+        {
+          "time": "11:30",
+          "icon": "🏛",
+          "title": "Visita guiada al Parlamento",
+          "description": "Tour oficial de 45 min por el interior: Gran Escalinata, Sala de la Cúpula con la Santa Corona, Sala de Sesiones. Ciudadanos EEE: 7.000 HUF/persona. Reservad online en jegymester.hu/parlament con semanas de antelación (se agotan).",
+          "type": "visit",
+          "place_id": "parlamento",
+          "duration_min": 60
+        },
+        {
+          "time": "13:00",
+          "icon": "🍽",
+          "title": "Almuerzo en Kádár Étkezde",
+          "description": "Leyenda de la cocina judío-húngara en Klauzál tér. Reabierto en 2025 tras 4 años cerrado. Sólet (cholent), ganso asado, repollo relleno. Solo mediodía (11:30-15:30), cerrado sábado y domingo.",
+          "type": "meal"
+        },
+        {
+          "time": "14:30",
+          "icon": "⛪",
+          "title": "Basílica de San Esteban",
+          "description": "La iglesia más grande de Budapest con la reliquia de la Mano Derecha de San Esteban. Subid a la cúpula (mirador a 65 m) para vistas 360° de la ciudad.",
+          "type": "visit",
+          "place_id": "basilica",
+          "duration_min": 60
+        },
+        {
+          "time": "16:00",
+          "icon": "🎭",
+          "title": "Ópera Estatal y avenida Andrássy",
+          "description": "La avenida Andrássy es el Campos Elíseos de Budapest (Patrimonio UNESCO). Pasead hasta la Plaza de los Héroes, pasando por la Ópera neorrenacentista (fachada) y las tiendas de lujo.",
+          "type": "visit",
+          "duration_min": 60
+        },
+        {
+          "time": "17:30",
+          "icon": "🏪",
+          "title": "Mercado Central (Nagy Vásárcsarnok)",
+          "description": "El mercado cubierto más grande de Budapest (1897). Planta baja: frutas, embutidos, foie, pimentón. Planta alta: puestos de lángos, gulash y souvenirs. Cerrado domingos.",
+          "type": "visit",
+          "place_id": "mercado",
+          "duration_min": 60
+        },
+        {
+          "time": "19:00",
+          "icon": "🍽",
+          "title": "Cena en Rosenstein",
+          "description": "Restaurante familiar con décadas de tradición en cocina judío-húngara. Reserva obligatoria. Junto a la Estación Keleti.",
+          "type": "meal"
+        },
+        {
+          "time": "21:00",
+          "icon": "🍻",
+          "title": "Ruinbars del barrio judío",
+          "description": "Explorad Instant-Fogas (la más grande), Élesztő (cerveza artesanal) o repetid Szimpla Kert.",
+          "type": "free"
+        }
+      ],
+      "places": [
+        {
+          "id": "parlamento",
+          "name": "Parlamento de Budapest",
+          "coords": {
+            "lat": 47.5073,
+            "lng": 19.0458
+          },
+          "review": "Tercer parlamento más grande del mundo. Construido entre 1885 y 1904 en estilo neogótico ecléctico por Imre Steindl. 691 salas, 96 metros de cúpula (el número 96 alude al año de la fundación del estado húngaro). Alberga la Santa Corona de Hungría y las Joyas de la Coronación en la Sala de la Cúpula.",
+          "hours": "Abr-Oct: L-D 8:00-18:00. Nov-Mar: 8:00-16:00.",
+          "price": "Ciudadanos EEE: 7.000 HUF (~€18). No-EEE: 14.000 HUF (~€36). Estudiantes 6-24: mitad.",
+          "tips": "Reservad online en jegymester.hu/parlament con 2-3 semanas de antelación. Se agotan en temporada alta. Control de seguridad tipo aeropuerto: no llevéis mochilas grandes. Tours en español disponibles.",
+          "gmaps_url": "https://maps.app.goo.gl/parliament"
+        },
+        {
+          "id": "basilica",
+          "name": "Basílica de San Esteban",
+          "coords": {
+            "lat": 47.5009,
+            "lng": 19.0538
+          },
+          "review": "La iglesia más grande de Budapest (capacidad: 8.500 personas), consagrada en 1905. Su cúpula alcanza 96 metros (como el Parlamento). Conserva la Santa Diestra (Szent Jobb), la mano momificada de San Esteban I, fundador del Estado húngaro.",
+          "hours": "Lun-Sáb 9:00-17:00, Dom 13:00-17:00. Mirador de la cúpula hasta 18:00.",
+          "price": "Entrada sugerida: 600 HUF. Cúpula: 2.000 HUF (ascensor + escaleras).",
+          "tips": "Subid a la cúpula para las mejores vistas 360° de Budapest. Hay ascensor parcial."
+        },
+        {
+          "id": "mercado",
+          "name": "Mercado Central (Nagy Vásárcsarnok)",
+          "coords": {
+            "lat": 47.4873,
+            "lng": 19.059
+          },
+          "review": "El mayor y más bonito mercado cubierto de Budapest, inaugurado en 1897. Estructura de hierro con tejado de cerámica Zsolnay. Planta baja con productos frescos, embutidos de mangalica, foie gras húngaro, pimentón (paprika) y vinos Tokaji. Planta alta con puestos de comida caliente.",
+          "hours": "Lun 6:00-17:00, Mar-Vie 6:00-18:00, Sáb 6:00-15:00. Cerrado domingos.",
+          "price": "Entrada libre.",
+          "tips": "Probad los lángos en la planta alta (con nata agria y queso). Comprad pimentón de Szeged como souvenir. Mejor ir de mañana para evitar aglomeraciones.",
+          "gmaps_url": "https://maps.app.goo.gl/mercado"
+        }
+      ],
+      "restaurants": [
+        {
+          "name": "Kádár Étkezde",
+          "meal": "almuerzo",
+          "speciality": "Cocina judío-húngara legendaria: sólet, ganso asado, repollo relleno. Solo mediodía.",
+          "price_range": "€",
+          "reservation_required": false,
+          "coords": {
+            "lat": 47.4981,
+            "lng": 19.0643
+          },
+          "notes": "Klauzál tér 9. Cerrado sáb-dom. Llegad antes de las 12:30 o haréis cola. Solo efectivo. Mesas compartidas."
+        },
+        {
+          "name": "Rosenstein",
+          "meal": "cena",
+          "speciality": "Cocina judío-húngara familiar desde hace décadas. Platos tradicionales con toque moderno.",
+          "price_range": "€€",
+          "reservation_required": true,
+          "coords": {
+            "lat": 47.5001,
+            "lng": 19.0785
+          },
+          "notes": "Mosonyi utca 3, junto a Keleti. Reservad por su web."
+        }
+      ],
+      "alternative_plans": {
+        "more_time": "Visitad la Casa del Terror (Andrássy út 60): museo de los regímenes totalitarios nazi y soviético en Budapest. Muy impactante.",
+        "less_time": "Saltad la Ópera/Andrássy y dedicad ese tiempo al Mercado Central con calma.",
+        "rainy_day": "El Parlamento, la Basílica y el Mercado Central son todos interiores. Día perfecto para lluvia."
+      },
+      "logistics": {
+        "driving_km": 0,
+        "driving_time_min": 0,
+        "walking_km": 10,
+        "walking_time_min": 210
+      },
+      "info": {
+        "travel_tips": [
+          "Kádár Étkezde cierra sábado y domingo. Este día es lunes, así que perfecto.",
+          "El Parlamento se agota semanas antes: reservad ya.",
+          "El tranvía 2 recorre toda la orilla de Pest: ideal para volver del Mercado al centro.",
+          "La línea M1 del metro (amarilla) es de 1896, la más antigua de Europa continental. Merece un vistazo."
+        ],
+        "access": [
+          "Parlamento: metro M2 hasta Kossuth Lajos tér.",
+          "Basílica: metro M1/M2/M3 hasta Deák Ferenc tér, 5 min andando.",
+          "Mercado Central: tranvía 2 o 47/49 hasta Fővám tér."
+        ],
+        "facts": [
+          "El Parlamento usó 40 millones de ladrillos, 500.000 piedras preciosas y 40 kg de oro en su construcción.",
+          "La Santa Corona húngara tiene más de 1.000 años y su cruz torcida es un misterio histórico.",
+          "El pimentón (paprika) llegó a Hungría con los turcos otomanos en el siglo XVI."
+        ]
+      }
+    },
+    {
+      "day": 4,
+      "date": "2026-06-09",
+      "title": "Colina Gellért, compras y vuelta a casa",
+      "hero_image": "",
+      "timeline": [
+        {
+          "time": "08:00",
+          "icon": "🥐",
+          "title": "Desayuno de despedida",
+          "description": "Café New York (Boscolo): el café más bonito del mundo (desde 1894). Un capuccino en el salón dorado como experiencia. Precios altos pero merece la visita.",
+          "type": "meal"
+        },
+        {
+          "time": "09:30",
+          "icon": "⛰️",
+          "title": "Subida a la Colina Gellért",
+          "description": "Ascenso a pie (~20 min) hasta la Ciudadela y la Estatua de la Libertad. Vistas panorámicas de todo Budapest: ambas orillas, el Parlamento, el Castillo y la isla Margarita. Parada en la Iglesia de la Cueva (Szent Gellért sziklatemplom), una capilla excavada en la roca.",
+          "type": "visit",
+          "place_id": "gellert",
+          "duration_min": 90
+        },
+        {
+          "time": "11:30",
+          "icon": "🛍",
+          "title": "Compras en Váci utca y alrededores",
+          "description": "Calle peatonal principal de Pest. Tiendas de souvenirs, pimentón de Szeged, cerámica Herend, vinos Tokaji, salami Pick. Para algo más auténtico: tiendas en Falk Miksa utca (antigüedades) o BioTechUSA (vitaminas húngaras muy populares).",
+          "type": "free",
+          "duration_min": 60
+        },
+        {
+          "time": "13:00",
+          "icon": "🍽",
+          "title": "Almuerzo de despedida",
+          "description": "Retro Lángos Büfé (junto a Arany János utca, metro M3): el mejor lángos de Budapest. Masa frita con nata agria, queso y ajo. Un clásico imprescindible antes de iros.",
+          "type": "meal"
+        },
+        {
+          "time": "14:00",
+          "icon": "🏠",
+          "title": "Recogida de equipaje y checkout",
+          "description": "Volved al Airbnb, recoged las maletas y dirigíos al aeropuerto.",
+          "type": "checkout"
+        },
+        {
+          "time": "14:30",
+          "icon": "🚌",
+          "title": "Traslado al aeropuerto",
+          "description": "Bus 100E desde Deák Ferenc tér (~30 min). Alternativa: Bolt/taxi (~10.000 HUF). Llegad al aeropuerto 2h antes del vuelo.",
+          "type": "transport"
+        },
+        {
+          "time": "16:40",
+          "icon": "✈️",
+          "title": "Vuelo Budapest → Alicante",
+          "description": "Despedida de Budapest. Llegada a Alicante a las 19:50.",
+          "type": "transport"
+        }
+      ],
+      "places": [
+        {
+          "id": "gellert",
+          "name": "Colina Gellért y Ciudadela",
+          "coords": {
+            "lat": 47.4863,
+            "lng": 19.0404
+          },
+          "review": "La colina de 235 m ofrece la mejor panorámica de Budapest. La Ciudadela fue construida por los Habsburgo en 1854 como punto de vigilancia. La Estatua de la Libertad (1947, 14 m) en la cima es visible desde toda la ciudad. A media ladera, la Iglesia de la Cueva (Sziklatemplom) es una capilla paulina excavada en la roca, cerrada por los comunistas en 1951 y reabierta en 1989.",
+          "hours": "Acceso libre 24h a la colina. Iglesia de la Cueva: Lun-Sáb 9:30-19:30.",
+          "price": "Colina y vistas: gratuito. Iglesia de la Cueva: 800 HUF.",
+          "tips": "Subid por las escaleras desde el Puente de la Libertad (Szabadság híd). Bajad por el otro lado hacia el Puente Isabel para un recorrido circular.",
+          "gmaps_url": "https://maps.app.goo.gl/gellert"
+        }
+      ],
+      "restaurants": [
+        {
+          "name": "Café New York (Boscolo)",
+          "meal": "desayuno",
+          "speciality": "El café más bonito del mundo: salón neobarroco de 1894 con frescos, columnas y pan de oro",
+          "price_range": "€€€",
+          "reservation_required": false,
+          "notes": "Erzsébet krt. 9-11. Un capuccino ≈ 3.500 HUF. Merece la visita al menos una vez para ver el salón."
+        },
+        {
+          "name": "Retro Lángos Büfé",
+          "meal": "almuerzo",
+          "speciality": "Los mejores lángos de Budapest: masa frita con nata agria, queso y ajo",
+          "price_range": "€",
+          "reservation_required": false,
+          "coords": {
+            "lat": 47.5002,
+            "lng": 19.0522
+          },
+          "notes": "Junto a la parada de metro Arany János utca (M3). Solo para llevar."
+        }
+      ],
+      "alternative_plans": {
+        "more_time": "Si os queda tiempo, visitad la isla Margarita: 2.5 km de parque en medio del Danubio, ideal para un paseo matutino.",
+        "less_time": "Saltad Váci utca y dedicad el tiempo a la Colina Gellért, que merece más."
+      },
+      "logistics": {
+        "driving_km": 0,
+        "driving_time_min": 0,
+        "walking_km": 6,
+        "walking_time_min": 120
+      },
+      "info": {
+        "travel_tips": [
+          "Café New York es caro pero la experiencia visual lo vale. Un café y ya está.",
+          "El bus 100E tarda ~30 min. Salid con margen: 2h antes del vuelo en el aeropuerto.",
+          "Para souvenirs auténticos: pimentón de Szeged, pasta de foie, vino Tokaji (5 puttonyos), salami Pick."
+        ],
+        "access": [
+          "Colina Gellért: tranvía 19, 41 o 47/49 hasta el Puente de la Libertad. Subida a pie 20 min.",
+          "Bus 100E al aeropuerto desde Deák Ferenc tér. Billete: 2.200 HUF en máquina."
+        ],
+        "facts": [
+          "San Gerardo (Gellért) fue un obispo veneciano que los paganos arrojaron desde esta colina metido en un barril con clavos (1046).",
+          "La Ciudadela nunca disparó un solo tiro contra Budapest: fue un instrumento de intimidación habsburga.",
+          "La Iglesia de la Cueva fue tapiada con hormigón por el régimen comunista en 1951."
+        ]
+      }
+    }
+  ],
+  "practical_tips": [
+    {
+      "icon": "🚇",
+      "title": "Transporte en Budapest",
+      "items": [
+        {
+          "subtitle": "Metro y tranvías",
+          "text": "4 líneas de metro + red extensa de tranvías. Billete sencillo: 450 HUF. Abono 72h: 5.500 HUF (ilimitado). Validar siempre al entrar."
+        },
+        {
+          "subtitle": "Bus 100E al aeropuerto",
+          "text": "Billete especial de 2.200 HUF (no vale el abono normal). Sale de Deák Ferenc tér cada 20-30 min. Trayecto: ~30 min."
+        },
+        {
+          "subtitle": "Bolt (el Uber húngaro)",
+          "text": "App más usada para taxis. Precios claros y sin sorpresas. Ideal para trayectos nocturnos o al aeropuerto si vais cargados."
+        },
+        {
+          "subtitle": "A pie",
+          "text": "Budapest se recorre genial andando. El centro de Pest es compacto y plano. Para cruzar a Buda: Puente de las Cadenas o Puente Isabel."
+        }
+      ]
+    },
+    {
+      "icon": "💰",
+      "title": "Dinero y precios",
+      "items": [
+        {
+          "subtitle": "Moneda",
+          "text": "Florín húngaro (HUF). 1 EUR ≈ 395-400 HUF (junio 2026, verificar). Algunos sitios turísticos aceptan euros pero con tipo de cambio desfavorable."
+        },
+        {
+          "subtitle": "Pago con tarjeta",
+          "text": "Muy extendido en restaurantes y tiendas. Las cantinas (étkezde/kifőzde) y puestos de mercado suelen ser solo efectivo."
+        },
+        {
+          "subtitle": "Cajeros ATM",
+          "text": "Abundantes. Sacad HUF con tarjeta de débito para mejor cambio. Evitad las casas de cambio del aeropuerto y Váci utca."
+        },
+        {
+          "subtitle": "Propinas",
+          "text": "10-15% en restaurantes (no dejéis monedas sueltas en la mesa, decid el total al pagar). Free tours: 10-15€/persona."
+        }
+      ]
+    },
+    {
+      "icon": "🍽",
+      "title": "Gastronomía húngara",
+      "items": [
+        {
+          "subtitle": "Platos imprescindibles",
+          "text": "Gulash (guiso de ternera con pimentón), chicken paprikash (pollo en salsa de pimentón), lángos (masa frita con nata y queso), kürtőskalács (pastel de chimenea), töltött káposzta (repollo relleno)."
+        },
+        {
+          "subtitle": "Napi menü (menú del día)",
+          "text": "Los restaurantes locales ofrecen un menú de 2 platos (sopa + principal) por 2.000-3.500 HUF (~€5-9). Buscad pizarras en la puerta."
+        },
+        {
+          "subtitle": "Horarios",
+          "text": "Almuerzo 12:00-14:30, cena 18:00-21:30. Las cantinas cierran temprano (15:00-16:00). Los húngaros cenan relativamente pronto."
+        },
+        {
+          "subtitle": "Cafés históricos",
+          "text": "Budapest tiene cafés centenarios espectaculares: Café New York, Café Gerbeaud, Central Kávéház. Un capuccino cuesta 1.200-3.500 HUF."
+        }
+      ]
+    },
+    {
+      "icon": "♨️",
+      "title": "Termas: lo que debéis saber",
+      "items": [
+        {
+          "subtitle": "Qué llevar",
+          "text": "Bañador obligatorio. Chanclas/zapatillas de agua obligatorias. Toalla propia (no alquilan). Gorro de natación solo para piscina de nado."
+        },
+        {
+          "subtitle": "Entradas",
+          "text": "Széchenyi: ~€36-45 online con skip-the-line. Taquilla: más barato pero con colas de 30-45 min en verano."
+        },
+        {
+          "subtitle": "Horario ideal",
+          "text": "Llegad temprano (7:00-9:00) entre semana para evitar masas. Las tardes de fin de semana son las más concurridas."
+        },
+        {
+          "subtitle": "Plan alternativo sin termas",
+          "text": "Isla Margarita (parque de 2.5 km), Colina Gellért o mercado de Fény utca en Buda."
+        }
+      ]
+    },
+    {
+      "icon": "📱",
+      "title": "Apps y conectividad",
+      "items": [
+        {
+          "subtitle": "Google Maps Offline",
+          "text": "Descargad el mapa de Budapest antes de salir. Cobertura de datos puede fallar en el metro."
+        },
+        {
+          "subtitle": "Bolt",
+          "text": "Para taxis. Más fiable y barato que parar un taxi en la calle."
+        },
+        {
+          "subtitle": "BudapestGO",
+          "text": "App oficial de transporte público. Horarios en tiempo real y compra de billetes digitales."
+        },
+        {
+          "subtitle": "Google Translate",
+          "text": "Función de cámara muy útil para menús en húngaro (idioma complicadísimo)."
+        }
+      ]
+    }
+  ],
+  "packing_list": {
+    "summer_clothing": [
+      "Camisetas de manga corta (4-5)",
+      "Pantalón corto (2)",
+      "Pantalón largo ligero (1, para visitas a iglesias/sinagoga)",
+      "Vestido/falda ligera",
+      "Bañador (imprescindible para las termas)"
+    ],
+    "footwear": [
+      "Zapatillas cómodas para caminar (lo más importante del viaje)",
+      "Chanclas/zapatillas de agua (obligatorias en las termas)",
+      "Sandalia para las noches de verano"
+    ],
+    "underwear": [
+      "Calcetines (4 pares)",
+      "Ropa interior (4 cambios)",
+      "Pijama ligero"
+    ],
+    "items": [
+      "iPhone 17 Pro + cargador",
+      "Gimbal DJI Osmo",
+      "Batería portátil (power bank)",
+      "Auriculares",
+      "Chubasquero ligero plegable (junio puede llover)",
+      "Riñonera o bolso cruzado antirrobo",
+      "Toalla de microfibra (para las termas, ligera y se seca rápido)"
+    ],
+    "accessories": [
+      "Gorra o sombrero",
+      "Gafas de sol",
+      "Jersey ligero o rebeca (para el crucero nocturno y mañanas frescas)"
+    ],
+    "documents": [
+      "DNI (suficiente, Hungría es UE)",
+      "Tarjeta de crédito/débito",
+      "Tarjeta Sanitaria Europea (TSE)",
+      "Dinero en metálico (50-100 € para cambiar a HUF en cajero al llegar)",
+      "Billetes de avión (en el móvil)",
+      "Confirmación del Airbnb",
+      "Bolígrafo"
+    ],
+    "toiletries": [
+      "Gel de ducha (tamaño viaje)",
+      "Champú",
+      "Cepillo y pasta de dientes",
+      "Desodorante",
+      "Crema solar 30-50 (el sol de junio pega fuerte en las termas)",
+      "Pañuelos",
+      "Cortaúñas"
+    ],
+    "health": [
+      "Analgésicos (ibuprofeno/paracetamol)",
+      "Tiritas",
+      "Protector gástrico (la cocina húngara es contundente)",
+      "Antihistamínico",
+      "Medicación personal"
+    ]
+  },
+  "shopping": {
+    "authentic_products": [
+      "Pimentón de Szeged (paprika dulce y picante)",
+      "Pasta de foie gras húngaro",
+      "Vino Tokaji (5 puttonyos es el sweet spot)",
+      "Salami Pick",
+      "Cerámica Herend o Zsolnay",
+      "Pálinka (aguardiente de frutas)",
+      "Kürtőskalács mix para hacer en casa"
+    ],
+    "avoid": [
+      "Souvenirs genéricos de Váci utca (son caros y poco auténticos)",
+      "Casas de cambio en zonas turísticas"
+    ],
+    "best_places": [
+      "Mercado Central (planta baja)",
+      "Tiendas del barrio judío",
+      "Supermercados Spar o CBA para productos locales"
+    ]
+  },
+  "emergency": {
+    "local_emergency": "112 (número único de emergencias en toda la UE)",
+    "medical": "104 (ambulancias). Hospital recomendado para extranjeros: Medicover (privado, hablan inglés).",
+    "police": "107",
+    "embassy": "Embajada de España en Budapest: Eötvös utca 11/b. Tel: +36 1 202 4006",
+    "insurance_reminder": "La Tarjeta Sanitaria Europea (TSE) cubre urgencias en hospitales públicos húngaros. Recomendable seguro de viaje adicional."
+  },
+  "apps_recommended": [
+    {
+      "name": "Google Maps (offline)",
+      "purpose": "Navegación y mapas sin conexión"
+    },
+    {
+      "name": "Bolt",
+      "purpose": "Taxis y transporte privado"
+    },
+    {
+      "name": "BudapestGO",
+      "purpose": "Transporte público en tiempo real"
+    },
+    {
+      "name": "Google Translate",
+      "purpose": "Traducción con cámara para menús en húngaro"
+    },
+    {
+      "name": "Revolut/Wise",
+      "purpose": "Pagos en HUF sin comisiones de cambio"
+    }
+  ],
+  "generation_metadata": {
+    "generated_at": "2026-04-19T18:00:00Z",
+    "schema_version": "1.2",
+    "claude_model": "claude-opus-4-6",
+    "web_search_count": 7,
+    "verification_note": "Precios y horarios verificados con búsquedas web de abril 2026. Coordenadas GPS verificadas. Precios de termas Széchenyi basados en tarifas publicadas 2026. Gellért Baths confirmado cerrado por renovación hasta 2028. Parlamento: precios actualizados desde 1 enero 2026."
+  }
+}
+</script>
+
+<!-- =========================================================
+     LÓGICA
+     ========================================================= -->
+<script>
+(function () {
+  'use strict';
+
+  // ------------------------------------------------------
+  // 1. CARGA DE DATOS Y STORAGE
+  // ------------------------------------------------------
+  const DATA = JSON.parse(document.getElementById('guide-data').textContent);
+  const SLUG = (DATA.meta?.destination?.name || 'guia').toLowerCase().replace(/\s+/g, '-');
+  const STORE_KEY = 'guia_' + SLUG + '_v1';
+
+  const defaultStore = {
+    checklist: {},       // { "day1_tl3": true, ... }
+    notes: {},           // { "day1": "texto", ... }
+    expenses: [],        // [{ id, day, category, desc, amount, date }]
+    packing: {},         // { "clothing_0": true, ... }
+    theme: null          // "light" | "dark" | null (= auto)
+  };
+
+  function loadStore() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return { ...defaultStore };
+      return { ...defaultStore, ...JSON.parse(raw) };
+    } catch (e) { return { ...defaultStore }; }
+  }
+  function saveStore() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {}
+  }
+
+  const store = loadStore();
+
+  // ------------------------------------------------------
+  // 2. UTILIDADES
+  // ------------------------------------------------------
+  const fmtDate = (isoDate, opts = { day: 'numeric', month: 'short' }) => {
+    const d = new Date(isoDate + 'T00:00:00');
+    return d.toLocaleDateString('es-ES', opts);
+  };
+  const fmtMoney = (n, currency = 'EUR') => {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+  };
+  const el = (sel) => document.querySelector(sel);
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  const todayISO = () => new Date().toISOString().slice(0, 10);
+
+  function getCurrentTripDay() {
+    const today = todayISO();
+    const d = DATA.days.find(d => d.date === today);
+    return d || null;
+  }
+
+  // ------------------------------------------------------
+  // 3. TEMA (modo oscuro)
+  // ------------------------------------------------------
+  function applyTheme() {
+    let t = store.theme;
+    if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = t === 'dark' ? '#14110E' : (DATA.meta?.theme_color || '#C65D3A');
+  }
+  el('#btn-theme').addEventListener('click', () => {
+    const current = document.documentElement.dataset.theme;
+    store.theme = current === 'dark' ? 'light' : 'dark';
+    saveStore();
+    applyTheme();
+  });
+  applyTheme();
+
+  // Tema dinámico desde el JSON
+  if (DATA.meta?.theme_color) {
+    document.documentElement.style.setProperty('--accent', DATA.meta.theme_color);
+  }
+
+  // ------------------------------------------------------
+  // 4. RENDERS POR PÁGINA
+  // ------------------------------------------------------
+
+  // --- HOME -----------------------------------------------
+  function renderHome() {
+    const meta = DATA.meta;
+    const intro = DATA.intro;
+    const tripDay = getCurrentTripDay();
+
+    let todayHTML = '';
+    if (tripDay) {
+      todayHTML = `
+        <button class="today-card" onclick="window.__nav.goDay(${tripDay.day})">
+          <div class="today-card__label">Hoy — Día ${tripDay.day}</div>
+          <div class="today-card__title">${esc(tripDay.title)}</div>
+          <p class="today-card__summary">${esc(DATA.summary.find(s => s.day === tripDay.day)?.summary || '')}</p>
+          <span class="today-card__link">Ver itinerario →</span>
+        </button>`;
+    }
+
+    const valueProps = (intro.value_props || []).map(v => `
+      <div class="prop-card">
+        <div class="prop-card__icon">${esc(v.icon)}</div>
+        <div>
+          <div class="prop-card__title">${esc(v.title)}</div>
+          <div class="prop-card__text">${esc(v.text)}</div>
+        </div>
+      </div>`).join('');
+
+    const historyHTML = DATA.history ? `
+      <h2 class="section-title">${esc(DATA.history.title || 'Contexto histórico')}</h2>
+      <div class="history" id="history-block">
+        <p class="history__summary">${esc(DATA.history.summary || '')}</p>
+        <button class="history__toggle" onclick="document.getElementById('history-block').classList.toggle('is-open')">
+          Ampliar <span class="chev">▾</span>
+        </button>
+        <div class="history__detail">
+          ${(DATA.history.periods || []).map(p => `
+            <div class="history__period">
+              ${p.range ? `<div class="history__period-range">${esc(p.range)}</div>` : ''}
+              <div class="history__period-title">${esc(p.title)}</div>
+              <p class="history__period-text">${esc(p.text)}</p>
+            </div>`).join('')}
+        </div>
+      </div>` : '';
+
+    el('#page-home').innerHTML = `
+      <section class="hero ${meta.cover_image ? 'hero--with-image' : ''}">
+        ${meta.cover_image ? `<div class="hero__bg" style="background-image: url('${esc(meta.cover_image)}')"></div>` : ''}
+        <div class="hero__eyebrow">Guía ${esc(meta.destination.country)}</div>
+        <h1 class="hero__title">${esc(meta.title)}</h1>
+        ${meta.subtitle ? `<div class="hero__subtitle">${esc(meta.subtitle)}</div>` : ''}
+        <div class="hero__meta">
+          <span class="hero__meta-item">📅 ${fmtDate(meta.dates.start)} – ${fmtDate(meta.dates.end, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+          <span class="hero__meta-item">🧭 ${meta.dates.days} días</span>
+          <span class="hero__meta-item">👥 ${meta.travelers.adults}${meta.travelers.children ? ' + ' + meta.travelers.children + ' 👶' : ''}</span>
+        </div>
+      </section>
+
+      ${todayHTML}
+
+      <h2 class="section-title">Qué ofrece el viaje</h2>
+      <div class="props-grid">${valueProps}</div>
+
+      ${historyHTML}
+    `;
+
+    el('#header-title').textContent = meta.title;
+  }
+
+  // --- DAYS LIST ------------------------------------------
+  function dayProgress(day) {
+    const items = day.timeline || [];
+    if (!items.length) return 0;
+    const done = items.filter((_, idx) => store.checklist[`d${day.day}_t${idx}`]).length;
+    return Math.round((done / items.length) * 100);
+  }
+
+  function renderDaysList() {
+    const daysHTML = DATA.days.map(d => {
+      const sum = DATA.summary.find(s => s.day === d.day)?.summary || '';
+      const prog = dayProgress(d);
+      return `
+        <button class="day-card" onclick="window.__nav.goDay(${d.day})">
+          <div class="day-card__num">
+            <span class="day-card__num-label">Día</span>
+            <span class="day-card__num-value">${d.day}</span>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="day-card__date">${fmtDate(d.date, { weekday: 'short', day: 'numeric', month: 'short' })}</div>
+            <div class="day-card__title">${esc(d.title)}</div>
+            <div class="day-card__summary">${esc(sum)}</div>
+            <div class="day-card__progress">
+              <span>${prog}%</span>
+              <div class="progress-bar"><div class="progress-bar__fill" style="width:${prog}%"></div></div>
+            </div>
+          </div>
+        </button>`;
+    }).join('');
+
+    el('#page-days').innerHTML = `
+      <h2 class="section-title" style="margin-top:0">Itinerario día a día</h2>
+      <div class="days-list">${daysHTML}</div>
+    `;
+  }
+
+  // --- DAY DETAIL -----------------------------------------
+  function renderDay(dayNum) {
+    const d = DATA.days.find(x => x.day === dayNum);
+    if (!d) { el('#page-day').innerHTML = '<p>Día no encontrado.</p>'; return; }
+
+    const timelineHTML = (d.timeline || []).map((t, idx) => {
+      const key = `d${d.day}_t${idx}`;
+      const done = !!store.checklist[key];
+      const place = t.place_id ? (d.places || []).find(p => p.id === t.place_id) : null;
+      return `
+        <div class="tl-item ${done ? 'is-done' : ''}" data-icon="${esc(t.icon || '•')}" data-key="${key}">
+          <div class="tl-item__head">
+            <span class="tl-item__time">${esc(t.time)}</span>
+            <button class="tl-item__check" onclick="window.__actions.toggleChecklist('${key}')"></button>
+          </div>
+          <div class="tl-item__title">${esc(t.title)}</div>
+          <div class="tl-item__description">${esc(t.description)}</div>
+          ${place ? `<div class="tl-item__place">📍 ${esc(place.name)}</div>` : ''}
+        </div>`;
+    }).join('');
+
+    const placesHTML = (d.places || []).map(p => {
+      const gmaps = p.gmaps_url || `https://www.google.com/maps/search/?api=1&query=${p.coords.lat},${p.coords.lng}`;
+      const waze = `https://waze.com/ul?ll=${p.coords.lat},${p.coords.lng}&navigate=yes`;
+      const waShare = `https://wa.me/?text=${encodeURIComponent(p.name + ' — ' + gmaps)}`;
+      return `
+        <div class="place-card" id="place-${esc(p.id)}">
+          <div class="place-card__name">📍 ${esc(p.name)}</div>
+          ${p.review ? `<p class="place-card__review">${esc(p.review)}</p>` : ''}
+          <div class="place-card__meta">
+            ${p.hours ? `<div class="place-card__meta-item"><span class="place-card__meta-label">🕐</span> ${esc(p.hours)}</div>` : ''}
+            ${p.price ? `<div class="place-card__meta-item"><span class="place-card__meta-label">💶</span> ${esc(p.price)}</div>` : ''}
+            ${p.tips ? `<div class="place-card__meta-item"><span class="place-card__meta-label">💡</span> ${esc(p.tips)}</div>` : ''}
+          </div>
+          <div class="place-card__actions">
+            <a class="btn btn--primary btn--sm" href="${gmaps}" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+              Google Maps
+            </a>
+            <a class="btn btn--ghost btn--sm" href="${waze}" target="_blank" rel="noopener">Waze</a>
+            <a class="btn btn--ghost btn--sm" href="${waShare}" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-1 1.1-.2.2-.4.2-.7.1-.3-.1-1.2-.4-2.3-1.4-.8-.7-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5-.2 0-.4 0-.6 0-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.1 3 .1.2 2 3.1 4.9 4.3 2.9 1.2 2.9.8 3.4.8.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.1-.2-.2-.5-.3zM12 2a10 10 0 0 0-8.7 14.9L2 22l5.3-1.4A10 10 0 1 0 12 2z"/></svg>
+              WhatsApp
+            </a>
+          </div>
+        </div>`;
+    }).join('');
+
+    const restaurantsHTML = (d.restaurants || []).length ? `
+      <h3 class="section-title section-title--small">🍽 Dónde comer</h3>
+      <div class="restaurants">
+        ${(d.restaurants || []).map(r => `
+          <div class="rest-card">
+            <div class="rest-card__head">
+              <span class="rest-card__name">${esc(r.name)}</span>
+              ${r.price_range ? `<span class="rest-card__price">${esc(r.price_range)}</span>` : ''}
+            </div>
+            ${r.speciality ? `<div class="rest-card__spec">${esc(r.speciality)}</div>` : ''}
+            ${r.meal ? `<span class="rest-card__meal">${esc(r.meal)}${r.reservation_required ? ' · reserva' : ''}</span>` : ''}
+          </div>`).join('')}
+      </div>` : '';
+
+    const alt = d.alternative_plans || {};
+    const altHTML = (alt.more_time || alt.less_time || alt.rainy_day || alt.with_kids) ? `
+      <h3 class="section-title section-title--small">🔀 Planes alternativos</h3>
+      <div class="alt-plans">
+        ${alt.more_time ? `<div class="alt-plan"><div class="alt-plan__label">Si tienes más tiempo</div><div class="alt-plan__text">${esc(alt.more_time)}</div></div>` : ''}
+        ${alt.less_time ? `<div class="alt-plan"><div class="alt-plan__label">Si tienes menos tiempo</div><div class="alt-plan__text">${esc(alt.less_time)}</div></div>` : ''}
+        ${alt.rainy_day ? `<div class="alt-plan"><div class="alt-plan__label">Si llueve</div><div class="alt-plan__text">${esc(alt.rainy_day)}</div></div>` : ''}
+        ${alt.with_kids ? `<div class="alt-plan"><div class="alt-plan__label">Con niños</div><div class="alt-plan__text">${esc(alt.with_kids)}</div></div>` : ''}
+      </div>` : '';
+
+    const info = d.info || {};
+    const infoHTML = [
+      info.travel_tips ? { t: '💡 Consejos', items: info.travel_tips } : null,
+      info.access ? { t: '🎟 Acceso', items: info.access } : null,
+      info.facts ? { t: '📊 Datos de interés', items: info.facts } : null
+    ].filter(Boolean).map(b => `
+      <div class="info-block">
+        <div class="info-block__title">${esc(b.t)}</div>
+        <ul class="info-block__list">${b.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
+      </div>`).join('');
+
+    const log = d.logistics || {};
+    const logisticsHTML = (log.driving_km || log.walking_km || log.public_transport) ? `
+      <div class="day-detail__logistics">
+        ${log.driving_km ? `<span class="day-detail__logistics-item">🚗 ${log.driving_km} km · ${Math.round((log.driving_time_min||0)/60*10)/10}h</span>` : ''}
+        ${log.walking_km ? `<span class="day-detail__logistics-item">🚶 ${log.walking_km} km · ${Math.round((log.walking_time_min||0)/60*10)/10}h</span>` : ''}
+        ${log.public_transport ? `<span class="day-detail__logistics-item">🚌 ${esc(log.public_transport)}</span>` : ''}
+      </div>` : '';
+
+    const noteKey = `d${d.day}`;
+    const noteVal = store.notes[noteKey] || '';
+
+    el('#page-day').innerHTML = `
+      <div class="day-detail__head">
+        <button class="back-btn" onclick="window.__nav.go('days')">← Volver al itinerario</button>
+        <div class="day-detail__eyebrow">Día ${d.day} — ${fmtDate(d.date, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+        <h1 class="day-detail__title">${esc(d.title)}</h1>
+        ${logisticsHTML}
+      </div>
+
+      <div class="timeline">${timelineHTML}</div>
+
+      ${placesHTML ? `<h3 class="section-title section-title--small">🏛 Lugares del día</h3>${placesHTML}` : ''}
+
+      ${restaurantsHTML}
+      ${altHTML}
+      ${infoHTML}
+
+      <div class="day-notes">
+        <div class="day-notes__label">📝 Tus notas del día</div>
+        <textarea class="day-notes__textarea" id="note-input" placeholder="Impresiones, fotos tomadas, gastos del día…">${esc(noteVal)}</textarea>
+      </div>
+    `;
+
+    el('#note-input').addEventListener('input', (e) => {
+      store.notes[noteKey] = e.target.value;
+      saveStore();
+    });
+
+    el('#header-title').textContent = `Día ${d.day} · ${d.title}`;
+  }
+
+  // --- MAP ------------------------------------------------
+  let mapInstance = null;
+  let mapLoadAttempts = 0;
+  function renderMap() {
+    if (!window.L) {
+      mapLoadAttempts++;
+      if (mapLoadAttempts > 20) {  // ~4 segundos
+        el('#map').innerHTML = `<div class="empty-state" style="padding:40px 20px">
+          🗺️ <br><br>
+          <strong>Mapa no disponible</strong><br>
+          <span style="font-size:13px">Este archivo necesita conexión para cargar los mapas.<br>Los datos del itinerario siguen disponibles en las otras pestañas.</span>
+        </div>`;
+        return;
+      }
+      setTimeout(renderMap, 200);
+      return;
+    }
+    const om = DATA.overview_map;
+    if (!om) { el('#map').innerHTML = '<p style="padding:20px">Sin datos de mapa.</p>'; return; }
+
+    try {
+      if (mapInstance) { mapInstance.remove(); mapInstance = null; }
+
+      mapInstance = L.map('map', { zoomControl: true, attributionControl: true })
+        .setView([om.center.lat, om.center.lng], om.zoom || 8);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(mapInstance);
+
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+      (om.markers || []).forEach(m => {
+        const icon = L.divIcon({
+          className: 'custom-marker',
+          html: `<div style="width:30px;height:30px;background:${accent};color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff">${m.day}</div>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        });
+        L.marker([m.coords.lat, m.coords.lng], { icon })
+          .addTo(mapInstance)
+          .bindPopup(`<strong>${esc(m.name)}</strong><br><small>Día ${m.day}</small><br><a href="#" onclick="window.__nav.goDay(${m.day});return false;">Ver día →</a>`);
+      });
+    } catch (err) {
+      console.error('Error al inicializar el mapa:', err);
+      el('#map').innerHTML = `<div class="empty-state" style="padding:40px 20px">
+        ⚠️ Error al cargar el mapa.<br>
+        <small>${esc(err.message || 'Desconocido')}</small>
+      </div>`;
+    }
+  }
+
+  // --- TIPS -----------------------------------------------
+  function renderTips() {
+    const tipsHTML = (DATA.practical_tips || []).map((g, idx) => `
+      <div class="tip-group" id="tip-group-${idx}">
+        <button class="tip-group__head" onclick="document.getElementById('tip-group-${idx}').classList.toggle('is-open')">
+          <div class="tip-group__head-left">
+            <span class="tip-group__icon">${esc(g.icon)}</span>
+            <span class="tip-group__title">${esc(g.title)}</span>
+          </div>
+          <span class="chev">▾</span>
+        </button>
+        <div class="tip-group__body">
+          ${(g.items || []).map(i => `
+            <div class="tip-item">
+              <div class="tip-item__subtitle">${esc(i.subtitle)}</div>
+              <div class="tip-item__text">${esc(i.text)}</div>
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+
+    const emergencyHTML = DATA.emergency ? `
+      <h2 class="section-title section-title--small">🆘 Emergencias</h2>
+      <div class="tool-card">
+        ${DATA.emergency.local_emergency ? `<div style="margin-bottom:8px"><strong>General:</strong> ${esc(DATA.emergency.local_emergency)}</div>` : ''}
+        ${DATA.emergency.medical ? `<div style="margin-bottom:8px"><strong>Médico:</strong> ${esc(DATA.emergency.medical)}</div>` : ''}
+        ${DATA.emergency.police ? `<div style="margin-bottom:8px"><strong>Policía:</strong> ${esc(DATA.emergency.police)}</div>` : ''}
+        ${DATA.emergency.embassy ? `<div style="margin-bottom:8px"><strong>Embajada:</strong> ${esc(DATA.emergency.embassy)}</div>` : ''}
+      </div>` : '';
+
+    const appsHTML = (DATA.apps_recommended || []).length ? `
+      <h2 class="section-title section-title--small">📱 Apps recomendadas</h2>
+      <div class="tool-card">
+        ${(DATA.apps_recommended || []).map(a => `<div style="padding:6px 0;border-bottom:1px dashed var(--line)"><strong>${esc(a.name)}:</strong> ${esc(a.purpose)}</div>`).join('')}
+      </div>` : '';
+
+    el('#page-tips').innerHTML = `
+      <h2 class="section-title" style="margin-top:0">Consejos prácticos</h2>
+      ${tipsHTML}
+      ${emergencyHTML}
+      ${appsHTML}
+    `;
+  }
+
+  // --- ME (checklist, presupuesto, packing, herramientas) --
+  function totalExpenses() {
+    return store.expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  }
+  function overallProgress() {
+    const allKeys = DATA.days.flatMap(d => (d.timeline || []).map((_, idx) => `d${d.day}_t${idx}`));
+    if (!allKeys.length) return 0;
+    const done = allKeys.filter(k => store.checklist[k]).length;
+    return Math.round((done / allKeys.length) * 100);
+  }
+  function packingProgress() {
+    const groups = DATA.packing_list || {};
+    let total = 0, done = 0;
+    Object.keys(groups).forEach(cat => {
+      (groups[cat] || []).forEach((_, idx) => {
+        total++;
+        if (store.packing[`${cat}_${idx}`]) done++;
+      });
+    });
+    return total ? Math.round((done / total) * 100) : 0;
+  }
+
+  function renderMe() {
+    const tabs = [
+      { k: 'overview', l: 'Resumen' },
+      { k: 'budget', l: 'Presupuesto' },
+      { k: 'packing', l: 'Equipaje' },
+      { k: 'tools', l: 'Herramientas' }
+    ];
+
+    el('#page-me').innerHTML = `
+      <h2 class="section-title" style="margin-top:0">Mi viaje</h2>
+      <div class="me-tabs">
+        ${tabs.map(t => `<button class="me-tab ${t.k === 'overview' ? 'is-active' : ''}" data-me-tab="${t.k}">${t.l}</button>`).join('')}
+      </div>
+      <div class="me-pane is-active" data-me-pane="overview"></div>
+      <div class="me-pane" data-me-pane="budget"></div>
+      <div class="me-pane" data-me-pane="packing"></div>
+      <div class="me-pane" data-me-pane="tools"></div>
+    `;
+
+    document.querySelectorAll('[data-me-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.me-tab').forEach(b => b.classList.remove('is-active'));
+        document.querySelectorAll('.me-pane').forEach(p => p.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        document.querySelector(`[data-me-pane="${btn.dataset.meTab}"]`).classList.add('is-active');
+      });
+    });
+
+    renderMeOverview();
+    renderMeBudget();
+    renderMePacking();
+    renderMeTools();
+  }
+
+  function renderMeOverview() {
+    const progress = overallProgress();
+    const packProg = packingProgress();
+    const totalExp = totalExpenses();
+    const budget = DATA.meta.budget?.total_estimated || 0;
+    const curr = DATA.meta.currency || 'EUR';
+
+    const paneEl = document.querySelector('[data-me-pane="overview"]');
+    if (!paneEl) return;
+
+    paneEl.innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card__value">${progress}%</div>
+          <div class="stat-card__label">Itinerario</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value">${packProg}%</div>
+          <div class="stat-card__label">Equipaje</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value">${fmtMoney(totalExp, curr)}</div>
+          <div class="stat-card__label">Gastado</div>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-card__title">📊 Presupuesto</div>
+        <div class="budget-row">
+          <span class="budget-row__label">Estimado</span>
+          <span class="budget-row__value">${fmtMoney(budget, curr)}</span>
+        </div>
+        <div class="budget-row">
+          <span class="budget-row__label">Gastado</span>
+          <span class="budget-row__value">${fmtMoney(totalExp, curr)}</span>
+        </div>
+        <div class="budget-progress">
+          <div class="budget-progress__fill ${totalExp > budget ? 'is-over' : ''}" style="width:${Math.min(100, budget ? (totalExp/budget)*100 : 0)}%"></div>
+        </div>
+        <div class="budget-row" style="margin-top:10px">
+          <span class="budget-row__label">Restante</span>
+          <span class="budget-row__value" style="color:${totalExp > budget ? 'var(--c-danger)' : 'var(--c-success)'}">${fmtMoney(budget - totalExp, curr)}</span>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-card__title">☁️ Clima en destino</div>
+        <div id="weather-content" class="empty-state">Cargando…</div>
+      </div>
+    `;
+
+    loadWeather();
+  }
+
+  async function loadWeather() {
+    const w = document.getElementById('weather-content');
+    if (!w) return;
+    const om = DATA.overview_map;
+    if (!om) { w.textContent = 'Sin coordenadas.'; return; }
+    const start = DATA.meta.dates.start;
+    const end = DATA.meta.dates.end;
+
+    // Open-Meteo es gratis y no requiere API key
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${om.center.lat}&longitude=${om.center.lng}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&start_date=${start}&end_date=${end}`;
+
+    try {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('fetch failed');
+      const j = await r.json();
+      if (!j.daily) { w.textContent = 'Previsión fuera de rango.'; return; }
+
+      const codes = {
+        0: '☀️', 1: '🌤', 2: '⛅', 3: '☁️',
+        45: '🌫', 48: '🌫',
+        51: '🌦', 53: '🌦', 55: '🌦',
+        61: '🌧', 63: '🌧', 65: '🌧',
+        71: '🌨', 73: '🌨', 75: '🌨',
+        80: '🌦', 81: '🌧', 82: '⛈',
+        95: '⛈', 96: '⛈', 99: '⛈'
+      };
+
+      const daysHTML = j.daily.time.map((t, i) => `
+        <div class="weather-day">
+          <div class="weather-day__date">${fmtDate(t, { weekday: 'short', day: 'numeric' })}</div>
+          <div class="weather-day__icon">${codes[j.daily.weather_code[i]] || '🌡'}</div>
+          <div class="weather-day__temp">${Math.round(j.daily.temperature_2m_max[i])}° <span class="weather-day__temp-min">${Math.round(j.daily.temperature_2m_min[i])}°</span></div>
+        </div>`).join('');
+      w.outerHTML = `<div class="weather-grid" id="weather-content">${daysHTML}</div>`;
+    } catch (e) {
+      w.textContent = 'Sin conexión para clima.';
+    }
+  }
+
+  function renderMeBudget() {
+    const paneEl = document.querySelector('[data-me-pane="budget"]');
+    if (!paneEl) return;
+    const curr = DATA.meta.currency || 'EUR';
+    const budget = DATA.meta.budget?.total_estimated || 0;
+    const total = totalExpenses();
+    const categories = ['Transporte', 'Alojamiento', 'Comida', 'Actividades', 'Compras', 'Otros'];
+
+    paneEl.innerHTML = `
+      <div class="budget-summary">
+        <div class="budget-row"><span class="budget-row__label">Presupuesto</span><span class="budget-row__value">${fmtMoney(budget, curr)}</span></div>
+        <div class="budget-row budget-row--total"><span class="budget-row__label">Gastado</span><span class="budget-row__value">${fmtMoney(total, curr)}</span></div>
+        <div class="budget-progress">
+          <div class="budget-progress__fill ${total > budget ? 'is-over' : ''}" style="width:${Math.min(100, budget ? (total/budget)*100 : 0)}%"></div>
+        </div>
+      </div>
+
+      <div class="expense-form">
+        <input id="exp-desc" placeholder="Concepto">
+        <input id="exp-amount" type="number" step="0.01" placeholder="€">
+        <select id="exp-cat">${categories.map(c => `<option>${c}</option>`).join('')}</select>
+        <button id="exp-add">+</button>
+      </div>
+
+      <ul class="expense-list" id="exp-list">
+        ${store.expenses.length === 0 ? '<li class="empty-state">Aún no has añadido gastos.</li>' : ''}
+        ${store.expenses.slice().reverse().map(e => `
+          <li class="expense-item">
+            <div>
+              <div class="expense-item__desc">${esc(e.desc)}</div>
+              <div class="expense-item__cat">${esc(e.category)}</div>
+            </div>
+            <span class="expense-item__amount">${fmtMoney(e.amount, curr)}</span>
+            <button class="expense-item__del" data-del="${e.id}">✕</button>
+          </li>`).join('')}
+      </ul>
+    `;
+
+    document.getElementById('exp-add').addEventListener('click', () => {
+      const desc = document.getElementById('exp-desc').value.trim();
+      const amount = parseFloat(document.getElementById('exp-amount').value);
+      const category = document.getElementById('exp-cat').value;
+      if (!desc || !amount || isNaN(amount)) return;
+      store.expenses.push({
+        id: 'e_' + Date.now(),
+        desc, amount, category,
+        date: todayISO()
+      });
+      saveStore();
+      renderMeBudget();
+      renderMeOverview();
+    });
+
+    document.querySelectorAll('[data-del]').forEach(b => {
+      b.addEventListener('click', () => {
+        store.expenses = store.expenses.filter(e => e.id !== b.dataset.del);
+        saveStore();
+        renderMeBudget();
+        renderMeOverview();
+      });
+    });
+  }
+
+  function renderMePacking() {
+    const paneEl = document.querySelector('[data-me-pane="packing"]');
+    if (!paneEl) return;
+    const pl = DATA.packing_list || {};
+    const labels = {
+      // Categorías v1.1
+      summer_clothing: '☀️ Ropa de verano',
+      winter_clothing: '🧥 Ropa de invierno',
+      footwear: '👟 Calzado',
+      underwear: '🩲 Ropa interior',
+      items: '🎒 Objetos',
+      accessories: '🧢 Complementos',
+      documents: '📄 Documentación',
+      toiletries: '🧴 Bolsa de aseo',
+      health: '💊 Salud',
+      other: '📦 Otros',
+      // Categorías v1.0 (retrocompatibilidad)
+      clothing: '👕 Ropa',
+      tech: '🔌 Tecnología'
+    };
+
+    // Preservar orden de la lista maestra si las keys vienen en orden aleatorio
+    const preferredOrder = [
+      'summer_clothing', 'winter_clothing', 'clothing', 'footwear', 'underwear',
+      'items', 'tech', 'accessories', 'documents', 'toiletries', 'health', 'other'
+    ];
+    const orderedKeys = preferredOrder.filter(k => pl[k]).concat(
+      Object.keys(pl).filter(k => !preferredOrder.includes(k))
+    );
+
+    if (orderedKeys.length === 0) {
+      paneEl.innerHTML = '<div class="empty-state">Sin lista de equipaje definida.</div>';
+      return;
+    }
+
+    paneEl.innerHTML = orderedKeys.map(cat => `
+      <div class="packing-group">
+        <div class="packing-group__title">${labels[cat] || '📦 ' + cat}</div>
+        ${(pl[cat] || []).map((item, idx) => {
+          const key = `${cat}_${idx}`;
+          const packed = !!store.packing[key];
+          return `
+            <label class="packing-item ${packed ? 'is-packed' : ''}" data-pack-key="${key}">
+              <span class="packing-item__box"></span>
+              <span class="packing-item__text">${esc(item)}</span>
+            </label>`;
+        }).join('')}
+      </div>`).join('');
+
+    paneEl.querySelectorAll('[data-pack-key]').forEach(l => {
+      l.addEventListener('click', () => {
+        const k = l.dataset.packKey;
+        store.packing[k] = !store.packing[k];
+        saveStore();
+        l.classList.toggle('is-packed');
+        renderMeOverview();
+      });
+    });
+  }
+
+  function renderMeTools() {
+    const paneEl = document.querySelector('[data-me-pane="tools"]');
+    if (!paneEl) return;
+    const curr = DATA.meta.currency || 'EUR';
+
+    paneEl.innerHTML = `
+      <div class="tool-card">
+        <div class="tool-card__title">💱 Conversor de moneda</div>
+        <div class="tool-card__row">
+          <input id="conv-amount" type="number" placeholder="Cantidad" value="100">
+          <select id="conv-from">
+            <option value="EUR">EUR</option><option value="USD">USD</option><option value="GBP">GBP</option>
+            <option value="JPY">JPY</option><option value="CHF">CHF</option>
+          </select>
+        </div>
+        <div class="tool-card__row">
+          <div style="align-self:center;font-size:13px;color:var(--text-muted)">a</div>
+          <select id="conv-to">
+            <option value="EUR" ${curr==='EUR'?'selected':''}>EUR</option>
+            <option value="USD" ${curr==='USD'?'selected':''}>USD</option>
+            <option value="GBP" ${curr==='GBP'?'selected':''}>GBP</option>
+            <option value="JPY">JPY</option><option value="CHF">CHF</option>
+          </select>
+        </div>
+        <div class="tool-card__result" id="conv-result">—</div>
+        <small id="conv-rate" style="display:block;margin-top:4px;color:var(--text-muted);font-size:11px"></small>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-card__title">📤 Compartir esta guía</div>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Envía este archivo HTML por WhatsApp, correo o guárdalo en Drive. Funciona sin conexión.</p>
+        <button class="btn btn--primary" onclick="navigator.share ? navigator.share({title: document.title, text: 'Mira mi guía de viaje', url: location.href}).catch(()=>{}) : alert('Usa el menú del navegador para compartir el archivo')">Compartir</button>
+      </div>
+    `;
+
+    // Conversor de moneda — usa exchangerate.host (gratis, sin key)
+    const amountEl = document.getElementById('conv-amount');
+    const fromEl = document.getElementById('conv-from');
+    const toEl = document.getElementById('conv-to');
+    const resEl = document.getElementById('conv-result');
+    const rateEl = document.getElementById('conv-rate');
+
+    async function doConvert() {
+      const a = parseFloat(amountEl.value) || 0;
+      const from = fromEl.value, to = toEl.value;
+      if (from === to) { resEl.textContent = fmtMoney(a, to); rateEl.textContent = ''; return; }
+      resEl.textContent = '…';
+      try {
+        const r = await fetch(`https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${a}`);
+        const j = await r.json();
+        if (j.result != null) {
+          resEl.textContent = fmtMoney(j.result, to);
+          rateEl.textContent = `Tasa: 1 ${from} = ${j.info?.rate?.toFixed(4) || '?'} ${to}`;
+        } else {
+          resEl.textContent = 'Error';
+        }
+      } catch (e) {
+        resEl.textContent = 'Sin conexión';
+      }
+    }
+    [amountEl, fromEl, toEl].forEach(i => i.addEventListener('input', doConvert));
+    doConvert();
+  }
+
+  // ------------------------------------------------------
+  // 5. ACCIONES GLOBALES
+  // ------------------------------------------------------
+  window.__actions = {
+    toggleChecklist(key) {
+      store.checklist[key] = !store.checklist[key];
+      saveStore();
+      const item = document.querySelector(`[data-key="${key}"]`);
+      if (item) item.classList.toggle('is-done');
+    }
+  };
+
+  // ------------------------------------------------------
+  // 6. NAVEGACIÓN
+  // ------------------------------------------------------
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('is-active'));
+    el('#page-' + id).classList.add('is-active');
+    window.scrollTo(0, 0);
+
+    document.querySelectorAll('.tabbar__item').forEach(b => {
+      b.classList.toggle('is-active', b.dataset.tab === id || (id === 'day' && b.dataset.tab === 'days'));
+    });
+
+    // (Re)renderizar contenido según la página
+    switch (id) {
+      case 'home': renderHome(); break;
+      case 'days': renderDaysList(); el('#header-title').textContent = 'Itinerario'; break;
+      case 'map':  renderMap(); el('#header-title').textContent = 'Mapa'; break;
+      case 'tips': renderTips(); el('#header-title').textContent = 'Consejos'; break;
+      case 'me':   renderMe(); el('#header-title').textContent = 'Mi viaje'; break;
+    }
+  }
+
+  window.__nav = {
+    go(id) { showPage(id); },
+    goDay(n) { renderDay(n); showPage('day'); }
+  };
+
+  document.querySelectorAll('.tabbar__item').forEach(btn => {
+    btn.addEventListener('click', () => showPage(btn.dataset.tab));
+  });
+
+  // ------------------------------------------------------
+  // 7. BUSCADOR GLOBAL
+  // ------------------------------------------------------
+  function buildSearchIndex() {
+    const idx = [];
+    DATA.days.forEach(d => {
+      idx.push({ type: 'Día', title: `Día ${d.day}: ${d.title}`, snippet: DATA.summary.find(s => s.day === d.day)?.summary || '', action: () => window.__nav.goDay(d.day) });
+      (d.timeline || []).forEach(t => idx.push({ type: `Día ${d.day}`, title: `${t.time} · ${t.title}`, snippet: t.description, action: () => window.__nav.goDay(d.day) }));
+      (d.places || []).forEach(p => idx.push({ type: `Día ${d.day} · Lugar`, title: p.name, snippet: p.review || '', action: () => window.__nav.goDay(d.day) }));
+      (d.restaurants || []).forEach(r => idx.push({ type: `Día ${d.day} · Restaurante`, title: r.name, snippet: r.speciality || '', action: () => window.__nav.goDay(d.day) }));
+    });
+    (DATA.practical_tips || []).forEach(g => {
+      (g.items || []).forEach(i => idx.push({ type: `Consejo · ${g.title}`, title: i.subtitle, snippet: i.text, action: () => window.__nav.go('tips') }));
+    });
+    return idx;
+  }
+
+  const searchIndex = buildSearchIndex();
+  const searchOverlay = el('#search-overlay');
+  const searchInput = el('#search-input');
+  const searchResults = el('#search-results');
+
+  el('#btn-search').addEventListener('click', () => {
+    searchOverlay.classList.add('is-open');
+    searchInput.value = '';
+    searchResults.innerHTML = '';
+    setTimeout(() => searchInput.focus(), 60);
+  });
+  el('#search-close').addEventListener('click', () => searchOverlay.classList.remove('is-open'));
+
+  function normalize(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+
+  searchInput.addEventListener('input', () => {
+    const q = normalize(searchInput.value.trim());
+    if (q.length < 2) { searchResults.innerHTML = ''; return; }
+    const matches = searchIndex
+      .map(it => ({ it, score: (normalize(it.title).includes(q) ? 2 : 0) + (normalize(it.snippet).includes(q) ? 1 : 0) }))
+      .filter(x => x.score > 0)
+      .sort((a,b) => b.score - a.score)
+      .slice(0, 30);
+    searchResults.innerHTML = matches.length
+      ? matches.map((m, i) => `
+          <div class="search-result" data-sr="${i}">
+            <div class="search-result__type">${esc(m.it.type)}</div>
+            <div class="search-result__title">${esc(m.it.title)}</div>
+            <div class="search-result__snippet">${esc(m.it.snippet)}</div>
+          </div>`).join('')
+      : '<div class="empty-state">Sin resultados.</div>';
+    searchResults.querySelectorAll('[data-sr]').forEach(n => {
+      n.addEventListener('click', () => {
+        const m = matches[Number(n.dataset.sr)];
+        searchOverlay.classList.remove('is-open');
+        m.it.action();
+      });
+    });
+  });
+
+  // ------------------------------------------------------
+  // 8. ARRANQUE
+  // ------------------------------------------------------
+  showPage('home');
+
+})();
+</script>
+
+</body>
+</html>
