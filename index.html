@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis guías de viaje</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: Georgia, serif;
+    background: #FAF4E8;
+    color: #1A1A1A;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  .lead { color: #6B6B6B; margin-bottom: 32px; }
+  .card {
+    display: block;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #E5DCC8;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 150ms, transform 150ms;
+  }
+  .card:hover { border-color: #C65D3A; transform: translateY(-2px); }
+  .card h2 { font-size: 20px; color: #C65D3A; margin-bottom: 4px; }
+  .card p { font-size: 14px; color: #6B6B6B; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mis guías de viaje</h1>
+  <p class="lead">Pulsa sobre una guía para abrirla.</p>
+
+  <a class="card" href="sicilia/">
+    <h2>Sicilia</h2>
+    <p>9 días · Aventura mediterránea por la isla del Etna</p>
+  </a>
+
+  <!-- Añade más guías aquí copiando el bloque anterior -->
+  <!--
+  <a class="card" href="lisboa/">
+    <h2>Lisboa</h2>
+    <p>4 días · Escapada a la capital portuguesa</p>
+  </a>
+  -->
+
+</div>
+</body>
+</html>
