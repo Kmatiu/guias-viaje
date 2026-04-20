@@ -746,6 +746,75 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .packing-item.is-packed .packing-item__box::after { content: "✓"; color: white; font-size: 12px; font-weight: 700; }
 .packing-item__text { font-size: 14px; }
 
+/* Packing editable */
+.packing-item {
+  position: relative;
+}
+.packing-item__edit {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  padding: 2px 4px;
+  outline: none;
+  min-width: 0;
+  border-radius: 4px;
+  transition: background var(--transition);
+}
+.packing-item__edit:focus {
+  background: var(--bg-elev);
+}
+.packing-item.is-packed .packing-item__edit {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.packing-item__remove {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  color: var(--c-danger);
+  opacity: 0.4;
+  transition: opacity var(--transition), background var(--transition);
+}
+.packing-item__remove:hover, .packing-item__remove:active {
+  opacity: 1;
+  background: rgba(184,74,58,0.1);
+}
+.packing-add-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 0 12px 4px;
+}
+.packing-add-input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+.packing-add-input:focus { border-style: solid; border-color: var(--accent); }
+.packing-add-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 16px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
 /* Conversor */
 .tool-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
 .tool-card__title { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 10px; }
@@ -1331,6 +1400,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     notes: {},           // { "day1": "texto", ... }
     expenses: [],        // [{ id, day, category, desc, amount, date }]
     packing: {},         // { "clothing_0": true, ... }
+    packing_custom: null,// items añadidos/editados por el usuario (override de DATA.packing_list)
+    budget_edit: null,   // { total, breakdown } editado por el usuario
     theme: null          // "light" | "dark" | null (= auto)
   };
 
@@ -1730,7 +1801,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     return Math.round((done / allKeys.length) * 100);
   }
   function packingProgress() {
-    const groups = DATA.packing_list || {};
+    const groups = store.packing_custom || DATA.packing_list || {};
     let total = 0, done = 0;
     Object.keys(groups).forEach(cat => {
       (groups[cat] || []).forEach((_, idx) => {
@@ -1779,7 +1850,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     const progress = overallProgress();
     const packProg = packingProgress();
     const totalExp = totalExpenses();
-    const budget = DATA.meta.budget?.total_estimated || 0;
+    const budget = store.budget_edit?.total || DATA.meta.budget?.total_estimated || 0;
     const curr = DATA.meta.currency || 'EUR';
 
     const paneEl = document.querySelector('[data-me-pane="overview"]');
@@ -1872,19 +1943,64 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     const paneEl = document.querySelector('[data-me-pane="budget"]');
     if (!paneEl) return;
     const curr = DATA.meta.currency || 'EUR';
-    const budget = DATA.meta.budget?.total_estimated || 0;
-    const total = totalExpenses();
+
+    // El presupuesto editable se guarda en store.budget_edit
+    // Inicializar desde DATA si no hay override guardado
+    if (!store.budget_edit) {
+      const bd = DATA.meta.budget?.breakdown || {};
+      store.budget_edit = {
+        total: DATA.meta.budget?.total_estimated || 0,
+        breakdown: {
+          flights: bd.flights || 0,
+          accommodation: bd.accommodation || 0,
+          transport: bd.transport || 0,
+          food: bd.food || 0,
+          activities: bd.activities || 0,
+          shopping: bd.shopping || 0,
+          other: bd.other || 0
+        }
+      };
+    }
+    const be = store.budget_edit;
+    const budgetTotal = be.total;
+    const totalExp = totalExpenses();
     const categories = ['Transporte', 'Alojamiento', 'Comida', 'Actividades', 'Compras', 'Otros'];
+    const catKeys = ['transport', 'accommodation', 'food', 'activities', 'shopping', 'other'];
+    const bdLabels = { flights: 'Vuelos', transport: 'Transporte local', accommodation: 'Alojamiento', food: 'Comida', activities: 'Actividades', shopping: 'Compras', other: 'Otros' };
+    const bdKeys = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
 
     paneEl.innerHTML = `
       <div class="budget-summary">
-        <div class="budget-row"><span class="budget-row__label">Presupuesto</span><span class="budget-row__value">${fmtMoney(budget, curr)}</span></div>
-        <div class="budget-row budget-row--total"><span class="budget-row__label">Gastado</span><span class="budget-row__value">${fmtMoney(total, curr)}</span></div>
+        <div class="budget-row" style="margin-bottom:6px">
+          <span class="budget-row__label">Presupuesto total</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="number" id="budget-total-input" value="${budgetTotal}" style="width:90px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-family:var(--font-display);font-size:16px;font-weight:700;text-align:right">
+            <span style="font-size:13px;color:var(--text-muted)">${curr}</span>
+          </div>
+        </div>
+
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:14px 0 8px">Desglose estimado</div>
+        ${bdKeys.map(k => `
+          <div class="budget-row" style="margin-bottom:4px">
+            <span class="budget-row__label" style="font-size:13px">${bdLabels[k]}</span>
+            <div style="display:flex;align-items:center;gap:4px">
+              <input type="number" data-bd-key="${k}" value="${be.breakdown[k] || 0}" style="width:75px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;text-align:right">
+              <span style="font-size:11px;color:var(--text-muted)">€</span>
+            </div>
+          </div>`).join('')}
+
+        <hr class="divider" style="margin:14px 0 10px">
+        <div class="budget-row budget-row--total"><span class="budget-row__label">Gastado</span><span class="budget-row__value">${fmtMoney(totalExp, curr)}</span></div>
         <div class="budget-progress">
-          <div class="budget-progress__fill ${total > budget ? 'is-over' : ''}" style="width:${Math.min(100, budget ? (total/budget)*100 : 0)}%"></div>
+          <div class="budget-progress__fill ${totalExp > budgetTotal ? 'is-over' : ''}" style="width:${Math.min(100, budgetTotal ? (totalExp/budgetTotal)*100 : 0)}%"></div>
+        </div>
+        <div class="budget-row" style="margin-top:8px">
+          <span class="budget-row__label">Restante</span>
+          <span class="budget-row__value" style="color:${totalExp > budgetTotal ? 'var(--c-danger)' : 'var(--c-success)'}">${fmtMoney(budgetTotal - totalExp, curr)}</span>
         </div>
       </div>
 
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:18px 0 8px">Añadir gasto</div>
       <div class="expense-form">
         <input id="exp-desc" placeholder="Concepto">
         <input id="exp-amount" type="number" step="0.01" placeholder="€">
@@ -1906,21 +2022,31 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
       </ul>
     `;
 
+    // Listeners para editar presupuesto
+    document.getElementById('budget-total-input').addEventListener('change', (e) => {
+      store.budget_edit.total = parseFloat(e.target.value) || 0;
+      saveStore();
+      renderMeBudget();
+      renderMeOverview();
+    });
+    document.querySelectorAll('[data-bd-key]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        store.budget_edit.breakdown[inp.dataset.bdKey] = parseFloat(inp.value) || 0;
+        saveStore();
+      });
+    });
+
+    // Listeners para gastos
     document.getElementById('exp-add').addEventListener('click', () => {
       const desc = document.getElementById('exp-desc').value.trim();
       const amount = parseFloat(document.getElementById('exp-amount').value);
       const category = document.getElementById('exp-cat').value;
       if (!desc || !amount || isNaN(amount)) return;
-      store.expenses.push({
-        id: 'e_' + Date.now(),
-        desc, amount, category,
-        date: todayISO()
-      });
+      store.expenses.push({ id: 'e_' + Date.now(), desc, amount, category, date: todayISO() });
       saveStore();
       renderMeBudget();
       renderMeOverview();
     });
-
     document.querySelectorAll('[data-del]').forEach(b => {
       b.addEventListener('click', () => {
         store.expenses = store.expenses.filter(e => e.id !== b.dataset.del);
@@ -1931,34 +2057,33 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     });
   }
 
+  function getPackingData() {
+    // Si el usuario ha editado, usa la copia custom. Si no, parte de DATA.
+    if (store.packing_custom) return JSON.parse(JSON.stringify(store.packing_custom));
+    return JSON.parse(JSON.stringify(DATA.packing_list || {}));
+  }
+  function savePackingData(pl) {
+    store.packing_custom = pl;
+    saveStore();
+  }
+
   function renderMePacking() {
     const paneEl = document.querySelector('[data-me-pane="packing"]');
     if (!paneEl) return;
-    const pl = DATA.packing_list || {};
+    const pl = getPackingData();
     const labels = {
-      // Categorías v1.1
-      summer_clothing: '☀️ Ropa de verano',
-      winter_clothing: '🧥 Ropa de invierno',
-      footwear: '👟 Calzado',
-      underwear: '🩲 Ropa interior',
-      items: '🎒 Objetos',
-      accessories: '🧢 Complementos',
-      documents: '📄 Documentación',
-      toiletries: '🧴 Bolsa de aseo',
-      health: '💊 Salud',
-      other: '📦 Otros',
-      // Categorías v1.0 (retrocompatibilidad)
-      clothing: '👕 Ropa',
-      tech: '🔌 Tecnología'
+      summer_clothing: '☀️ Ropa de verano', winter_clothing: '🧥 Ropa de invierno',
+      footwear: '👟 Calzado', underwear: '🩲 Ropa interior', items: '🎒 Objetos',
+      accessories: '🧢 Complementos', documents: '📄 Documentación',
+      toiletries: '🧴 Bolsa de aseo', health: '💊 Salud', other: '📦 Otros',
+      clothing: '👕 Ropa', tech: '🔌 Tecnología'
     };
-
-    // Preservar orden de la lista maestra si las keys vienen en orden aleatorio
     const preferredOrder = [
       'summer_clothing', 'winter_clothing', 'clothing', 'footwear', 'underwear',
       'items', 'tech', 'accessories', 'documents', 'toiletries', 'health', 'other'
     ];
-    const orderedKeys = preferredOrder.filter(k => pl[k]).concat(
-      Object.keys(pl).filter(k => !preferredOrder.includes(k))
+    const orderedKeys = preferredOrder.filter(k => pl[k] && pl[k].length > 0).concat(
+      Object.keys(pl).filter(k => !preferredOrder.includes(k) && pl[k] && pl[k].length > 0)
     );
 
     if (orderedKeys.length === 0) {
@@ -1967,92 +2092,160 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     }
 
     paneEl.innerHTML = orderedKeys.map(cat => `
-      <div class="packing-group">
+      <div class="packing-group" data-cat="${cat}">
         <div class="packing-group__title">${labels[cat] || '📦 ' + cat}</div>
         ${(pl[cat] || []).map((item, idx) => {
           const key = `${cat}_${idx}`;
           const packed = !!store.packing[key];
           return `
-            <label class="packing-item ${packed ? 'is-packed' : ''}" data-pack-key="${key}">
-              <span class="packing-item__box"></span>
-              <span class="packing-item__text">${esc(item)}</span>
-            </label>`;
+            <div class="packing-item ${packed ? 'is-packed' : ''}" data-pack-key="${key}" data-cat="${cat}" data-idx="${idx}">
+              <span class="packing-item__box" data-action="toggle"></span>
+              <input class="packing-item__edit" type="text" value="${esc(item)}" data-action="rename">
+              <button class="packing-item__remove" data-action="remove" title="Eliminar">✕</button>
+            </div>`;
         }).join('')}
-      </div>`).join('');
+        <div class="packing-add-row">
+          <input class="packing-add-input" data-add-cat="${cat}" placeholder="Añadir item…" type="text">
+          <button class="packing-add-btn" data-add-btn="${cat}">+</button>
+        </div>
+      </div>`).join('') + `
+      <div style="margin-top:12px">
+        <button class="btn btn--ghost btn--sm" id="packing-reset" style="font-size:12px">↩ Restaurar lista original</button>
+      </div>`;
 
-    paneEl.querySelectorAll('[data-pack-key]').forEach(l => {
-      l.addEventListener('click', () => {
-        const k = l.dataset.packKey;
+    // Toggle check
+    paneEl.querySelectorAll('[data-action="toggle"]').forEach(box => {
+      box.addEventListener('click', () => {
+        const item = box.closest('[data-pack-key]');
+        const k = item.dataset.packKey;
         store.packing[k] = !store.packing[k];
         saveStore();
-        l.classList.toggle('is-packed');
+        item.classList.toggle('is-packed');
         renderMeOverview();
       });
+    });
+
+    // Rename inline
+    paneEl.querySelectorAll('[data-action="rename"]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const item = inp.closest('[data-pack-key]');
+        const cat = item.dataset.cat;
+        const idx = parseInt(item.dataset.idx);
+        const plData = getPackingData();
+        if (plData[cat] && plData[cat][idx] !== undefined) {
+          plData[cat][idx] = inp.value.trim() || plData[cat][idx];
+          savePackingData(plData);
+        }
+      });
+    });
+
+    // Remove item
+    paneEl.querySelectorAll('[data-action="remove"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('[data-pack-key]');
+        const cat = item.dataset.cat;
+        const idx = parseInt(item.dataset.idx);
+        const plData = getPackingData();
+        if (plData[cat]) {
+          plData[cat].splice(idx, 1);
+          // Also clean packing checks for this category (re-index)
+          const newPacking = {};
+          Object.keys(store.packing).forEach(k => {
+            if (!k.startsWith(cat + '_')) newPacking[k] = store.packing[k];
+          });
+          (plData[cat] || []).forEach((_, i) => {
+            // preserve check state by old position if possible
+          });
+          store.packing = newPacking;
+          savePackingData(plData);
+          renderMePacking();
+          renderMeOverview();
+        }
+      });
+    });
+
+    // Add item
+    paneEl.querySelectorAll('[data-add-btn]').forEach(btn => {
+      const cat = btn.dataset.addBtn;
+      const inp = paneEl.querySelector(`[data-add-cat="${cat}"]`);
+      const doAdd = () => {
+        const val = inp.value.trim();
+        if (!val) return;
+        const plData = getPackingData();
+        if (!plData[cat]) plData[cat] = [];
+        plData[cat].push(val);
+        savePackingData(plData);
+        inp.value = '';
+        renderMePacking();
+        renderMeOverview();
+      };
+      btn.addEventListener('click', doAdd);
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doAdd(); } });
+    });
+
+    // Reset to original
+    document.getElementById('packing-reset')?.addEventListener('click', () => {
+      if (confirm('¿Restaurar la lista original? Se perderán los cambios que hayas hecho.')) {
+        store.packing_custom = null;
+        store.packing = {};
+        saveStore();
+        renderMePacking();
+        renderMeOverview();
+      }
     });
   }
 
   function renderMeTools() {
     const paneEl = document.querySelector('[data-me-pane="tools"]');
     if (!paneEl) return;
-    const curr = DATA.meta.currency || 'EUR';
+    const destCurr = DATA.meta.currency || 'EUR';
+    const isEuro = destCurr === 'EUR';
 
-    paneEl.innerHTML = `
+    const converterHTML = isEuro ? '' : `
       <div class="tool-card">
-        <div class="tool-card__title">💱 Conversor de moneda</div>
+        <div class="tool-card__title">💱 EUR ↔ ${esc(destCurr)}</div>
         <div class="tool-card__row">
           <input id="conv-amount" type="number" placeholder="Cantidad" value="100">
-          <select id="conv-from">
-            <option value="EUR">EUR</option><option value="USD">USD</option><option value="GBP">GBP</option>
-            <option value="JPY">JPY</option><option value="CHF">CHF</option>
-          </select>
-        </div>
-        <div class="tool-card__row">
-          <div style="align-self:center;font-size:13px;color:var(--text-muted)">a</div>
-          <select id="conv-to">
-            <option value="EUR" ${curr==='EUR'?'selected':''}>EUR</option>
-            <option value="USD" ${curr==='USD'?'selected':''}>USD</option>
-            <option value="GBP" ${curr==='GBP'?'selected':''}>GBP</option>
-            <option value="JPY">JPY</option><option value="CHF">CHF</option>
-          </select>
+          <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">EUR</div>
         </div>
         <div class="tool-card__result" id="conv-result">—</div>
         <small id="conv-rate" style="display:block;margin-top:4px;color:var(--text-muted);font-size:11px"></small>
-      </div>
+      </div>`;
+
+    paneEl.innerHTML = `
+      ${converterHTML}
 
       <div class="tool-card">
         <div class="tool-card__title">📤 Compartir esta guía</div>
-        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Envía este archivo HTML por WhatsApp, correo o guárdalo en Drive. Funciona sin conexión.</p>
-        <button class="btn btn--primary" onclick="navigator.share ? navigator.share({title: document.title, text: 'Mira mi guía de viaje', url: location.href}).catch(()=>{}) : alert('Usa el menú del navegador para compartir el archivo')">Compartir</button>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Comparte el enlace de tu guía por WhatsApp, email o redes sociales.</p>
+        <button class="btn btn--primary" onclick="navigator.share ? navigator.share({title: document.title, text: 'Mira mi guía de viaje', url: location.href}).catch(()=>{}) : alert('Copia la URL del navegador y compártela')">Compartir</button>
       </div>
     `;
 
-    // Conversor de moneda — usa exchangerate.host (gratis, sin key)
-    const amountEl = document.getElementById('conv-amount');
-    const fromEl = document.getElementById('conv-from');
-    const toEl = document.getElementById('conv-to');
-    const resEl = document.getElementById('conv-result');
-    const rateEl = document.getElementById('conv-rate');
+    if (!isEuro) {
+      const amountEl = document.getElementById('conv-amount');
+      const resEl = document.getElementById('conv-result');
+      const rateEl = document.getElementById('conv-rate');
 
-    async function doConvert() {
-      const a = parseFloat(amountEl.value) || 0;
-      const from = fromEl.value, to = toEl.value;
-      if (from === to) { resEl.textContent = fmtMoney(a, to); rateEl.textContent = ''; return; }
-      resEl.textContent = '…';
-      try {
-        const r = await fetch(`https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${a}`);
-        const j = await r.json();
-        if (j.result != null) {
-          resEl.textContent = fmtMoney(j.result, to);
-          rateEl.textContent = `Tasa: 1 ${from} = ${j.info?.rate?.toFixed(4) || '?'} ${to}`;
-        } else {
-          resEl.textContent = 'Error';
+      async function doConvert() {
+        const a = parseFloat(amountEl.value) || 0;
+        resEl.textContent = '…';
+        try {
+          const r = await fetch(`https://api.exchangerate.host/convert?from=EUR&to=${destCurr}&amount=${a}`);
+          const j = await r.json();
+          if (j.result != null) {
+            resEl.textContent = new Intl.NumberFormat('es-ES', { style: 'currency', currency: destCurr, maximumFractionDigits: 2 }).format(j.result);
+            rateEl.textContent = `1 EUR = ${j.info?.rate?.toFixed(4) || '?'} ${destCurr}`;
+          } else {
+            resEl.textContent = 'Error';
+          }
+        } catch (e) {
+          resEl.textContent = 'Sin conexión';
         }
-      } catch (e) {
-        resEl.textContent = 'Sin conexión';
       }
+      amountEl.addEventListener('input', doConvert);
+      doConvert();
     }
-    [amountEl, fromEl, toEl].forEach(i => i.addEventListener('input', doConvert));
-    doConvert();
   }
 
   // ------------------------------------------------------
