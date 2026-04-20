@@ -1401,7 +1401,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     expenses: [],        // [{ id, day, category, desc, amount, date }]
     packing: {},         // { "clothing_0": true, ... }
     packing_custom: null,// items añadidos/editados por el usuario (override de DATA.packing_list)
-    budget_edit: null,   // { total, breakdown } editado por el usuario
+    budget_edit: null,   // { breakdown } editado por el usuario
+    split: null,         // { people: [], expenses: [] } gastos compartidos
     theme: null          // "light" | "dark" | null (= auto)
   };
 
@@ -1850,7 +1851,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     const progress = overallProgress();
     const packProg = packingProgress();
     const totalExp = totalExpenses();
-    const budget = store.budget_edit?.total || DATA.meta.budget?.total_estimated || 0;
+    const bdKeys_ov = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
+    const budget = store.budget_edit ? bdKeys_ov.reduce((s, k) => s + (store.budget_edit.breakdown[k] || 0), 0) : (DATA.meta.budget?.total_estimated || 0);
     const curr = DATA.meta.currency || 'EUR';
 
     const paneEl = document.querySelector('[data-me-pane="overview"]');
@@ -1944,12 +1946,10 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     if (!paneEl) return;
     const curr = DATA.meta.currency || 'EUR';
 
-    // El presupuesto editable se guarda en store.budget_edit
     // Inicializar desde DATA si no hay override guardado
     if (!store.budget_edit) {
       const bd = DATA.meta.budget?.breakdown || {};
       store.budget_edit = {
-        total: DATA.meta.budget?.total_estimated || 0,
         breakdown: {
           flights: bd.flights || 0,
           accommodation: bd.accommodation || 0,
@@ -1961,25 +1961,30 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         }
       };
     }
+    // Inicializar gastos compartidos si no existe
+    if (!store.split) {
+      store.split = { people: [], expenses: [] };
+    }
+
     const be = store.budget_edit;
-    const budgetTotal = be.total;
+    const bdLabels = { flights: 'Vuelos', accommodation: 'Alojamiento', transport: 'Transporte local', food: 'Comida', activities: 'Actividades', shopping: 'Compras', other: 'Otros' };
+    const bdKeys = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
+    // Total = suma de partidas (no editable directamente)
+    const budgetTotal = bdKeys.reduce((sum, k) => sum + (be.breakdown[k] || 0), 0);
     const totalExp = totalExpenses();
     const categories = ['Transporte', 'Alojamiento', 'Comida', 'Actividades', 'Compras', 'Otros'];
-    const catKeys = ['transport', 'accommodation', 'food', 'activities', 'shopping', 'other'];
-    const bdLabels = { flights: 'Vuelos', transport: 'Transporte local', accommodation: 'Alojamiento', food: 'Comida', activities: 'Actividades', shopping: 'Compras', other: 'Otros' };
-    const bdKeys = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
+
+    // --- Sección gastos compartidos ---
+    const sp = store.split;
+    const splitTotalByPerson = {};
+    sp.people.forEach(p => { splitTotalByPerson[p] = 0; });
+    sp.expenses.forEach(e => { splitTotalByPerson[e.paidBy] = (splitTotalByPerson[e.paidBy] || 0) + e.amount; });
+    const splitGrandTotal = sp.expenses.reduce((s, e) => s + e.amount, 0);
+    const fairShare = sp.people.length ? splitGrandTotal / sp.people.length : 0;
 
     paneEl.innerHTML = `
       <div class="budget-summary">
-        <div class="budget-row" style="margin-bottom:6px">
-          <span class="budget-row__label">Presupuesto total</span>
-          <div style="display:flex;align-items:center;gap:6px">
-            <input type="number" id="budget-total-input" value="${budgetTotal}" style="width:90px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-family:var(--font-display);font-size:16px;font-weight:700;text-align:right">
-            <span style="font-size:13px;color:var(--text-muted)">${curr}</span>
-          </div>
-        </div>
-
-        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:14px 0 8px">Desglose estimado</div>
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:0 0 10px">Presupuesto estimado</div>
         ${bdKeys.map(k => `
           <div class="budget-row" style="margin-bottom:4px">
             <span class="budget-row__label" style="font-size:13px">${bdLabels[k]}</span>
@@ -1989,25 +1994,31 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
             </div>
           </div>`).join('')}
 
-        <hr class="divider" style="margin:14px 0 10px">
-        <div class="budget-row budget-row--total"><span class="budget-row__label">Gastado</span><span class="budget-row__value">${fmtMoney(totalExp, curr)}</span></div>
+        <hr class="divider" style="margin:12px 0 10px">
+        <div class="budget-row">
+          <span class="budget-row__label" style="font-weight:700">Total presupuestado</span>
+          <span class="budget-row__value" id="budget-auto-total" style="font-size:20px">${fmtMoney(budgetTotal, curr)}</span>
+        </div>
+        <div class="budget-row" style="margin-top:6px">
+          <span class="budget-row__label">Gastado</span>
+          <span class="budget-row__value">${fmtMoney(totalExp, curr)}</span>
+        </div>
         <div class="budget-progress">
           <div class="budget-progress__fill ${totalExp > budgetTotal ? 'is-over' : ''}" style="width:${Math.min(100, budgetTotal ? (totalExp/budgetTotal)*100 : 0)}%"></div>
         </div>
-        <div class="budget-row" style="margin-top:8px">
+        <div class="budget-row" style="margin-top:6px">
           <span class="budget-row__label">Restante</span>
           <span class="budget-row__value" style="color:${totalExp > budgetTotal ? 'var(--c-danger)' : 'var(--c-success)'}">${fmtMoney(budgetTotal - totalExp, curr)}</span>
         </div>
       </div>
 
-      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:18px 0 8px">Añadir gasto</div>
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:20px 0 8px">Añadir gasto</div>
       <div class="expense-form">
         <input id="exp-desc" placeholder="Concepto">
         <input id="exp-amount" type="number" step="0.01" placeholder="€">
         <select id="exp-cat">${categories.map(c => `<option>${c}</option>`).join('')}</select>
         <button id="exp-add">+</button>
       </div>
-
       <ul class="expense-list" id="exp-list">
         ${store.expenses.length === 0 ? '<li class="empty-state">Aún no has añadido gastos.</li>' : ''}
         ${store.expenses.slice().reverse().map(e => `
@@ -2020,23 +2031,99 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
             <button class="expense-item__del" data-del="${e.id}">✕</button>
           </li>`).join('')}
       </ul>
+
+      <hr class="divider" style="margin:24px 0 16px">
+
+      <div class="tool-card" style="border:2px solid var(--accent);border-radius:var(--radius)">
+        <div class="tool-card__title">👥 Gastos compartidos</div>
+        <p style="font-size:12.5px;color:var(--text-soft);margin-bottom:12px">Añade viajeros y registra quién paga cada gasto. Al final del viaje, verás quién debe a quién.</p>
+
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px">Viajeros</div>
+        <div id="split-people" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+          ${sp.people.map((p, i) => `
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:var(--bg-elev);border-radius:999px;font-size:13px;font-weight:600">
+              ${esc(p)}
+              <button data-rm-person="${i}" style="font-size:11px;color:var(--c-danger);opacity:0.6;cursor:pointer;background:none;border:none">✕</button>
+            </span>`).join('')}
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:16px">
+          <input id="split-new-person" placeholder="Nombre" style="flex:1;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
+          <button id="split-add-person" class="btn btn--primary btn--sm">Añadir</button>
+        </div>
+
+        ${sp.people.length >= 2 ? `
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px">Registrar pago</div>
+          <div style="display:grid;grid-template-columns:1fr 80px 1fr auto;gap:6px;margin-bottom:12px">
+            <input id="split-desc" placeholder="Concepto" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;min-width:0">
+            <input id="split-amount" type="number" step="0.01" placeholder="€" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
+            <select id="split-who" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
+              ${sp.people.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('')}
+            </select>
+            <button id="split-add-exp" class="btn btn--primary btn--sm">+</button>
+          </div>
+
+          ${sp.expenses.length > 0 ? `
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 6px">Historial de pagos</div>
+            <ul class="expense-list" style="margin-bottom:12px">
+              ${sp.expenses.slice().reverse().map((e, ri) => {
+                const idx = sp.expenses.length - 1 - ri;
+                return `
+                <li class="expense-item">
+                  <div>
+                    <div class="expense-item__desc">${esc(e.desc)}</div>
+                    <div class="expense-item__cat">Pagó: ${esc(e.paidBy)}</div>
+                  </div>
+                  <span class="expense-item__amount">${fmtMoney(e.amount, curr)}</span>
+                  <button class="expense-item__del" data-del-split="${idx}">✕</button>
+                </li>`;
+              }).join('')}
+            </ul>
+
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 8px">Resumen</div>
+            <div style="background:var(--bg-elev);border-radius:var(--radius);padding:12px 14px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;color:var(--text-soft)">
+                <span>Gasto total del grupo</span>
+                <span style="font-weight:700;color:var(--text)">${fmtMoney(splitGrandTotal, curr)}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;color:var(--text-soft)">
+                <span>Parte justa por persona</span>
+                <span style="font-weight:700;color:var(--accent)">${fmtMoney(fairShare, curr)}</span>
+              </div>
+              <hr class="divider" style="margin:8px 0">
+              ${sp.people.map(p => {
+                const paid = splitTotalByPerson[p] || 0;
+                const diff = paid - fairShare;
+                const color = diff >= 0 ? 'var(--c-success)' : 'var(--c-danger)';
+                const label = diff >= 0 ? 'le deben' : 'debe';
+                return `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px">
+                  <div>
+                    <span style="font-weight:700">${esc(p)}</span>
+                    <span style="color:var(--text-muted)"> · pagó ${fmtMoney(paid, curr)}</span>
+                  </div>
+                  <span style="font-weight:700;color:${color}">${label} ${fmtMoney(Math.abs(diff), curr)}</span>
+                </div>`;
+              }).join('')}
+            </div>
+          ` : '<div class="empty-state" style="padding:16px 0">Añade un pago para ver el resumen.</div>'}
+        ` : sp.people.length === 1 ? '<p style="font-size:13px;color:var(--text-muted)">Añade al menos 2 viajeros para usar los gastos compartidos.</p>' : ''}
+      </div>
     `;
 
-    // Listeners para editar presupuesto
-    document.getElementById('budget-total-input').addEventListener('change', (e) => {
-      store.budget_edit.total = parseFloat(e.target.value) || 0;
-      saveStore();
-      renderMeBudget();
-      renderMeOverview();
-    });
+    // --- Listeners para partidas del presupuesto ---
     document.querySelectorAll('[data-bd-key]').forEach(inp => {
       inp.addEventListener('change', () => {
         store.budget_edit.breakdown[inp.dataset.bdKey] = parseFloat(inp.value) || 0;
         saveStore();
+        // Recalcular total en pantalla sin re-render completo
+        const newTotal = bdKeys.reduce((s, k) => s + (store.budget_edit.breakdown[k] || 0), 0);
+        const totalEl = document.getElementById('budget-auto-total');
+        if (totalEl) totalEl.textContent = fmtMoney(newTotal, curr);
+        renderMeOverview();
       });
     });
 
-    // Listeners para gastos
+    // --- Listeners para gastos personales ---
     document.getElementById('exp-add').addEventListener('click', () => {
       const desc = document.getElementById('exp-desc').value.trim();
       const amount = parseFloat(document.getElementById('exp-amount').value);
@@ -2053,6 +2140,58 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         saveStore();
         renderMeBudget();
         renderMeOverview();
+      });
+    });
+
+    // --- Listeners para gastos compartidos ---
+    // Añadir persona
+    const addPersonBtn = document.getElementById('split-add-person');
+    const newPersonInp = document.getElementById('split-new-person');
+    if (addPersonBtn) {
+      const doAddPerson = () => {
+        const name = newPersonInp.value.trim();
+        if (!name || store.split.people.includes(name)) return;
+        store.split.people.push(name);
+        saveStore();
+        renderMeBudget();
+      };
+      addPersonBtn.addEventListener('click', doAddPerson);
+      newPersonInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doAddPerson(); } });
+    }
+
+    // Eliminar persona
+    document.querySelectorAll('[data-rm-person]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.rmPerson);
+        const removed = store.split.people[idx];
+        store.split.people.splice(idx, 1);
+        store.split.expenses = store.split.expenses.filter(e => e.paidBy !== removed);
+        saveStore();
+        renderMeBudget();
+      });
+    });
+
+    // Añadir gasto compartido
+    const addSplitBtn = document.getElementById('split-add-exp');
+    if (addSplitBtn) {
+      addSplitBtn.addEventListener('click', () => {
+        const desc = document.getElementById('split-desc').value.trim();
+        const amount = parseFloat(document.getElementById('split-amount').value);
+        const who = document.getElementById('split-who').value;
+        if (!desc || !amount || isNaN(amount) || !who) return;
+        store.split.expenses.push({ desc, amount, paidBy: who, date: todayISO() });
+        saveStore();
+        renderMeBudget();
+      });
+    }
+
+    // Eliminar gasto compartido
+    document.querySelectorAll('[data-del-split]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.delSplit);
+        store.split.expenses.splice(idx, 1);
+        saveStore();
+        renderMeBudget();
       });
     });
   }
