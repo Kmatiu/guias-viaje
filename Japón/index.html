@@ -1,1 +1,2768 @@
-hola
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#C62828">
+<title>Japón 15 días — Tokio · Kioto · Osaka</title>
+
+<!-- PWA: permite "Añadir a pantalla de inicio" en iOS y Android como app fullscreen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Guía">
+
+<!-- Icono para pantalla de inicio (una brújula mediterránea en SVG data URL) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='38' fill='%23C65D3A'/><circle cx='90' cy='90' r='55' fill='none' stroke='%23FAF4E8' stroke-width='4'/><polygon points='90,45 100,90 90,135 80,90' fill='%23FAF4E8'/><polygon points='45,90 90,100 135,90 90,80' fill='%23E6A23C' opacity='0.85'/><circle cx='90' cy='90' r='6' fill='%23FAF4E8'/></svg>">
+
+<!-- Web App Manifest embebido como data URL (funciona en Chrome/Edge Android) -->
+<link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Gu%C3%ADa%20de%20viaje%22%2C%22short_name%22%3A%22Gu%C3%ADa%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FAF4E8%22%2C%22theme_color%22%3A%22%23C65D3A%22%2C%22orientation%22%3A%22portrait%22%2C%22start_url%22%3A%22.%22%7D">
+
+<!-- Leaflet para el mapa interactivo -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
+
+<!-- Tipografías -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   TOKENS — paleta editorial mediterránea
+   ========================================================= */
+:root {
+  --c-terracotta: #C65D3A;
+  --c-terracotta-dark: #A34A2C;
+  --c-teal: #0F4C5C;
+  --c-teal-dark: #0A3540;
+  --c-cream: #FAF4E8;
+  --c-cream-2: #F2EADB;
+  --c-gold: #E6A23C;
+  --c-ink: #1A1A1A;
+  --c-ink-soft: #3A3A3A;
+  --c-muted: #6B6B6B;
+  --c-line: #E5DCC8;
+  --c-danger: #B84A3A;
+  --c-success: #4A7C59;
+
+  --bg: var(--c-cream);
+  --bg-card: #FFFFFF;
+  --bg-elev: var(--c-cream-2);
+  --text: var(--c-ink);
+  --text-soft: var(--c-ink-soft);
+  --text-muted: var(--c-muted);
+  --line: var(--c-line);
+  --accent: var(--c-terracotta);
+  --accent-ink: #FFFFFF;
+  --brand: var(--c-teal);
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+
+  --shadow-sm: 0 1px 2px rgba(26,26,26,0.04), 0 1px 3px rgba(26,26,26,0.06);
+  --shadow: 0 4px 12px rgba(26,26,26,0.08), 0 2px 4px rgba(26,26,26,0.04);
+  --shadow-lg: 0 12px 32px rgba(26,26,26,0.12), 0 4px 8px rgba(26,26,26,0.06);
+
+  --tabbar-height: 68px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --bg: #14110E;
+  --bg-card: #1F1B15;
+  --bg-elev: #2A251D;
+  --text: #F2EADB;
+  --text-soft: #D4CAB4;
+  --text-muted: #9A9485;
+  --line: #2F2921;
+  --accent: #E07A57;
+  --accent-ink: #14110E;
+  --brand: #4A9CAE;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow: 0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.6);
+}
+
+/* =========================================================
+   RESET & BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-bottom: calc(var(--tabbar-height) + var(--safe-bottom));
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; margin: 0; }
+h1 { font-size: clamp(28px, 7vw, 42px); }
+h2 { font-size: clamp(22px, 5.5vw, 30px); }
+h3 { font-size: 19px; }
+h4 { font-size: 16px; }
+p { margin: 0 0 12px; color: var(--text-soft); }
+small { color: var(--text-muted); }
+a { color: var(--accent); text-decoration: none; }
+button { font-family: inherit; border: none; cursor: pointer; background: none; color: inherit; }
+input, textarea, select { font-family: inherit; font-size: 16px; }
+
+/* =========================================================
+   LAYOUT — header + páginas + tabbar
+   ========================================================= */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: calc(14px + var(--safe-top)) 20px 14px;
+  background: var(--bg);  /* fallback opaco para navegadores sin color-mix */
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+@supports (background: color-mix(in srgb, red, blue)) {
+  .app-header {
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+  }
+}
+.app-header__title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+.app-header__actions { display: flex; gap: 4px; }
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text-soft);
+  transition: background var(--transition);
+}
+.icon-btn:hover, .icon-btn:active { background: var(--bg-elev); }
+.icon-btn svg { width: 20px; height: 20px; }
+
+.page { display: none; padding: 20px 20px 40px; max-width: 720px; margin: 0 auto; }
+.page.is-active { display: block; animation: fade-in 240ms ease; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Tabbar inferior */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  height: calc(var(--tabbar-height) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: var(--bg-card);  /* fallback opaco */
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+@supports (background: color-mix(in srgb, red, blue)) {
+  .tabbar {
+    background: color-mix(in srgb, var(--bg-card) 96%, transparent);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+  }
+}
+.tabbar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 8px 4px;
+  transition: color var(--transition);
+  position: relative;
+}
+.tabbar__item svg { width: 22px; height: 22px; }
+.tabbar__item.is-active { color: var(--accent); }
+.tabbar__item.is-active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--accent);
+}
+
+/* =========================================================
+   HOME
+   ========================================================= */
+.hero {
+  position: relative;
+  padding: 28px 22px 30px;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 85% 15%, rgba(230,162,60,0.22), transparent 55%),
+    linear-gradient(135deg, var(--c-teal) 0%, var(--c-teal-dark) 100%);
+  color: #F6EED9;
+  margin-bottom: 22px;
+  overflow: hidden;
+}
+.hero--with-image {
+  padding: 40px 22px 30px;
+  /* Mantiene el gradient base como fallback si la imagen no carga (404, red lenta) */
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.hero--with-image .hero__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+.hero--with-image .hero__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.75) 100%);
+}
+.hero--with-image > *:not(.hero__bg) {
+  position: relative;
+  z-index: 1;
+}
+.hero--with-image .hero__title,
+.hero--with-image .hero__subtitle,
+.hero--with-image .hero__meta {
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3CfeColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.90 0 0 0 0 0.80 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.55;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+.hero__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-gold);
+  margin-bottom: 14px;
+}
+.hero__title {
+  color: #FAF4E8;
+  font-size: clamp(28px, 7vw, 38px);
+  margin-bottom: 6px;
+}
+.hero__subtitle {
+  color: rgba(250,244,232,0.85);
+  font-size: 15px;
+  line-height: 1.45;
+  margin-bottom: 18px;
+}
+.hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  font-size: 13px;
+  color: rgba(250,244,232,0.75);
+}
+.hero__meta-item { display: flex; align-items: center; gap: 6px; }
+
+.today-card {
+  margin-bottom: 22px;
+  padding: 18px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+.today-card__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.today-card__title { font-size: 17px; font-weight: 600; font-family: var(--font-display); margin-bottom: 6px; }
+.today-card__summary { font-size: 14px; color: var(--text-soft); margin: 0 0 12px; }
+.today-card__link { font-size: 13px; font-weight: 700; color: var(--accent); }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 28px 0 14px;
+  letter-spacing: -0.01em;
+}
+.section-title--small { font-size: 18px; margin: 22px 0 10px; }
+
+.props-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 520px) { .props-grid { grid-template-columns: 1fr 1fr; } }
+
+.prop-card {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.prop-card:active { transform: scale(0.98); }
+.prop-card__icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  background: var(--bg-elev);
+  border-radius: 10px;
+}
+.prop-card__title { font-size: 14px; font-weight: 700; margin-bottom: 2px; font-family: var(--font-body); }
+.prop-card__text { font-size: 13px; color: var(--text-soft); line-height: 1.45; }
+
+/* Historia colapsable */
+.history {
+  padding: 18px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+}
+.history__summary { font-size: 14px; color: var(--text-soft); margin: 0 0 10px; }
+.history__toggle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.history__detail { display: none; margin-top: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+.history.is-open .history__detail { display: block; }
+.history.is-open .history__toggle .chev { transform: rotate(180deg); }
+.chev { transition: transform 220ms ease; display: inline-block; }
+.history__period { margin-bottom: 14px; }
+.history__period-range {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 700;
+}
+.history__period-title { font-size: 16px; font-weight: 700; font-family: var(--font-display); margin: 2px 0 6px; }
+.history__period-text { font-size: 13.5px; color: var(--text-soft); line-height: 1.55; }
+
+/* =========================================================
+   DÍAS — lista y detalle
+   ========================================================= */
+.days-list { display: flex; flex-direction: column; gap: 10px; }
+.day-card {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  text-align: left;
+  width: 100%;
+  transition: transform var(--transition), border-color var(--transition);
+}
+.day-card:active { transform: scale(0.985); border-color: var(--accent); }
+.day-card__num {
+  flex-shrink: 0;
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elev);
+  border-radius: 10px;
+  padding: 8px 4px;
+}
+.day-card__num-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; }
+.day-card__num-value { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; }
+.day-card__date { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 3px; }
+.day-card__title { font-family: var(--font-display); font-size: 16px; font-weight: 600; margin-bottom: 4px; line-height: 1.25; }
+.day-card__summary { font-size: 13px; color: var(--text-soft); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.day-card__progress { margin-top: 8px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
+.progress-bar { flex: 1; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress-bar__fill { height: 100%; background: var(--c-success); transition: width 300ms ease; }
+
+/* Detalle día */
+.day-detail__head {
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.day-detail__eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 4px; }
+.day-detail__title { font-family: var(--font-display); font-size: 26px; font-weight: 600; line-height: 1.15; margin-bottom: 12px; }
+.day-detail__logistics {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.day-detail__logistics-item { display: flex; align-items: center; gap: 5px; }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: var(--line);
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 14px 14px 16px;
+  transition: border-color var(--transition), opacity var(--transition);
+}
+.tl-item.is-done { opacity: 0.55; }
+.tl-item.is-done .tl-item__title { text-decoration: line-through; }
+.tl-item::before {
+  content: attr(data-icon);
+  position: absolute;
+  left: -33px;
+  top: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.tl-item__head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.tl-item__time {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+.tl-item__check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--bg);
+  transition: all var(--transition);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.tl-item__check:hover { border-color: var(--accent); }
+.tl-item.is-done .tl-item__check { background: var(--c-success); border-color: var(--c-success); }
+.tl-item.is-done .tl-item__check::after {
+  content: "✓";
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+}
+.tl-item__title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.tl-item__description { font-size: 13.5px; color: var(--text-soft); line-height: 1.5; }
+.tl-item__place {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 8px;
+}
+
+/* Ficha de lugar */
+.place-card {
+  background: var(--bg-elev);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-top: 14px;
+}
+.place-card__name { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.place-card__review { font-size: 13px; color: var(--text-soft); line-height: 1.55; margin-bottom: 10px; }
+.place-card__meta { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 12.5px; margin-bottom: 10px; }
+.place-card__meta-item { display: flex; gap: 6px; }
+.place-card__meta-label { color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
+.place-card__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  transition: transform var(--transition), background var(--transition);
+}
+.btn:active { transform: scale(0.96); }
+.btn--primary { background: var(--accent); color: var(--accent-ink); }
+.btn--ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.btn--sm { padding: 6px 12px; font-size: 12px; }
+.btn svg { width: 14px; height: 14px; }
+
+/* Restaurantes */
+.restaurants { margin-top: 20px; }
+.rest-card {
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+.rest-card__head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.rest-card__name { font-weight: 700; font-size: 14.5px; }
+.rest-card__price { font-family: var(--font-display); color: var(--accent); font-weight: 700; font-size: 14px; }
+.rest-card__spec { font-size: 13px; color: var(--text-soft); }
+.rest-card__meal { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; background: var(--bg-elev); padding: 2px 8px; border-radius: 999px; color: var(--text-muted); margin-top: 6px; }
+
+/* Planes alternativos */
+.alt-plans { margin-top: 20px; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--line); overflow: hidden; }
+.alt-plan { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.alt-plan:last-child { border-bottom: none; }
+.alt-plan__label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--accent); margin-bottom: 3px; }
+.alt-plan__text { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+
+/* Info complementaria */
+.info-block { margin-top: 20px; }
+.info-block__title { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.info-block__list { list-style: none; padding: 0; margin: 0; }
+.info-block__list li { font-size: 13px; color: var(--text-soft); padding: 6px 0; border-bottom: 1px dashed var(--line); line-height: 1.45; }
+.info-block__list li:last-child { border-bottom: none; }
+
+/* Notas del día */
+.day-notes { margin-top: 24px; background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+.day-notes__label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; }
+.day-notes__textarea {
+  width: 100%;
+  min-height: 80px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  resize: vertical;
+  outline: none;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   MAPA
+   ========================================================= */
+#map-container { position: relative; height: calc(100dvh - var(--tabbar-height) - var(--safe-bottom) - var(--safe-top) - 120px); min-height: 300px; max-height: 700px; margin: 0 -20px; border-radius: 0; }
+@supports not (height: 100dvh) {
+  #map-container { height: calc(100vh - var(--tabbar-height) - var(--safe-bottom) - 140px); }
+}
+#map { height: 100%; width: 100%; }
+.map-legend {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  z-index: 500;
+  background: color-mix(in srgb, var(--bg-card) 95%, transparent);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--text-soft);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+}
+.leaflet-popup-content-wrapper { border-radius: var(--radius) !important; }
+.leaflet-popup-content { font-family: var(--font-body) !important; margin: 12px 14px !important; }
+.leaflet-popup-content strong { font-family: var(--font-display); font-size: 14px; }
+
+/* =========================================================
+   CONSEJOS
+   ========================================================= */
+.tip-group { margin-bottom: 16px; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--line); overflow: hidden; }
+.tip-group__head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  text-align: left;
+}
+.tip-group__head-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.tip-group__icon { font-size: 22px; }
+.tip-group__title { font-family: var(--font-display); font-size: 17px; font-weight: 600; }
+.tip-group__body { display: none; padding: 0 16px 12px; }
+.tip-group.is-open .tip-group__body { display: block; }
+.tip-group.is-open .chev { transform: rotate(180deg); }
+.tip-item { padding: 10px 0; border-top: 1px solid var(--line); }
+.tip-item__subtitle { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.tip-item__text { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+
+/* =========================================================
+   YO — checklist, notas, presupuesto, packing
+   ========================================================= */
+.me-tabs { display: flex; gap: 6px; margin-bottom: 18px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.me-tabs::-webkit-scrollbar { display: none; }
+.me-tab {
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1.5px solid var(--line);
+  white-space: nowrap;
+  transition: all var(--transition);
+}
+.me-tab.is-active { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+.me-pane { display: none; }
+.me-pane.is-active { display: block; }
+
+/* Stats globales */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; }
+.stat-card { padding: 14px 10px; background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); text-align: center; }
+.stat-card__value { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+.stat-card__label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+
+/* Presupuesto */
+.budget-summary { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+.budget-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.budget-row__label { font-size: 13px; color: var(--text-soft); }
+.budget-row__value { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+.budget-row--total { padding-top: 10px; border-top: 1px solid var(--line); }
+.budget-row--total .budget-row__value { font-size: 22px; color: var(--accent); }
+.budget-progress { height: 8px; background: var(--bg-elev); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+.budget-progress__fill { height: 100%; background: linear-gradient(90deg, var(--c-success), var(--c-gold)); transition: width 400ms ease; }
+.budget-progress__fill.is-over { background: linear-gradient(90deg, var(--c-gold), var(--c-danger)); }
+
+.expense-form {
+  display: grid;
+  grid-template-columns: 1fr 90px 110px auto;
+  gap: 6px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+}
+.expense-form input, .expense-form select {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  min-width: 0;
+}
+.expense-form button { background: var(--accent); color: var(--accent-ink); border-radius: 8px; font-weight: 700; padding: 8px 14px; font-size: 13px; }
+.expense-list { list-style: none; padding: 0; margin: 0; }
+.expense-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+}
+.expense-item__desc { font-size: 13.5px; }
+.expense-item__cat { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.expense-item__amount { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+.expense-item__del { color: var(--c-danger); font-size: 12px; font-weight: 700; margin-left: 6px; }
+
+/* Packing */
+.packing-group { margin-bottom: 16px; }
+.packing-group__title { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.packing-group__title::before { content: ""; width: 4px; height: 16px; background: var(--accent); border-radius: 2px; }
+.packing-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.packing-item.is-packed { opacity: 0.5; }
+.packing-item.is-packed .packing-item__text { text-decoration: line-through; }
+.packing-item__box {
+  width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--line);
+  display: grid; place-items: center; flex-shrink: 0; transition: all var(--transition);
+}
+.packing-item.is-packed .packing-item__box { background: var(--c-success); border-color: var(--c-success); }
+.packing-item.is-packed .packing-item__box::after { content: "✓"; color: white; font-size: 12px; font-weight: 700; }
+.packing-item__text { font-size: 14px; }
+
+/* Packing editable */
+.packing-item {
+  position: relative;
+}
+.packing-item__edit {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  padding: 2px 4px;
+  outline: none;
+  min-width: 0;
+  border-radius: 4px;
+  transition: background var(--transition);
+}
+.packing-item__edit:focus {
+  background: var(--bg-elev);
+}
+.packing-item.is-packed .packing-item__edit {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.packing-item__remove {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  color: var(--c-danger);
+  opacity: 0.4;
+  transition: opacity var(--transition), background var(--transition);
+}
+.packing-item__remove:hover, .packing-item__remove:active {
+  opacity: 1;
+  background: rgba(184,74,58,0.1);
+}
+.packing-add-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 0 12px 4px;
+}
+.packing-add-input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+.packing-add-input:focus { border-style: solid; border-color: var(--accent); }
+.packing-add-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 16px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+/* Conversor */
+.tool-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+.tool-card__title { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+.tool-card__row { display: grid; grid-template-columns: 1fr 80px; gap: 8px; margin-bottom: 8px; }
+.tool-card input, .tool-card select { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); width: 100%; }
+.tool-card__result {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  text-align: right;
+}
+
+/* Weather */
+.weather-grid { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+.weather-grid::-webkit-scrollbar { display: none; }
+.weather-day {
+  flex: 0 0 90px;
+  padding: 12px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.weather-day__date { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 4px; }
+.weather-day__icon { font-size: 26px; margin: 4px 0; }
+.weather-day__temp { font-family: var(--font-display); font-size: 14px; font-weight: 700; }
+.weather-day__temp-min { color: var(--text-muted); font-weight: 400; }
+
+/* =========================================================
+   MODAL DE BÚSQUEDA
+   ========================================================= */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);  /* fallback opaco */
+  z-index: 100;
+  padding: calc(20px + var(--safe-top)) 20px 20px;
+  display: none;
+  overflow-y: auto;
+}
+@supports (background: color-mix(in srgb, red, blue)) {
+  .search-overlay {
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+.search-overlay.is-open { display: block; animation: fade-in 180ms ease; }
+.search-overlay__head { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; }
+.search-overlay__input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+}
+.search-overlay__input:focus { border-color: var(--accent); }
+.search-results { display: flex; flex-direction: column; gap: 6px; }
+.search-result {
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+.search-result:hover { border-color: var(--accent); }
+.search-result__type { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); font-weight: 700; }
+.search-result__title { font-weight: 700; font-size: 14px; margin: 2px 0; }
+.search-result__snippet { font-size: 12.5px; color: var(--text-soft); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* =========================================================
+   MISC
+   ========================================================= */
+.empty-state { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px; }
+.divider { height: 1px; background: var(--line); margin: 20px 0; border: none; }
+
+@media (min-width: 640px) {
+  .props-grid { grid-template-columns: 1fr 1fr 1fr; }
+  .expense-form { grid-template-columns: 2fr 1fr 1fr auto; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================================================
+     HEADER
+     ========================================================= -->
+<header class="app-header">
+  <div class="app-header__title" id="header-title">Guía de viaje</div>
+  <div class="app-header__actions">
+    <button class="icon-btn" id="btn-search" aria-label="Buscar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+    </button>
+    <button class="icon-btn" id="btn-theme" aria-label="Tema">
+      <svg id="icon-theme" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+    </button>
+  </div>
+</header>
+
+<!-- =========================================================
+     PÁGINAS
+     ========================================================= -->
+
+<!-- HOME -->
+<main class="page is-active" id="page-home"></main>
+
+<!-- DÍAS (lista) -->
+<main class="page" id="page-days"></main>
+
+<!-- DÍA DETALLE -->
+<main class="page" id="page-day"></main>
+
+<!-- MAPA -->
+<main class="page" id="page-map">
+  <h2 class="section-title" style="margin-top:0">Mapa del viaje</h2>
+  <div id="map-container">
+    <div id="map"></div>
+    <div class="map-legend">Toca un marcador para ver detalles. Los números indican el día de visita.</div>
+  </div>
+</main>
+
+<!-- CONSEJOS -->
+<main class="page" id="page-tips"></main>
+
+<!-- YO -->
+<main class="page" id="page-me"></main>
+
+<!-- =========================================================
+     SEARCH OVERLAY
+     ========================================================= -->
+<div class="search-overlay" id="search-overlay">
+  <div class="search-overlay__head">
+    <input class="search-overlay__input" id="search-input" placeholder="Buscar lugares, consejos, restaurantes…" autocomplete="off">
+    <button class="icon-btn" id="search-close" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+    </button>
+  </div>
+  <div class="search-results" id="search-results"></div>
+</div>
+
+<!-- =========================================================
+     TABBAR
+     ========================================================= -->
+<nav class="tabbar">
+  <button class="tabbar__item is-active" data-tab="home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    Inicio
+  </button>
+  <button class="tabbar__item" data-tab="days">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+    Días
+  </button>
+  <button class="tabbar__item" data-tab="map">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+    Mapa
+  </button>
+  <button class="tabbar__item" data-tab="tips">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.74V17h8v-2.26A7 7 0 0 0 12 2z"></path></svg>
+    Consejos
+  </button>
+  <button class="tabbar__item" data-tab="me">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    Yo
+  </button>
+</nav>
+
+<!-- =========================================================
+     DATOS DE LA GUÍA (JSON embebido)
+     ========================================================= -->
+<script type="application/json" id="guide-data">
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "Japón 15 días — Tokio · Kioto · Osaka",
+    "subtitle": "2 parejas, ritmo madrugador y tranquilo, marzo 2027",
+    "destination": { "name": "Japón", "country": "Japón", "region": "Kantō, Kansai, Chūgoku" },
+    "origin": { "city": "Valencia", "country": "España" },
+    "dates": { "start": "2027-03-18", "end": "2027-04-02", "days": 15 },
+    "travelers": { "adults": 4, "children": 0, "children_ages": [] },
+    "budget": {
+      "level": "medio",
+      "total_estimated": 9600,
+      "breakdown": {
+        "flights": 5056,
+        "accommodation": 2120,
+        "transport": 820,
+        "food": 600,
+        "activities": 600,
+        "shopping": 300,
+        "other": 104
+      }
+    },
+    "interests": ["cultura", "gastronomía", "anime/manga", "templos", "compras", "fotografía"],
+    "transport": { "to_destination": "avion", "on_site": ["tren", "metro", "a_pie"] },
+    "language": "es",
+    "currency": "EUR / JPY",
+    "cover_image": "cover.jpg",
+    "theme_color": "#C62828"
+  },
+
+  "intro": {
+    "narrative": "Quince días recorriendo Japón de punta a punta: desde el neón de Shinjuku hasta los torii bermellón de Fushimi Inari, pasando por el wagyu a la brasa, la ceremonia del té en Gion y el castillo de Osaka. Dos parejas desde Valencia, con ganas de madrugar para ver los templos sin aglomeraciones, recargar en un konbini al mediodía y dejarse sorprender por la cultura japonesa a cada paso. ¿Listos? いただきます！",
+    "value_props": [
+      { "icon": "🏯", "title": "3 ciudades emblemáticas", "text": "Tokio (5 noches) → Kioto (4 noches) → Osaka (4 noches), conectadas en Shinkansen y con maletas enviadas por Takkyūbin." },
+      { "icon": "🌸", "title": "Temporada de sakura", "text": "Finales de marzo en Japón: posibilidad real de ver los cerezos en flor en Tokio y Kioto." },
+      { "icon": "🎮", "title": "Cultura pop y tradición", "text": "Captain Tsubasa en Yotsugi, Museo Samurái, kimono en Gion, Universal Studios Japan y quizá el Nintendo Museum." },
+      { "icon": "💴", "title": "~1.000 € / persona en gastos", "text": "Sin contar vuelos ni alojamiento. Combinis como base, con experiencias gastronómicas puntuales." }
+    ],
+    "guide_features": [
+      "Itinerario optimizado por zonas cada día",
+      "Horarios y precios verificados con web_search",
+      "Coordenadas GPS reales para cada lugar",
+      "Lista de equipaje filtrada para marzo en Japón",
+      "Consejos prácticos específicos para Japón"
+    ]
+  },
+
+  "history": {
+    "title": "Japón en pinceladas",
+    "summary": "Un archipiélago donde conviven la tecnología más avanzada y tradiciones milenarias. Desde los samuráis del periodo Sengoku hasta el Japón moderno de los rascacielos y el shinkansen, cada rincón cuenta una historia.",
+    "periods": [
+      { "range": "710-794", "title": "Periodo Nara", "text": "Primera capital fija en Nara. Influencia china en budismo, escritura y arquitectura." },
+      { "range": "794-1185", "title": "Periodo Heian", "text": "La corte se traslada a Kioto. Florecimiento cultural: La novela de Genji, arte cortesano." },
+      { "range": "1603-1868", "title": "Periodo Edo", "text": "Los Tokugawa unifican Japón. Aislamiento del exterior, paz interna, auge del kabuki y ukiyo-e." },
+      { "range": "1868-actual", "title": "Japón moderno", "text": "Restauración Meiji, industrialización, posguerra y el milagro económico. Hoy, potencia tecnológica y cultural." }
+    ]
+  },
+
+  "overview_map": {
+    "center": { "lat": 35.0, "lng": 136.0 },
+    "zoom": 6,
+    "markers": [
+      { "day": 1, "name": "Aeropuerto de Narita", "coords": { "lat": 35.7647, "lng": 140.3864 } },
+      { "day": 2, "name": "Asakusa / Akihabara", "coords": { "lat": 35.7148, "lng": 139.7967 } },
+      { "day": 3, "name": "Shibuya / Harajuku", "coords": { "lat": 35.6595, "lng": 139.7004 } },
+      { "day": 4, "name": "Shinjuku / Meiji Jingu", "coords": { "lat": 35.6762, "lng": 139.6993 } },
+      { "day": 5, "name": "teamLab / Yotsugi", "coords": { "lat": 35.6547, "lng": 139.7889 } },
+      { "day": 6, "name": "Shimoyoshida / Chureito Pagoda", "coords": { "lat": 35.3987, "lng": 138.8072 } },
+      { "day": 7, "name": "Kioto — Fushimi Inari / Kiyomizu-dera", "coords": { "lat": 34.9671, "lng": 135.7727 } },
+      { "day": 8, "name": "Arashiyama / Kinkaku-ji", "coords": { "lat": 35.0094, "lng": 135.6801 } },
+      { "day": 9, "name": "Gion / Ceremonia del té / Kimono", "coords": { "lat": 35.0036, "lng": 135.7747 } },
+      { "day": 10, "name": "Nara / Nintendo Museum", "coords": { "lat": 34.6851, "lng": 135.8048 } },
+      { "day": 11, "name": "Osaka — Castillo / Dotonbori", "coords": { "lat": 34.6873, "lng": 135.5259 } },
+      { "day": 12, "name": "Universal Studios Japan", "coords": { "lat": 34.6654, "lng": 135.4323 } },
+      { "day": 13, "name": "Hiroshima / Miyajima", "coords": { "lat": 34.3853, "lng": 132.4553 } },
+      { "day": 14, "name": "Osaka libre / compras", "coords": { "lat": 34.6687, "lng": 135.5013 } },
+      { "day": 15, "name": "Aeropuerto Kansai — Vuelta", "coords": { "lat": 34.4347, "lng": 135.2440 } }
+    ]
+  },
+
+  "summary": [
+    { "day": 1, "date": "2027-03-18", "weekday": "Jueves", "title": "✈️ Vuelo Valencia → Japón", "summary": "Salida a las 18:10 desde Valencia. Noche en vuelo." },
+    { "day": 2, "date": "2027-03-19", "weekday": "Viernes", "title": "🛬 Llegada a Tokio · Shinjuku", "summary": "Llegada a Narita a las 19:30. Traslado al Airbnb en Shinjuku. Primera cena en un izakaya del barrio." },
+    { "day": 3, "date": "2027-03-20", "weekday": "Sábado", "title": "⛩️ Asakusa · Museo Samurái · Akihabara", "summary": "Madrugón a Senso-ji, Museo Samurái Ninja en Asakusa, tarde en Akihabara para compras y cultura otaku." },
+    { "day": 4, "date": "2027-03-21", "weekday": "Domingo", "title": "🌿 Meiji Jingu · Harajuku · Shibuya Sky", "summary": "Meiji Jingu temprano, Takeshita Street, Omotesando, Shibuya Crossing y Shibuya Sky al atardecer." },
+    { "day": 5, "date": "2027-03-22", "weekday": "Lunes", "title": "🎨 teamLab Planets · Yotsugi · Compras", "summary": "teamLab Planets por la mañana, excursión a Yotsugi (Captain Tsubasa), tarde de compras en Shinjuku." },
+    { "day": 6, "date": "2027-03-23", "weekday": "Martes", "title": "🗻 Excursión Chureito Pagoda / Mt. Fuji", "summary": "Día de excursión a Shimoyoshida para ver el Monte Fuji desde Chureito Pagoda (sujeto al tiempo)." },
+    { "day": 7, "date": "2027-03-24", "weekday": "Miércoles", "title": "🚄 Shinkansen a Kioto · Fushimi Inari · Kiyomizu-dera", "summary": "Checkout Tokio, envío maletas por Takkyūbin, Shinkansen a Kioto. Tarde: Fushimi Inari y Kiyomizu-dera." },
+    { "day": 8, "date": "2027-03-25", "weekday": "Jueves", "title": "🎋 Arashiyama · Kinkaku-ji", "summary": "Bosque de bambú de Arashiyama temprano, puente Togetsukyo, Kinkaku-ji (Pabellón de Oro) por la tarde." },
+    { "day": 9, "date": "2027-03-26", "weekday": "Viernes", "title": "👘 Kimono · Ceremonia del té · Gion", "summary": "Alquiler de kimono, paseo por templos, ceremonia del té tradicional y Gion al atardecer." },
+    { "day": 10, "date": "2027-03-27", "weekday": "Sábado", "title": "🦌 Nara · Nintendo Museum (si hay entrada)", "summary": "Excursión a Nara: ciervos, Todai-ji. Si se consiguió entrada, Nintendo Museum en Uji." },
+    { "day": 11, "date": "2027-03-28", "weekday": "Domingo", "title": "🏯 Traslado a Osaka · Castillo · Dotonbori", "summary": "Traslado a Osaka, check-in, Castillo de Osaka por fuera, Dotonbori y street food por la noche." },
+    { "day": 12, "date": "2027-03-29", "weekday": "Lunes", "title": "🎢 Universal Studios Japan", "summary": "Día completo en USJ: Super Nintendo World, Harry Potter, atracciones. Lunes = menos afluencia." },
+    { "day": 13, "date": "2027-03-30", "weekday": "Martes", "title": "☮️ Hiroshima · Miyajima · Torii flotante", "summary": "Excursión en Shinkansen: Parque de la Paz, Domo, ferry a Miyajima, torii flotante de Itsukushima." },
+    { "day": 14, "date": "2027-03-31", "weekday": "Miércoles", "title": "🛍️ Osaka libre · Shinsekai · Compras finales", "summary": "Último día completo: Shinsekai, Kuromon Market, compras finales, cena de despedida." },
+    { "day": 15, "date": "2027-04-01", "weekday": "Jueves", "title": "✈️ Vuelta Kansai → Valencia", "summary": "Mañana libre, traslado a Kansai Airport. Vuelo a las 22:10. Llegada a Valencia el 2 de abril a las 09:40." }
+  ],
+
+  "days": [
+    {
+      "day": 1, "date": "2027-03-18", "title": "✈️ Vuelo Valencia → Japón",
+      "timeline": [
+        { "time": "16:00", "icon": "🧳", "title": "Aeropuerto de Valencia", "description": "Llegada al aeropuerto con 2 h de antelación. Facturar maletas.", "type": "transport", "duration_min": 60 },
+        { "time": "18:10", "icon": "✈️", "title": "Despegue VLC", "description": "Vuelo con escala hacia Narita. Noche a bordo.", "type": "transport", "duration_min": 900 }
+      ],
+      "places": [],
+      "restaurants": [],
+      "logistics": { "driving_km": 0, "walking_km": 0 },
+      "info": { "travel_tips": ["Llevar almohada de viaje y antifaz para dormir en el avión.", "Descargad las apps Google Maps (offline de Japón), Suica y Google Translate antes de embarcar."], "facts": ["El vuelo Valencia-Tokio con escala suele durar entre 15-18 horas."] }
+    },
+    {
+      "day": 2, "date": "2027-03-19", "title": "🛬 Llegada a Tokio · Shinjuku",
+      "timeline": [
+        { "time": "19:30", "icon": "🛬", "title": "Llegada a Narita (NRT)", "description": "Recoger maletas, pasar inmigración (puede tardar 1h). Comprar tarjeta Suica/Pasmo o activar Welcome Suica en el móvil.", "type": "transport", "duration_min": 60 },
+        { "time": "20:30", "icon": "🚃", "title": "Narita Express → Shinjuku", "description": "Narita Express hasta Shinjuku Station (~80 min, ¥3.250). Alternativa: Limousine Bus (~85 min, ¥3.200).", "type": "transport", "duration_min": 85 },
+        { "time": "22:00", "icon": "🏠", "title": "Check-in Airbnb Shinjuku", "description": "Airbnb cerca de APA Hotel Higashishinjuku. 2 apartamentos, uno por pareja. Total 226.000 ¥ (5 noches).", "type": "checkin", "duration_min": 30 },
+        { "time": "22:30", "icon": "🍜", "title": "Cena en Shinjuku", "description": "Ramen rápido en Fuunji (つけ麺 専門店 ふうじん) o explorar los izakayas de Omoide Yokocho.", "type": "meal", "duration_min": 45 }
+      ],
+      "places": [
+        { "id": "narita", "name": "Aeropuerto de Narita", "coords": { "lat": 35.7647, "lng": 140.3864 }, "tips": "Comprad la Welcome Suica en la app antes de llegar. Si necesitáis efectivo, los cajeros 7-Bank del 7-Eleven del aeropuerto aceptan tarjetas extranjeras." },
+        { "id": "shinjuku-airbnb", "name": "Airbnb Shinjuku (cerca APA Hotel Higashishinjuku)", "coords": { "lat": 35.6986, "lng": 139.7119 }, "tips": "Zona muy bien comunicada por metro. A 5 min andando de Higashishinjuku Station (Oedo Line, Fukutoshin Line)." }
+      ],
+      "restaurants": [
+        { "name": "Fuunji (つけ麺 ふうじん)", "meal": "cena", "speciality": "Tsukemen (ramen de mojar)", "price_range": "€", "reservation_required": false, "coords": { "lat": 35.6887, "lng": 139.6977 }, "notes": "Cola habitual de 15-20 min. Pedir el tsukemen concentrado. Cerrado temprano si se agota el caldo." },
+        { "name": "Omoide Yokocho", "meal": "cena", "speciality": "Yakitori, kushiyaki", "price_range": "€", "reservation_required": false, "coords": { "lat": 35.6936, "lng": 139.6993 }, "notes": "Callejón de izakayas junto a la estación de Shinjuku (salida oeste). Ambiente retro y humo de yakitori." }
+      ],
+      "logistics": { "walking_km": 2, "public_transport": "Narita Express (¥3.250/persona)" },
+      "info": { "travel_tips": ["No hagáis cambio de divisas en el aeropuerto: el tipo es peor. Usad cajeros 7-Eleven.", "La Suica digital (iPhone/Apple Watch) funciona en todo el transporte de Tokio."], "facts": ["Narita está a 60 km de Tokio centro."] }
+    },
+    {
+      "day": 3, "date": "2027-03-20", "title": "⛩️ Asakusa · Museo Samurái · Akihabara",
+      "timeline": [
+        { "time": "07:00", "icon": "🏪", "title": "Desayuno en konbini", "description": "Onigiri, sándwiches y café en el 7-Eleven o Lawson más cercano. Económico y rápido.", "type": "meal", "duration_min": 15 },
+        { "time": "07:30", "icon": "🚇", "title": "Metro a Asakusa", "description": "Oedo Line desde Higashishinjuku hasta Asakusa. ~30 min.", "type": "transport", "duration_min": 30 },
+        { "time": "08:00", "icon": "⛩️", "title": "Senso-ji y Nakamise-dori", "description": "El templo más antiguo de Tokio. A las 8 AM hay muy poca gente. Recorrer Nakamise-dori, la calle comercial del templo, comprar amuletos.", "type": "visit", "duration_min": 75 },
+        { "time": "09:30", "icon": "⚔️", "title": "Samurai Ninja Museum (Asakusa)", "description": "Museo interactivo: vestirse de samurái, lanzar shuriken, tour guiado en inglés. Entrada ~3.000 ¥/persona.", "type": "activity", "duration_min": 75 },
+        { "time": "11:00", "icon": "🍱", "title": "Almuerzo en Asakusa", "description": "Probar un tendon (tempura sobre arroz) en Daikokuya o comprar street food en los puestos de Nakamise.", "type": "meal", "duration_min": 45 },
+        { "time": "12:00", "icon": "🚇", "title": "Metro a Akihabara", "description": "Ginza Line desde Asakusa a Suehirocho o Tsukuba Express a Akihabara. ~15 min.", "type": "transport", "duration_min": 20 },
+        { "time": "12:30", "icon": "🎮", "title": "Akihabara — Electric Town", "description": "Tiendas de electrónica, manga, figuras anime. Visitar Yodobashi Camera (8 plantas), Mandarake, Super Potato (retrogaming). Sin prisas.", "type": "visit", "duration_min": 180 },
+        { "time": "16:00", "icon": "☕", "title": "Pausa café / maid café", "description": "Opción: probar un maid café (experiencia curiosa) o simplemente descansar en un Starbucks.", "type": "free", "duration_min": 45 },
+        { "time": "17:00", "icon": "🚇", "title": "Vuelta a Shinjuku", "description": "JR Chuo Line o Sobu Line, ~20 min a Shinjuku.", "type": "transport", "duration_min": 25 },
+        { "time": "18:00", "icon": "🍺", "title": "Cena en Shinjuku Golden Gai", "description": "Paseo por los callejones de Golden Gai. Elegir un bar/izakaya diminuto (5-8 asientos) para picar yakitori y cerveza.", "type": "meal", "duration_min": 90 }
+      ],
+      "places": [
+        { "id": "sensoji", "name": "Senso-ji", "coords": { "lat": 35.7148, "lng": 139.7967 }, "hours": "Templo: 24h. Edificio principal: 6:00-17:00", "price": "Gratis", "review": "El templo más icónico de Tokio. A las 8 AM puedes hacer fotos sin turistas en la Kaminarimon. Recomendación unánime de madrugadores.", "tips": "Entrad por la puerta Kaminarimon (Trueno) para la foto clásica con el farolillo rojo.", "verified_at": "2025-04-24" },
+        { "id": "samurai-museum", "name": "Samurai Ninja Museum (Asakusa)", "coords": { "lat": 35.7131, "lng": 139.7962 }, "hours": "9:00-19:00 (tours cada 15 min)", "price": "3.000 ¥ adultos (básico)", "review": "4.9/5 en TripAdvisor con +1.500 reseñas. Los guías en inglés son muy entretenidos. Incluye vestirse de samurái y lanzar shuriken.", "tips": "Reservar en Klook o Viator con antelación. La sesión de las 18:00 a veces incluye demostración de espada gratis.", "verified_at": "2025-04-24" },
+        { "id": "akihabara", "name": "Akihabara Electric Town", "coords": { "lat": 35.7023, "lng": 139.7745 }, "hours": "Tiendas ~10:00-21:00", "price": "Gratis (entrar)", "review": "El paraíso otaku. Super Potato para retrogaming, Mandarake para manga de segunda mano, Yodobashi Camera para electrónica.", "tips": "Los precios de electrónica no siempre son mejores que online. Pero las figuras y merchandise sí son exclusivos." }
+      ],
+      "restaurants": [
+        { "name": "Daikokuya Tempura", "meal": "almuerzo", "speciality": "Tendon (tempura sobre arroz)", "price_range": "€€", "reservation_required": false, "coords": { "lat": 35.7118, "lng": 139.7951 }, "notes": "Institución en Asakusa desde 1887. Cola frecuente de 20-30 min." },
+        { "name": "Golden Gai (varios)", "meal": "cena", "speciality": "Yakitori, sake, tapeo japonés", "price_range": "€€", "reservation_required": false, "coords": { "lat": 35.6941, "lng": 139.7041 }, "notes": "200 bares diminutos en callejones. Algunos cobran cover charge (~500 ¥). Preguntar antes de sentarse." }
+      ],
+      "alternative_plans": { "rainy_day": "Si llueve, alargar la visita a Akihabara (todo cubierto) y añadir el Museo Nacional de Tokio en Ueno." },
+      "logistics": { "walking_km": 10, "walking_time_min": 140, "public_transport": "Metro + JR. Usar Suica, ~¥600-800 en transporte." },
+      "info": { "travel_tips": ["Comprad onigiri variados en el konbini para almorzar: salmón, atún, umeboshi. Cuesta unos 150-200 ¥ cada uno.", "En Akihabara, los pisos superiores de los edificios esconden las tiendas más interesantes."], "facts": ["Senso-ji fue fundado en el año 645, lo que lo convierte en el templo más antiguo de Tokio."] }
+    },
+    {
+      "day": 4, "date": "2027-03-21", "title": "🌿 Meiji Jingu · Harajuku · Shibuya Sky",
+      "timeline": [
+        { "time": "07:00", "icon": "🏪", "title": "Desayuno konbini", "description": "Café y onigiri en el konbini del barrio.", "type": "meal", "duration_min": 15 },
+        { "time": "07:30", "icon": "🚇", "title": "Metro a Meiji-jingumae", "description": "Fukutoshin Line desde Higashishinjuku, 2 paradas.", "type": "transport", "duration_min": 10 },
+        { "time": "08:00", "icon": "⛩️", "title": "Meiji Jingu", "description": "El santuario sintoísta más importante de Tokio, dedicado al Emperador Meiji. Paseo por el bosque de 70 hectáreas. A las 8 AM está prácticamente vacío.", "type": "visit", "duration_min": 75 },
+        { "time": "09:30", "icon": "🛍️", "title": "Takeshita Street (Harajuku)", "description": "La calle más loca de Tokio: moda kawaii, crêpes, algodón de azúcar gigante. Paseo tranquilo.", "type": "visit", "duration_min": 60 },
+        { "time": "10:30", "icon": "🏘️", "title": "Omotesando", "description": "La 'Champs-Élysées' de Tokio. Arquitectura de Tadao Ando, tiendas de diseño, ambiente sofisticado.", "type": "visit", "duration_min": 60 },
+        { "time": "11:30", "icon": "🍜", "title": "Almuerzo: ramen en Ichiran Shibuya", "description": "Ramen tonkotsu en cabinas individuales. Experiencia única. ~1.000-1.500 ¥/persona.", "type": "meal", "duration_min": 45 },
+        { "time": "12:30", "icon": "🚶", "title": "Shibuya Crossing", "description": "El cruce peatonal más famoso del mundo. Verlo desde el Starbucks de la esquina o desde el puente de Shibuya Station.", "type": "visit", "duration_min": 30 },
+        { "time": "13:00", "icon": "🐕", "title": "Estatua de Hachiko", "description": "Foto rápida con la estatua del perro más fiel de Japón, junto a la salida de Shibuya Station.", "type": "visit", "duration_min": 10 },
+        { "time": "13:30", "icon": "☕", "title": "Descanso / compras en Shibuya", "description": "Tiempo libre: Shibuya 109, Mega Don Quijote, o simplemente descansar en el alojamiento.", "type": "free", "duration_min": 180 },
+        { "time": "17:00", "icon": "🌅", "title": "Shibuya Sky", "description": "Observatorio a 229 m de altura. Vistas 360° de Tokio. Ir para el atardecer (puesta de sol ~18:00 en marzo). Entrada: 3.000-3.700 ¥ según hora.", "type": "visit", "duration_min": 90 },
+        { "time": "19:00", "icon": "🍣", "title": "Cena: sushi en Genki Sushi o Sushiro", "description": "Kaiten sushi (cinta transportadora) económico y divertido. ~1.500-2.500 ¥/persona.", "type": "meal", "duration_min": 60 }
+      ],
+      "places": [
+        { "id": "meiji-jingu", "name": "Meiji Jingu", "coords": { "lat": 35.6762, "lng": 139.6993 }, "hours": "Amanecer-Atardecer (~6:00-17:30 en marzo)", "price": "Gratis", "review": "Uno de los santuarios más solemnes de Tokio. El paseo por el bosque de 100.000 árboles donados es espectacular.", "tips": "Entrad por la puerta sur (acceso desde Harajuku). Si hay boda sintoísta, no molestéis a la procesión." },
+        { "id": "shibuya-sky", "name": "Shibuya Sky", "coords": { "lat": 35.6584, "lng": 139.7022 }, "hours": "10:00-22:30 (última entrada 21:20)", "price": "Antes 15:00: ¥2.700 online / ¥3.000 taquilla. Después 15:00: ¥3.400 online / ¥3.700 taquilla.", "review": "Vistas impresionantes, especialmente al atardecer. El Sky Edge (esquina de cristal) es el punto de foto más instagrameable.", "tips": "Reservar online sí o sí (se agotan). No se pueden subir trípodes, selfie sticks ni comida. Taquillas en planta 46.", "verified_at": "2025-04-24" }
+      ],
+      "restaurants": [
+        { "name": "Ichiran Shibuya", "meal": "almuerzo", "speciality": "Ramen tonkotsu en cabinas individuales", "price_range": "€", "reservation_required": false, "coords": { "lat": 35.6611, "lng": 139.6987 }, "notes": "Hay varios Ichiran en Shibuya. Pedís en máquina expendedora, os sentáis en cabina individual. Experiencia muy japonesa." },
+        { "name": "Genki Sushi Shibuya", "meal": "cena", "speciality": "Kaiten sushi (cinta transportadora)", "price_range": "€", "reservation_required": false, "coords": { "lat": 35.6592, "lng": 139.6984 }, "notes": "Sushi rápido, barato y bueno. Pedís por tablet, llega por cinta. ~150-400 ¥ por plato." }
+      ],
+      "logistics": { "walking_km": 11, "walking_time_min": 150, "public_transport": "Metro + a pie. Todo está conectado entre Meiji-jingumae y Shibuya (~¥400 total)." },
+      "info": { "travel_tips": ["Shibuya Sky: comprá entradas online 2 semanas antes. Las de atardecer se agotan rápido.", "En Omotesando, no os perdáis las tiendas de segundo piso: hay cafés y boutiques escondidas."], "facts": ["El Shibuya Crossing lo cruzan hasta 3.000 personas a la vez en hora punta."] }
+    },
+    {
+      "day": 5, "date": "2027-03-22", "title": "🎨 teamLab Planets · Yotsugi · Compras",
+      "timeline": [
+        { "time": "07:00", "icon": "🏪", "title": "Desayuno konbini", "description": "Café, onigiri y un donut de konbini.", "type": "meal", "duration_min": 15 },
+        { "time": "08:00", "icon": "🚇", "title": "Metro a Shin-Toyosu", "description": "Yurikamome Line desde Shimbashi. ~25 min.", "type": "transport", "duration_min": 35 },
+        { "time": "08:30", "icon": "🎨", "title": "teamLab Planets", "description": "Museo inmersivo de arte digital. Se camina descalzo, hay agua. Uno de los más visitados del mundo. Entrada ¥4.200/adulto.", "type": "activity", "duration_min": 120 },
+        { "time": "11:00", "icon": "🚇", "title": "Metro a Yotsugi", "description": "Keisei Line. ~40 min.", "type": "transport", "duration_min": 45 },
+        { "time": "12:00", "icon": "⚽", "title": "Yotsugi — Captain Tsubasa", "description": "Barrio decorado con estatuas y murales de Oliver y Benji (Captain Tsubasa). La estación de Yotsugi tiene decoración temática.", "type": "visit", "duration_min": 60 },
+        { "time": "13:00", "icon": "🍱", "title": "Almuerzo konbini / local", "description": "Comprar bento y onigiri en konbini o comer en un restaurante local del barrio.", "type": "meal", "duration_min": 30 },
+        { "time": "14:00", "icon": "🚇", "title": "Vuelta a Shinjuku", "description": "Metro de vuelta, ~40 min.", "type": "transport", "duration_min": 40 },
+        { "time": "15:00", "icon": "🛍️", "title": "Compras en Shinjuku", "description": "Don Quijote (abierto 24h, souvenirs y electrónica), Isetan (grandes almacenes premium), Uniqlo Shinjuku (ropa).", "type": "free", "duration_min": 180 },
+        { "time": "19:00", "icon": "🥩", "title": "Cena: wagyu económico", "description": "Probar wagyu sin arruinarse en un gyukatsu (chuleta de wagyu empanada) en Gyukatsu Motomura. ~1.500-2.000 ¥.", "type": "meal", "duration_min": 60 }
+      ],
+      "places": [
+        { "id": "teamlab", "name": "teamLab Planets TOKYO", "coords": { "lat": 35.6547, "lng": 139.7889 }, "hours": "8:30-22:00 (varía por día)", "price": "¥4.200/adulto", "review": "4.5/5. Experiencia inmersiva espectacular. Las salas de agua y el jardín de flores flotantes son lo mejor.", "tips": "Reservar con semanas de antelación en teamlabplanets.dmm.com. Llevar pantalones recogibles (se moja hasta la rodilla). No llevar calcetines.", "verified_at": "2025-04-24" },
+        { "id": "yotsugi", "name": "Yotsugi (Captain Tsubasa)", "coords": { "lat": 35.7452, "lng": 139.8368 }, "hours": "24h (son estatuas en la calle)", "price": "Gratis", "review": "Para fans de Captain Tsubasa. Las estatuas de Oliver, Benji y otros personajes decoran la estación y calles cercanas.", "tips": "La estación de Yotsugi (Keisei Line) tiene decoración temática. Las estatuas están a 5 min andando." }
+      ],
+      "restaurants": [
+        { "name": "Gyukatsu Motomura Shinjuku", "meal": "cena", "speciality": "Gyukatsu (chuleta de wagyu empanada a la piedra)", "price_range": "€€", "reservation_required": false, "coords": { "lat": 35.6921, "lng": 139.7016 }, "notes": "Cola habitual pero rota rápido. Pedís el set básico y os dan una piedra caliente para terminar de cocinar la carne a vuestro gusto. Espectacular." }
+      ],
+      "logistics": { "walking_km": 8, "walking_time_min": 110, "public_transport": "Varias líneas de metro. ~¥1.000 total en transporte." },
+      "info": { "travel_tips": ["En teamLab Planets guardad todo en las taquillas gratuitas. Solo llevad el móvil (con funda impermeable si podéis).", "Don Quijote Shinjuku: enseñar el pasaporte para el tax-free en compras superiores a ¥5.000."] }
+    },
+    {
+      "day": 6, "date": "2027-03-23", "title": "🗻 Excursión Chureito Pagoda / Mt. Fuji",
+      "timeline": [
+        { "time": "06:30", "icon": "🏪", "title": "Desayuno konbini", "description": "Desayunar rápido antes de salir.", "type": "meal", "duration_min": 15 },
+        { "time": "07:00", "icon": "🚃", "title": "Tren Shinjuku → Otsuki → Shimoyoshida", "description": "JR Chuo Line (Azusa/Kaiji) hasta Otsuki (~70 min), trasbordo a Fujikyu Railway hasta Shimoyoshida (~45 min). Total ~2h15. Coste: ~¥2.300.", "type": "transport", "duration_min": 135 },
+        { "time": "09:30", "icon": "🗻", "title": "Chureito Pagoda", "description": "Subir las 398 escaleras hasta el mirador. Si el cielo está despejado, vistas espectaculares del Monte Fuji con la pagoda. Gratuito.", "type": "visit", "duration_min": 90 },
+        { "time": "11:00", "icon": "📸", "title": "Honcho Street", "description": "La calle viral que mira directamente al Monte Fuji. A 5 min andando desde Shimoyoshida Station.", "type": "visit", "duration_min": 30 },
+        { "time": "11:30", "icon": "🍜", "title": "Almuerzo en Shimoyoshida", "description": "Probar los fideos Yoshida udon, especialidad local.", "type": "meal", "duration_min": 45 },
+        { "time": "12:30", "icon": "🚃", "title": "Tren de vuelta a Tokio", "description": "Shimoyoshida → Otsuki → Shinjuku. Llegada ~15:00.", "type": "transport", "duration_min": 135 },
+        { "time": "15:30", "icon": "🛍️", "title": "Tarde libre / compras últimas en Tokio", "description": "Último día en Tokio. Compras de última hora o descanso. Preparar maletas para envío por Takkyūbin mañana.", "type": "free", "duration_min": 180 },
+        { "time": "19:00", "icon": "🍣", "title": "Cena de despedida de Tokio", "description": "Sushi o yakitori en el barrio de Shinjuku. Última noche en Tokio.", "type": "meal", "duration_min": 75 }
+      ],
+      "places": [
+        { "id": "chureito", "name": "Chureito Pagoda", "coords": { "lat": 35.3987, "lng": 138.8072 }, "hours": "24h (abierto siempre)", "price": "Gratis", "review": "Una de las vistas más icónicas de Japón. El Monte Fuji solo es visible con cielo despejado. Mejor a primera hora de la mañana.", "tips": "Consultar la previsión del tiempo antes. Si está nublado, considerar cambiar este día por otro plan (Ueno, Odaiba, etc.).", "verified_at": "2025-04-24" }
+      ],
+      "restaurants": [],
+      "alternative_plans": { "rainy_day": "Si el pronóstico no acompaña, cambiar por: Museo Nacional de Tokio (Ueno), Odaiba (teamLab Borderless) o Akihabara para más compras." },
+      "logistics": { "walking_km": 6, "walking_time_min": 80, "public_transport": "JR Chuo + Fujikyu Railway. ~¥4.600 ida y vuelta/persona." },
+      "info": { "travel_tips": ["El Monte Fuji tiene más probabilidades de verse en días fríos y secos. Consultad la previsión 2-3 días antes.", "La Fujikyu Railway NO está cubierta por JR Pass. Pagad ¥960 en Otsuki."], "facts": ["Las 398 escaleras del Chureito Pagoda equivalen a subir un edificio de 13 plantas."] }
+    },
+    {
+      "day": 7, "date": "2027-03-24", "title": "🚄 Shinkansen a Kioto · Fushimi Inari · Kiyomizu-dera",
+      "timeline": [
+        { "time": "07:00", "icon": "📦", "title": "Envío maletas por Takkyūbin", "description": "Dejar las maletas en el konbini o recepción del alojamiento para envío a Kioto. Llegarán al hotel de Kioto mañana. Coste ~¥2.000-2.500/maleta.", "type": "activity", "duration_min": 30 },
+        { "time": "07:30", "icon": "🏪", "title": "Desayuno y checkout", "description": "Checkout del Airbnb de Shinjuku. Desayuno rápido de konbini.", "type": "checkout", "duration_min": 30 },
+        { "time": "08:30", "icon": "🚄", "title": "Shinkansen Nozomi Tokio → Kioto", "description": "Desde Shinagawa o Tokyo Station. 2h15 min. Asiento reservado ~¥14.170/persona. Pedir asiento E para ver el Monte Fuji.", "type": "transport", "duration_min": 135 },
+        { "time": "11:00", "icon": "🏨", "title": "Llegada a Kioto · Dejar equipaje de mano", "description": "Dejar mochilas en taquillas de Kyoto Station o directamente en el hotel Travelodge Kyoto Shijo Kawaramachi si permiten guardarlas antes del check-in.", "type": "transport", "duration_min": 30 },
+        { "time": "11:30", "icon": "🚃", "title": "JR Nara Line a Inari Station", "description": "5 min desde Kyoto Station (¥150). La estación da directamente a Fushimi Inari.", "type": "transport", "duration_min": 10 },
+        { "time": "12:00", "icon": "⛩️", "title": "Fushimi Inari Taisha", "description": "Miles de torii bermellón subiendo el monte Inari. Subir al menos hasta el mirador Yotsutsuji (30-45 min). Gratis, 24h.", "type": "visit", "duration_min": 120 },
+        { "time": "14:30", "icon": "🍜", "title": "Almuerzo cerca de Fushimi", "description": "Inari sushi (tofu frito relleno de arroz) en los puestos del camino. O kitsune udon en un restaurante local.", "type": "meal", "duration_min": 45 },
+        { "time": "15:30", "icon": "🚌", "title": "Bus a Kiyomizu-dera", "description": "Bus 100 o 206 desde parada cercana. ~20 min.", "type": "transport", "duration_min": 25 },
+        { "time": "16:00", "icon": "🏯", "title": "Kiyomizu-dera", "description": "Templo icónico con su terraza de madera sobre el valle. Si los cerezos han empezado a florecer, vistas espectaculares. Entrada ¥400.", "type": "visit", "duration_min": 75 },
+        { "time": "17:30", "icon": "🏨", "title": "Check-in hotel · Descanso", "description": "Travelodge Kyoto Shijo Kawaramachi. 2 habitaciones. Total: 133.200 ¥ (4 noches).", "type": "checkin", "duration_min": 45 },
+        { "time": "19:00", "icon": "🍜", "title": "Cena en Pontocho", "description": "Callejón estrecho junto al río Kamo, lleno de restaurantes. Probar obanzai (cocina casera de Kioto).", "type": "meal", "duration_min": 75 }
+      ],
+      "places": [
+        { "id": "fushimi-inari", "name": "Fushimi Inari Taisha", "coords": { "lat": 34.9671, "lng": 135.7727 }, "hours": "24h, siempre abierto", "price": "Gratis", "review": "El santuario más visitado de Japón. Los torii al amanecer o tras el mediodía son mágicos sin multitudes. Subida al monte: 2-3h ida y vuelta.", "tips": "Al mediodía hay menos gente que a primera hora (los tours matinales llegan en masa a las 9-10h). Subid al menos hasta Yotsutsuji para las vistas.", "verified_at": "2025-04-24" },
+        { "id": "kiyomizu-dera", "name": "Kiyomizu-dera", "coords": { "lat": 34.9949, "lng": 135.7850 }, "hours": "6:00-18:00 (varía por temporada)", "price": "¥400", "review": "La terraza de madera construida sin un solo clavo ofrece vistas memorables del valle. Si los sakura están en flor, es de ensueño.", "tips": "Bajad por las calles Ninenzaka y Sannenzaka (callejuelas tradicionales) hacia Gion." }
+      ],
+      "restaurants": [
+        { "name": "Pontocho (callejón restaurantes)", "meal": "cena", "speciality": "Obanzai (cocina casera de Kioto)", "price_range": "€€", "reservation_required": false, "coords": { "lat": 35.0048, "lng": 135.7709 }, "notes": "Callejón paralelo al río Kamo. Elegid un restaurante con terraza kawadoko (plataforma sobre el río) si la temperatura lo permite." }
+      ],
+      "logistics": { "walking_km": 12, "walking_time_min": 170, "public_transport": "Shinkansen (¥14.170) + JR local (¥150) + bus (¥230)." },
+      "info": { "travel_tips": ["Reservad el Shinkansen con SmartEX app. Aceptan tarjetas de crédito extranjeras.", "El Takkyūbin tarda 1-2 días. Enviad la maleta por la mañana para que llegue al hotel de Kioto al día siguiente."], "facts": ["Fushimi Inari tiene más de 10.000 torii donados por empresas y particulares. Un torii pequeño cuesta desde 400.000 ¥."] }
+    },
+    {
+      "day": 8, "date": "2027-03-25", "title": "🎋 Arashiyama · Kinkaku-ji",
+      "timeline": [
+        { "time": "07:00", "icon": "🏪", "title": "Desayuno konbini", "description": "Desayuno rápido.", "type": "meal", "duration_min": 15 },
+        { "time": "07:30", "icon": "🚃", "title": "Tren a Arashiyama", "description": "JR Sagano Line desde Kyoto Station a Saga-Arashiyama. ~15 min, ¥240.", "type": "transport", "duration_min": 20 },
+        { "time": "08:00", "icon": "🎋", "title": "Bosque de bambú de Arashiyama", "description": "A las 8 AM, el bosque está prácticamente vacío. Paseo mágico entre cañas de bambú gigantes. Gratis.", "type": "visit", "duration_min": 45 },
+        { "time": "09:00", "icon": "⛩️", "title": "Tenryu-ji", "description": "Templo Zen Patrimonio UNESCO con jardín precioso. Entrada: ¥500 (jardín) + ¥300 (edificio).", "type": "visit", "duration_min": 45 },
+        { "time": "10:00", "icon": "🌉", "title": "Puente Togetsukyo", "description": "El puente icónico de Arashiyama sobre el río Katsura. Fotos con las montañas de fondo.", "type": "visit", "duration_min": 20 },
+        { "time": "10:30", "icon": "🍡", "title": "Snack en Arashiyama", "description": "Probar dango (bolitas de mochi a la brasa) o matcha soft serve en los puestos de la calle principal.", "type": "meal", "duration_min": 30 },
+        { "time": "11:30", "icon": "🚌", "title": "Bus a Kinkaku-ji", "description": "Bus 28 o 11 desde Arashiyama a Kinkaku-ji. ~40 min.", "type": "transport", "duration_min": 45 },
+        { "time": "12:30", "icon": "🏯", "title": "Kinkaku-ji (Pabellón de Oro)", "description": "El templo cubierto de pan de oro reflejándose en el estanque. Uno de los iconos de Japón. Entrada ¥500.", "type": "visit", "duration_min": 60 },
+        { "time": "14:00", "icon": "🍜", "title": "Almuerzo tardío", "description": "Ramen o soba en un restaurante cercano a Kinkaku-ji.", "type": "meal", "duration_min": 45 },
+        { "time": "15:00", "icon": "🚌", "title": "Vuelta al hotel", "description": "Bus de vuelta al centro de Kioto. Tarde libre para descansar o pasear.", "type": "transport", "duration_min": 30 },
+        { "time": "16:00", "icon": "🛍️", "title": "Tarde libre / Nishiki Market", "description": "Paseo por Nishiki Market (la 'cocina de Kioto'): degustación de encurtidos, mochi, sake, cuchillos japoneses.", "type": "free", "duration_min": 120 },
+        { "time": "19:00", "icon": "🍜", "title": "Cena", "description": "Cena en el hotel o en un restaurante cercano a Shijo-Kawaramachi.", "type": "meal", "duration_min": 60 }
+      ],
+      "places": [
+        { "id": "arashiyama-bamboo", "name": "Bosque de Bambú de Arashiyama", "coords": { "lat": 35.0170, "lng": 135.6713 }, "hours": "24h (abierto siempre)", "price": "Gratis", "review": "El sonido del viento entre los bambúes es inolvidable. A las 8 AM, es otro mundo: silencio total.", "tips": "Madrugad. A las 10 AM ya está masificado con grupos de turistas." },
+        { "id": "kinkakuji", "name": "Kinkaku-ji (Pabellón de Oro)", "coords": { "lat": 35.0394, "lng": 135.7292 }, "hours": "9:00-17:00", "price": "¥500", "review": "El reflejo del templo dorado en el agua es hipnótico. Visita de 30-45 min.", "tips": "La entrada incluye un amuleto de papel con caligrafía. La mejor foto es desde la orilla izquierda del estanque." }
+      ],
+      "restaurants": [],
+      "logistics": { "walking_km": 9, "walking_time_min": 120, "public_transport": "JR + bus. ~¥800-1.000 total." },
+      "info": { "travel_tips": ["Bus 1 día en Kioto: ¥700 (sube y baja ilimitado). Rentable si hacéis 4+ trayectos.", "Nishiki Market cierra a las 17-18h. Id antes."], "facts": ["Kinkaku-ji fue quemado intencionadamente por un monje en 1950. La reconstrucción actual data de 1955."] }
+    },
+    {
+      "day": 9, "date": "2027-03-26", "title": "👘 Kimono · Ceremonia del té · Gion",
+      "timeline": [
+        { "time": "08:00", "icon": "🏪", "title": "Desayuno konbini", "description": "Desayuno ligero antes de la jornada.", "type": "meal", "duration_min": 15 },
+        { "time": "09:00", "icon": "👘", "title": "Alquiler de kimono", "description": "Alquiler de kimono en una tienda del barrio de Gion o Higashiyama. Precio: ~¥3.000-5.000/persona. Incluye vestido, peinado y complementos.", "type": "activity", "duration_min": 60 },
+        { "time": "10:00", "icon": "📸", "title": "Paseo con kimono por Higashiyama", "description": "Recorrer Ninenzaka, Sannenzaka, Yasaka-no-to (pagoda) y alrededores con el kimono puesto. Fotos en cada rincón.", "type": "visit", "duration_min": 120 },
+        { "time": "12:00", "icon": "🍵", "title": "Ceremonia del té", "description": "Ceremonia tradicional del té (chado) en una casa de té de Gion. ~¥2.000-4.000/persona. Experiencia de 45-60 min.", "type": "activity", "duration_min": 60 },
+        { "time": "13:00", "icon": "🍱", "title": "Almuerzo", "description": "Bento o comida ligera de konbini. O probar un kaiseki asequible (~¥2.500-4.000) si queréis la experiencia.", "type": "meal", "duration_min": 45 },
+        { "time": "14:00", "icon": "👘", "title": "Devolución del kimono", "description": "Devolver el kimono a la tienda de alquiler.", "type": "activity", "duration_min": 30 },
+        { "time": "15:00", "icon": "⛩️", "title": "Templos adicionales (opcional)", "description": "Visitar Kodai-ji, Yasaka Shrine o pasear por el barrio de los templos sin prisas.", "type": "visit", "duration_min": 120 },
+        { "time": "17:00", "icon": "🏮", "title": "Paseo por Gion al atardecer", "description": "Hanami-koji (la calle principal de Gion) y alrededores. Con suerte, veréis alguna geisha o maiko dirigiéndose al trabajo.", "type": "visit", "duration_min": 60 },
+        { "time": "19:00", "icon": "🍜", "title": "Cena en Gion", "description": "Cena en un restaurante del barrio o volver a Pontocho.", "type": "meal", "duration_min": 75 }
+      ],
+      "places": [
+        { "id": "gion", "name": "Gion (barrio de las geishas)", "coords": { "lat": 35.0036, "lng": 135.7747 }, "hours": "24h", "price": "Gratis (pasear)", "review": "El barrio más atmosférico de Kioto. Las casas de madera (machiya) y los farolillos crean un ambiente único.", "tips": "No persigáis ni fotografiéis de cerca a las geishas/maikos. Es de muy mala educación." }
+      ],
+      "restaurants": [],
+      "logistics": { "walking_km": 8, "walking_time_min": 110, "public_transport": "Principalmente a pie. Todo en zona Higashiyama/Gion." },
+      "info": { "travel_tips": ["El kimono de alquiler suele incluir geta (sandalias de madera). Si no estáis acostumbrados, id despacio.", "Reservad la ceremonia del té online. Buscar en Klook o directamente en Maikoya Kyoto."] }
+    },
+    {
+      "day": 10, "date": "2027-03-27", "title": "🦌 Nara · Nintendo Museum (si hay entrada)",
+      "timeline": [
+        { "time": "07:30", "icon": "🏪", "title": "Desayuno konbini", "description": "Desayuno antes de la excursión.", "type": "meal", "duration_min": 15 },
+        { "time": "08:00", "icon": "🚃", "title": "Tren Kioto → Nara", "description": "JR Nara Line desde Kyoto Station. ~45 min, ¥720.", "type": "transport", "duration_min": 50 },
+        { "time": "09:00", "icon": "🦌", "title": "Nara Park y ciervos", "description": "Parque con más de 1.000 ciervos en libertad que se acercan a pedir galletas (shika senbei, ¥200). Gratis.", "type": "visit", "duration_min": 45 },
+        { "time": "10:00", "icon": "🏛️", "title": "Todai-ji", "description": "Templo con el Gran Buda de bronce (15 m de alto) dentro del edificio de madera más grande del mundo. Entrada ¥600.", "type": "visit", "duration_min": 60 },
+        { "time": "11:15", "icon": "⛩️", "title": "Kasuga Taisha", "description": "Santuario con miles de faroles de piedra y bronce. Entrada al interior: ¥500 (exterior gratis).", "type": "visit", "duration_min": 45 },
+        { "time": "12:00", "icon": "🍜", "title": "Almuerzo en Nara", "description": "Mochi o udon en un restaurante de la zona de Naramachi.", "type": "meal", "duration_min": 45 },
+        { "time": "13:00", "icon": "🚃", "title": "Tren Nara → Uji (si hay entrada Nintendo Museum)", "description": "Si tenéis entrada al Nintendo Museum: JR Nara Line hasta JR Ogura Station (~55 min). Si no, volved a Kioto.", "type": "transport", "duration_min": 55 },
+        { "time": "14:00", "icon": "🎮", "title": "Nintendo Museum (si hay entrada)", "description": "Museo interactivo de Nintendo en Uji. Entrada ¥3.300 (solo por lotería). Si no hay entrada, pasear por Uji (matcha, Byodo-in).", "type": "activity", "duration_min": 180 },
+        { "time": "17:30", "icon": "🚃", "title": "Vuelta a Kioto", "description": "Kintetsu o JR desde Ogura/Uji hasta Kyoto Station.", "type": "transport", "duration_min": 30 },
+        { "time": "19:00", "icon": "🍜", "title": "Cena en Kioto", "description": "Última cena en Kioto. Probar okonomiyaki estilo Kansai o gyudon.", "type": "meal", "duration_min": 60 }
+      ],
+      "places": [
+        { "id": "todaiji", "name": "Todai-ji", "coords": { "lat": 34.6890, "lng": 135.8398 }, "hours": "7:30-17:30 (abril-oct) / 8:00-17:00 (nov-mar)", "price": "¥600", "review": "Impresionante. El Gran Buda te deja sin palabras. El agujero en el pilar por el que puedes pasar se dice que trae buena suerte.", "verified_at": "2025-04-24" },
+        { "id": "nintendo-museum", "name": "Nintendo Museum (Uji)", "coords": { "lat": 34.9196, "lng": 135.7672 }, "hours": "10:00-20:00 (cerrado martes)", "price": "¥3.300/adulto", "review": "Museo interactivo espectacular con mandos gigantes, consolas retro y monedas digitales para jugar. Solo accesible por lotería.", "tips": "Entrar en la lotería 3 meses antes en museum-tickets.nintendo.com. Se necesita cuenta Nintendo gratuita y pasaporte para la verificación.", "verified_at": "2025-04-24" }
+      ],
+      "restaurants": [],
+      "alternative_plans": { "rainy_day": "Todo funciona bajo la lluvia con paraguas.", "less_time": "Si no hay entrada al Nintendo Museum, pasear por Uji: Byodo-in (el templo del billete de 10 ¥), degustación de matcha en las casas de té de Uji." },
+      "logistics": { "walking_km": 10, "walking_time_min": 140, "public_transport": "JR Nara Line. ~¥1.500-2.000 en transporte total." },
+      "info": { "travel_tips": ["Nintendo Museum: entrar en la lotería 3 meses antes (diciembre 2026 para marzo 2027). Resultados el 1 de enero.", "Los ciervos de Nara son salvajes. No les enseñéis comida sin dársela: os empujarán."], "facts": ["El Gran Buda de Todai-ji pesa 500 toneladas y mide 15 metros de alto."] }
+    },
+    {
+      "day": 11, "date": "2027-03-28", "title": "🏯 Traslado a Osaka · Castillo · Dotonbori",
+      "timeline": [
+        { "time": "08:00", "icon": "📦", "title": "Checkout y Takkyūbin", "description": "Enviar maletas por Takkyūbin al hotel de Osaka. Checkout del Travelodge.", "type": "checkout", "duration_min": 30 },
+        { "time": "08:30", "icon": "🏪", "title": "Desayuno konbini", "description": "Desayuno rápido antes de coger el tren.", "type": "meal", "duration_min": 15 },
+        { "time": "09:00", "icon": "🚃", "title": "Tren Kioto → Osaka", "description": "JR Special Rapid desde Kyoto Station a Osaka Station. ~30 min, ¥580.", "type": "transport", "duration_min": 35 },
+        { "time": "10:00", "icon": "🏨", "title": "Check-in The Onefive Osaka Namba Kuromon", "description": "Dejar mochilas o hacer check-in si hay habitación lista. 2 habitaciones. Total: 112.860 ¥ (4 noches).", "type": "checkin", "duration_min": 30 },
+        { "time": "10:30", "icon": "🚇", "title": "Metro a Osaka Castle", "description": "Tanimachi Line o Chuo Line hasta Tanimachi-Yonchome o Morinomiya. ~15 min.", "type": "transport", "duration_min": 20 },
+        { "time": "11:00", "icon": "🏯", "title": "Castillo de Osaka (exterior)", "description": "Recorrer el parque del castillo, ver el foso y la torre principal por fuera. Si los sakura están en flor aquí, es de los mejores spots de Osaka. Gratis (exterior).", "type": "visit", "duration_min": 75 },
+        { "time": "12:30", "icon": "🍜", "title": "Almuerzo: takoyaki", "description": "Comer takoyaki (bolas de pulpo) en algún puesto callejero cerca del castillo o en Dotonbori.", "type": "meal", "duration_min": 30 },
+        { "time": "13:30", "icon": "🚇", "title": "Metro a Namba / Dotonbori", "description": "Vuelta al barrio del hotel.", "type": "transport", "duration_min": 15 },
+        { "time": "14:00", "icon": "🛍️", "title": "Tarde libre / Kuromon Market / Compras", "description": "Kuromon Market (marisco fresco, fruta), compras en Shinsaibashi, o descanso.", "type": "free", "duration_min": 180 },
+        { "time": "18:00", "icon": "🌃", "title": "Dotonbori al atardecer", "description": "El neón de Dotonbori cobra vida al caer la noche. El Glico Man, el cangrejo gigante de Kani Doraku, el canal iluminado.", "type": "visit", "duration_min": 60 },
+        { "time": "19:00", "icon": "🍜", "title": "Cena: okonomiyaki", "description": "Okonomiyaki estilo Osaka (tortilla-crepe a la plancha). Probar en Mizuno o Kiji en Umeda.", "type": "meal", "duration_min": 75 }
+      ],
+      "places": [
+        { "id": "osaka-castle", "name": "Castillo de Osaka", "coords": { "lat": 34.6873, "lng": 135.5259 }, "hours": "Parque: 24h. Torre: 9:00-17:00 (¥600)", "price": "Exterior gratis / Interior ¥600", "review": "Impresionante desde fuera, especialmente con sakura. El museo interior es prescindible salvo que os interese mucho la historia.", "tips": "El parque Nishinomaru es el mejor spot para sakura (entrada ¥350 en temporada)." },
+        { "id": "dotonbori", "name": "Dotonbori", "coords": { "lat": 34.6687, "lng": 135.5013 }, "hours": "24h (restaurantes ~11:00-23:00)", "price": "Gratis", "review": "El epicentro del hedonismo gastronómico de Osaka. Ruidoso, luminoso, delicioso.", "tips": "Id de noche para verlo en su máximo esplendor. Probad takoyaki, okonomiyaki y gyoza callejero." }
+      ],
+      "restaurants": [
+        { "name": "Mizuno Dotonbori", "meal": "cena", "speciality": "Okonomiyaki Osaka-style", "price_range": "€€", "reservation_required": false, "coords": { "lat": 34.6688, "lng": 135.5025 }, "notes": "Una institución del okonomiyaki desde 1945. Cola frecuente de 30 min. Lo preparan delante de vosotros en la plancha." }
+      ],
+      "logistics": { "walking_km": 10, "walking_time_min": 135, "public_transport": "JR + metro Osaka. ~¥800 en transporte." },
+      "info": { "travel_tips": ["Osaka es más barata que Tokio y Kioto para comer. Aprovechad para probar de todo.", "Kuromon Market cierra temprano (~17:00). Id antes de las 15:00 para mejor selección."] }
+    },
+    {
+      "day": 12, "date": "2027-03-29", "title": "🎢 Universal Studios Japan",
+      "timeline": [
+        { "time": "07:00", "icon": "🏪", "title": "Desayuno konbini", "description": "Desayuno fuerte en konbini. Llevar algún snack para el parque.", "type": "meal", "duration_min": 15 },
+        { "time": "07:30", "icon": "🚃", "title": "Tren a Universal City Station", "description": "JR Osaka Loop Line hasta Nishikujo, trasbordo a JR Yumesaki Line hasta Universal City. ~30 min total.", "type": "transport", "duration_min": 35 },
+        { "time": "08:15", "icon": "🎢", "title": "Universal Studios Japan — Día completo", "description": "Apertura ~8:30-9:00. Super Nintendo World (conseguir timed entry en la app USJ), Harry Potter, Flying Dinosaur, Minion Park. Lunes = menor afluencia. Studio Pass: ~¥8.200-9.800.", "type": "activity", "duration_min": 660 },
+        { "time": "19:30", "icon": "🚃", "title": "Vuelta a Namba", "description": "Tren de vuelta al hotel.", "type": "transport", "duration_min": 35 },
+        { "time": "20:30", "icon": "🍜", "title": "Cena en Dotonbori", "description": "Cena ligera de vuelta en Dotonbori: gyoza, ramen o kushikatsu.", "type": "meal", "duration_min": 60 }
+      ],
+      "places": [
+        { "id": "usj", "name": "Universal Studios Japan", "coords": { "lat": 34.6654, "lng": 135.4323 }, "hours": "8:30-21:00 (varía por día)", "price": "Studio Pass: ~¥8.200-9.800/adulto (precio dinámico). Express Pass: desde ¥6.800 adicionales.", "review": "4.8/5. Super Nintendo World es alucinante (Mario Kart, Donkey Kong Country). Harry Potter es imprescindible. Flying Dinosaur para los amantes de la adrenalina.", "tips": "Descargar la app USJ para ver tiempos de cola y conseguir timed entry para Nintendo World. Express Pass recomendable si queréis montaros en todo.", "verified_at": "2025-04-24" }
+      ],
+      "restaurants": [],
+      "logistics": { "walking_km": 15, "walking_time_min": 200, "public_transport": "JR Loop + Yumesaki. ~¥400 ida y vuelta." },
+      "info": { "travel_tips": ["El lunes en marzo debería tener colas más razonables que el fin de semana, pero Super Nintendo World siempre tiene espera.", "No se puede meter comida exterior al parque. Comed fuera antes/después.", "Express Pass: comprarlo en Klook o web oficial con semanas de antelación. Se agotan rápido."], "facts": ["USJ recibe más de 15 millones de visitantes al año."] }
+    },
+    {
+      "day": 13, "date": "2027-03-30", "title": "☮️ Hiroshima · Miyajima · Torii flotante",
+      "timeline": [
+        { "time": "06:30", "icon": "🏪", "title": "Desayuno konbini", "description": "Madrugón para aprovechar el día. Comprar ekiben (bento de tren) en Shin-Osaka si queréis.", "type": "meal", "duration_min": 20 },
+        { "time": "07:00", "icon": "🚄", "title": "Shinkansen Shin-Osaka → Hiroshima", "description": "Nozomi/Sakura. ~1h25-1h30. Precio: ~¥10.500/persona (reservado).", "type": "transport", "duration_min": 90 },
+        { "time": "08:30", "icon": "☮️", "title": "Parque Memorial de la Paz", "description": "Cenotafio, Llama de la Paz, Domo de la Bomba Atómica. Impresionante y emotivo.", "type": "visit", "duration_min": 60 },
+        { "time": "09:30", "icon": "🏛️", "title": "Museo Memorial de la Paz", "description": "Exposición sobre la bomba atómica. Entrada ¥200. Muy impactante.", "type": "visit", "duration_min": 75 },
+        { "time": "11:00", "icon": "🚃", "title": "Tren/Tranvía a Miyajimaguchi", "description": "JR Sanyo Line desde Hiroshima hasta Miyajimaguchi. ~27 min, ¥420.", "type": "transport", "duration_min": 35 },
+        { "time": "11:40", "icon": "⛴️", "title": "Ferry a Miyajima", "description": "JR Ferry (cubierto por JR Pass) o Matsudai ferry. ~10 min, ¥180-360.", "type": "transport", "duration_min": 15 },
+        { "time": "12:00", "icon": "⛩️", "title": "Itsukushima Shrine / Torii flotante", "description": "El torii bermellón sobre el agua (o sobre la arena en marea baja). Santuario Patrimonio UNESCO. Entrada santuario: ¥300.", "type": "visit", "duration_min": 90 },
+        { "time": "13:30", "icon": "🍜", "title": "Almuerzo en Miyajima", "description": "Ostras a la brasa (especialidad local) y momiji manju (pastelito con forma de hoja de arce).", "type": "meal", "duration_min": 45 },
+        { "time": "14:30", "icon": "🦌", "title": "Paseo por Miyajima", "description": "Ciervos en libertad, calle comercial, vistas del torii. Sin prisas.", "type": "visit", "duration_min": 60 },
+        { "time": "15:30", "icon": "⛴️", "title": "Ferry vuelta + tren", "description": "Ferry a Miyajimaguchi + JR a Hiroshima Station.", "type": "transport", "duration_min": 50 },
+        { "time": "16:30", "icon": "🚄", "title": "Shinkansen Hiroshima → Shin-Osaka", "description": "Vuelta en Nozomi/Sakura. ~1h25. Llegada ~18:00.", "type": "transport", "duration_min": 90 },
+        { "time": "19:00", "icon": "🍜", "title": "Cena en Osaka", "description": "Cena tranquila en Namba o Dotonbori.", "type": "meal", "duration_min": 60 }
+      ],
+      "places": [
+        { "id": "peace-park", "name": "Parque Memorial de la Paz de Hiroshima", "coords": { "lat": 34.3915, "lng": 132.4536 }, "hours": "Parque: 24h. Museo: 8:30-18:00", "price": "Parque gratis / Museo ¥200", "review": "Visita sobrecogedora. El museo te cambia la perspectiva sobre la guerra. Imprescindible.", "verified_at": "2025-04-24" },
+        { "id": "itsukushima", "name": "Itsukushima Shrine / Torii flotante", "coords": { "lat": 34.2960, "lng": 132.3198 }, "hours": "6:30-18:00 (varía)", "price": "¥300 (santuario)", "review": "El torii en el agua al atardecer es una imagen icónica. En marea baja podéis caminar hasta él.", "tips": "Comprobad la tabla de mareas antes de ir. Marea alta = torii sobre agua (más fotogénico)." }
+      ],
+      "restaurants": [],
+      "logistics": { "walking_km": 10, "walking_time_min": 140, "public_transport": "Shinkansen ida y vuelta (~¥21.000/persona) + JR local + ferry. Día caro en transporte." },
+      "info": { "travel_tips": ["Este es el día más caro en transporte (~¥21.000 ida y vuelta en Shinkansen por persona). Sin JR Pass. Valorar si merece la pena.", "Los ciervos de Miyajima también son atrevidos. Cuidado con bolsas de comida a la vista."], "facts": ["El torii actual de Itsukushima data de 1875 y fue restaurado en 2022."] }
+    },
+    {
+      "day": 14, "date": "2027-03-31", "title": "🛍️ Osaka libre · Shinsekai · Compras finales",
+      "timeline": [
+        { "time": "08:30", "icon": "🏪", "title": "Desayuno konbini", "description": "Último desayuno de konbini del viaje.", "type": "meal", "duration_min": 15 },
+        { "time": "09:30", "icon": "🗼", "title": "Shinsekai y Torre Tsutenkaku", "description": "Barrio retro de Osaka con ambiente de los años 50-60. Kushikatsu (brochetas fritas) por todas partes. Torre Tsutenkaku: ¥900.", "type": "visit", "duration_min": 90 },
+        { "time": "11:00", "icon": "🍢", "title": "Kushikatsu en Shinsekai", "description": "Probar kushikatsu (brochetas empanadas fritas) en Daruma o Yaekatsu. Regla: no mojar dos veces en la salsa. ~¥1.000-2.000.", "type": "meal", "duration_min": 45 },
+        { "time": "12:00", "icon": "🛍️", "title": "Compras finales", "description": "Shinsaibashi (moda), Don Quijote Namba (souvenirs, tax-free), Daimaru (grandes almacenes, planta de souvenirs gourmet).", "type": "free", "duration_min": 240 },
+        { "time": "16:00", "icon": "🧳", "title": "Preparar maletas", "description": "Vuelta al hotel para organizar maletas y regalos. Descansar antes de la cena.", "type": "free", "duration_min": 120 },
+        { "time": "19:00", "icon": "🥩", "title": "Cena de despedida", "description": "Cena especial de despedida de Japón. Opción: yakiniku (barbacoa japonesa) con buen wagyu a precio razonable.", "type": "meal", "duration_min": 90 }
+      ],
+      "places": [
+        { "id": "shinsekai", "name": "Shinsekai", "coords": { "lat": 34.6524, "lng": 135.5063 }, "hours": "24h (tiendas ~10:00-21:00)", "price": "Gratis (pasear)", "review": "El barrio más castizo de Osaka. Kushikatsu, pachinkos, ambiente popular. Muy diferente al glamour de Dotonbori.", "tips": "Es seguro de día. De noche, la zona sur puede ser algo desangelada. Quedaos en la zona comercial principal." }
+      ],
+      "restaurants": [
+        { "name": "Daruma Kushikatsu (Shinsekai)", "meal": "almuerzo", "speciality": "Kushikatsu (brochetas empanadas fritas)", "price_range": "€", "reservation_required": false, "coords": { "lat": 34.6521, "lng": 135.5060 }, "notes": "La cadena más famosa de kushikatsu. Cola habitual pero rápida. NO mojar dos veces en la salsa compartida." }
+      ],
+      "logistics": { "walking_km": 9, "walking_time_min": 120, "public_transport": "Metro de Osaka. ~¥500 total." },
+      "info": { "travel_tips": ["Compras tax-free: enseñar pasaporte. Mínimo ¥5.000 en la misma tienda para obtener el 10% de descuento.", "Despacho de souvenirs: Kit Kat de matcha, Tokyo Banana (sí, también se venden en Osaka), Royce chocolate, sake local."] }
+    },
+    {
+      "day": 15, "date": "2027-04-01", "title": "✈️ Vuelta Kansai → Valencia",
+      "timeline": [
+        { "time": "08:00", "icon": "🏪", "title": "Desayuno y checkout", "description": "Último desayuno en Japón. Checkout del hotel The Onefive.", "type": "checkout", "duration_min": 30 },
+        { "time": "09:00", "icon": "🛍️", "title": "Mañana libre (si queda tiempo)", "description": "Paseo final por Namba, últimas compras de souvenirs olvidados, o simplemente disfrutar del barrio.", "type": "free", "duration_min": 120 },
+        { "time": "11:00", "icon": "🚃", "title": "Tren a Kansai Airport", "description": "Nankai Rapi:t desde Namba Station a Kansai Airport. ~38 min, ¥1.290 (regular) o ¥1.790 (Rapi:t). Alternativa: JR Haruka (~50 min, ¥1.210).", "type": "transport", "duration_min": 45 },
+        { "time": "12:00", "icon": "✈️", "title": "Llegada a Kansai International Airport", "description": "Check-in, facturar maletas, pasar seguridad. Tiendas duty-free para últimas compras.", "type": "transport", "duration_min": 120 },
+        { "time": "22:10", "icon": "✈️", "title": "Despegue KIX → Valencia", "description": "Vuelo de vuelta con escala. Llegada a Valencia el 2 de abril a las 09:40.", "type": "transport", "duration_min": 840 }
+      ],
+      "places": [
+        { "id": "kansai-airport", "name": "Aeropuerto Internacional de Kansai (KIX)", "coords": { "lat": 34.4347, "lng": 135.2440 }, "tips": "El aeropuerto está en una isla artificial. Llegad con tiempo. Hay tiendas duty-free de última hora muy buenas (matcha, sake, chocolate)." }
+      ],
+      "restaurants": [],
+      "logistics": { "walking_km": 3, "walking_time_min": 40, "public_transport": "Nankai Rapi:t o JR Haruka. ~¥1.300-1.800." },
+      "info": { "travel_tips": ["Si hacéis compras tax-free, los artículos deben ir en la bolsa precintada dentro de la maleta facturada.", "En Kansai Airport hay onsen (aguas termales) en la Terminal 1 para relajaros antes del vuelo."], "facts": ["Kansai Airport fue diseñado por Renzo Piano y construido sobre una isla artificial en la bahía de Osaka."] }
+    }
+  ],
+
+  "practical_tips": [
+    {
+      "icon": "🚃", "title": "Transporte y conducción",
+      "items": [
+        { "subtitle": "IC Card (Suica/ICOCA)", "text": "Comprad una Suica digital (iPhone) o ICOCA física al llegar. Funciona en todo: metro, tren, bus, konbinis, máquinas expendedoras. Recargad en cualquier máquina de la estación." },
+        { "subtitle": "Shinkansen sin JR Pass", "text": "Sin JR Pass, usad SmartEX app para reservar y pagar Shinkansen con tarjeta. Entráis con QR code sin pasar por taquilla. Pedid asiento E (derecha) de Tokio a Kioto para ver el Fuji." },
+        { "subtitle": "Metro en las grandes ciudades", "text": "Google Maps funciona perfecto para rutas de metro en Japón. Indicará la salida exacta de la estación. Las líneas cierran ~00:00-01:00 y abren ~05:00." },
+        { "subtitle": "Takkyūbin (envío de maletas)", "text": "Servicio de envío de maletas de hotel a hotel. Dejar en recepción/konbini por la mañana, llegan al día siguiente. ~¥2.000-2.500/maleta. Yamato Transport (gato negro) es el más fiable." },
+        { "subtitle": "No hay papeleras en la calle", "text": "Japón apenas tiene papeleras en la calle. Llevad una bolsita para vuestra basura y tiradla en konbinis o estaciones." }
+      ]
+    },
+    {
+      "icon": "💰", "title": "Trucos de ahorro",
+      "items": [
+        { "subtitle": "Konbini = vuestro mejor amigo", "text": "7-Eleven, Lawson y FamilyMart tienen comida excelente a precios bajos: onigiri (150 ¥), sándwiches (250 ¥), bento (400-600 ¥), café (100-150 ¥)." },
+        { "subtitle": "Tax-free en compras", "text": "En tiendas con el logo 'Tax Free', compras superiores a ¥5.000 están exentas de impuestos (10% ahorro). Llevad siempre el pasaporte." },
+        { "subtitle": "Kaiten sushi", "text": "Los restaurantes de sushi de cinta transportadora (Sushiro, Kura Sushi, Genki Sushi) ofrecen sushi de calidad desde 100-300 ¥ por plato." },
+        { "subtitle": "Agua gratis", "text": "Las fuentes de agua potable en estaciones y parques son seguras. Rellenad botella reutilizable." },
+        { "subtitle": "Transporte: evitad taxis", "text": "Los taxis en Japón son carísimos (~¥600-700 bajada de bandera). Usad siempre transporte público o caminad." }
+      ]
+    },
+    {
+      "icon": "🎌", "title": "Cultura local",
+      "items": [
+        { "subtitle": "Quitarse los zapatos", "text": "En templos, ryokans, algunos restaurantes y probadores: quitad los zapatos y usad las zapatillas proporcionadas. Calcetines limpios siempre." },
+        { "subtitle": "Reverencia (ojigi)", "text": "Una ligera inclinación de cabeza es el saludo estándar. No hace falta doblar 90°, basta con 15-30°." },
+        { "subtitle": "Silencio en transporte público", "text": "En trenes y metro está prohibido hablar por teléfono y se espera hablar en voz baja." },
+        { "subtitle": "Propinas: NO se dejan", "text": "No se deja propina en Japón. Ni en restaurantes, ni en taxis, ni en hoteles. Es considerado incluso ofensivo." },
+        { "subtitle": "Colas", "text": "Los japoneses hacen cola para todo, ordenadamente. No os coléis nunca, ni siquiera 'un momentito'." }
+      ]
+    },
+    {
+      "icon": "🍜", "title": "Gastronomía en ruta",
+      "items": [
+        { "subtitle": "Máquinas expendedoras de comida", "text": "Muchos restaurantes usan máquinas expendedoras para pedir: metéis dinero, elegís plato, dais el ticket al cocinero." },
+        { "subtitle": "Ekiben (bento de tren)", "text": "Los bento que se venden en estaciones de Shinkansen son una delicia. Probad uno en cada trayecto." },
+        { "subtitle": "Platos imprescindibles", "text": "Ramen, tsukemen, tonkatsu, gyukatsu, takoyaki, okonomiyaki, kushikatsu, sushi, tempura, gyoza, onigiri, mochi, matcha." },
+        { "subtitle": "Alergias y restricciones", "text": "La app Google Translate con cámara traduce cartas en japonés al instante. Útil para ingredientes. El dashi (caldo de pescado) está en casi todo." },
+        { "subtitle": "Vending machines", "text": "Japón tiene 5 millones de máquinas expendedoras. Café caliente o frío, té, zumos... desde 100-160 ¥. Están en cada esquina." }
+      ]
+    },
+    {
+      "icon": "🛡️", "title": "Seguridad y salud",
+      "items": [
+        { "subtitle": "Japón es muy seguro", "text": "Uno de los países más seguros del mundo. Podéis caminar a cualquier hora sin preocupaciones." },
+        { "subtitle": "Tarjeta Sanitaria Europea NO vale", "text": "La TSE no funciona en Japón. Contratad un seguro de viaje con cobertura médica antes de salir." },
+        { "subtitle": "Farmacias", "text": "Las farmacias (yakkyoku/ドラッグストア) como Matsumoto Kiyoshi o Sundrug tienen medicamentos básicos sin receta." },
+        { "subtitle": "Terremotos", "text": "Japón tiene terremotos frecuentes. Si sentís uno: agacharse, cubrirse, sujetarse. Los edificios modernos están diseñados para resistir." },
+        { "subtitle": "Medicación personal", "text": "Llevar la medicación crónica en el equipaje de mano, con receta o informe médico en inglés por si os preguntan en aduana." }
+      ]
+    },
+    {
+      "icon": "🎒", "title": "Qué llevar",
+      "items": [
+        { "subtitle": "Ropa por capas", "text": "Marzo en Japón: 5-15°C. Mañanas frías, tardes templadas. Capas: camiseta + jersey/sudadera + chaqueta cortavientos." },
+        { "subtitle": "Calzado cómodo", "text": "Vais a caminar 10-15 km/día. Zapatillas deportivas cómodas y ya probadas." },
+        { "subtitle": "Paraguas plegable", "text": "Marzo tiene bastantes días de lluvia. Un paraguas pequeño es imprescindible." },
+        { "subtitle": "Adaptador de enchufe", "text": "Japón usa clavijas tipo A (americanas, planas). Los enchufes españoles NO encajan. Llevad adaptador." },
+        { "subtitle": "Bolsa plegable / eco-bag", "text": "Las bolsas de plástico son de pago en Japón (~3-5 ¥). Llevad una bolsa plegable para las compras." }
+      ]
+    },
+    {
+      "icon": "📱", "title": "Apps imprescindibles",
+      "items": [
+        { "subtitle": "Google Maps", "text": "Funciona perfecto en Japón para transporte público, rutas a pie y búsquedas de restaurantes." },
+        { "subtitle": "Google Translate", "text": "La función de cámara traduce textos en japonés al instante. Imprescindible para cartas de restaurantes y carteles." },
+        { "subtitle": "Suica (iPhone/Apple Watch)", "text": "App de pago digital para transporte y compras. Si no tenéis iPhone, comprad una ICOCA física." },
+        { "subtitle": "SmartEX", "text": "Para reservar y pagar Shinkansen con tarjeta de crédito extranjera. QR code de embarque directo." },
+        { "subtitle": "Tabelog", "text": "El TripAdvisor japonés. Puntuaciones más fiables para restaurantes (3.5+ es excelente en Tabelog)." }
+      ]
+    },
+    {
+      "icon": "🌦️", "title": "Clima y ropa (marzo)",
+      "items": [
+        { "subtitle": "Temperaturas", "text": "Tokio: 7-14°C. Kioto: 5-15°C. Osaka: 6-15°C. Noches frías (4-7°C), tardes templadas." },
+        { "subtitle": "Lluvia", "text": "Marzo tiene ~10-16 días con algo de lluvia en Tokio. Paraguas plegable obligatorio." },
+        { "subtitle": "Sakura (cerezos en flor)", "text": "La floración suele empezar en Tokio a mediados-finales de marzo. Es posible que los pilléis en flor, especialmente en Kioto y Osaka a finales de mes." },
+        { "subtitle": "Ropa recomendada", "text": "Chaqueta media (no abrigo pesado), jersey, camisetas, pantalón largo, zapatillas cómodas. Bufanda ligera para las mañanas." }
+      ]
+    },
+    {
+      "icon": "🛒", "title": "Compras y souvenirs",
+      "items": [
+        { "subtitle": "Electrónica", "text": "Akihabara (Tokio) y Denden Town (Osaka) para electrónica. No siempre más barato que online, pero hay exclusivos japoneses." },
+        { "subtitle": "Souvenirs gastronómicos", "text": "Kit Kat de sabores exclusivos (matcha, sake, fresa), Tokyo Banana, mochi, Royce chocolate, sake local, té matcha." },
+        { "subtitle": "Ropa", "text": "Uniqlo y GU son mucho más baratos en Japón. Tienen diseños exclusivos para el mercado japonés." },
+        { "subtitle": "Don Quijote", "text": "La cadena de descuentos más famosa. Abierta 24h. Desde electrónica hasta cosméticos, dulces y souvenirs absurdos. Tax-free disponible." }
+      ]
+    },
+    {
+      "icon": "💱", "title": "Dinero y pagos",
+      "items": [
+        { "subtitle": "Efectivo sigue siendo rey", "text": "Aunque Japón ha mejorado en pagos digitales, muchos restaurantes pequeños e izakayas solo aceptan efectivo." },
+        { "subtitle": "Cajeros 7-Eleven", "text": "Los cajeros de 7-Eleven (7-Bank) aceptan Visa/Mastercard de cualquier país. Son los más fiables para sacar yenes." },
+        { "subtitle": "Tipo de cambio", "text": "No cambiéis euros en el aeropuerto español. Sacad yenes de cajeros 7-Eleven en Japón con vuestra tarjeta." },
+        { "subtitle": "Presupuesto diario estimado", "text": "Comida konbini: 1.500-2.000 ¥/día. Comida restaurante: 3.000-5.000 ¥/día. Transporte urbano: 800-1.500 ¥/día. Entradas: variable." }
+      ]
+    }
+  ],
+
+  "packing_list": {
+    "winter_clothing": ["Chaqueta cortavientos/impermeable", "Jersey o sudadera (×3)", "Pantalón largo cómodo (×3)", "Camiseta manga larga (×3)", "Camiseta térmica (×1, para mañanas frías)"],
+    "summer_clothing": ["Camiseta manga corta (×3, para capas o días templados)"],
+    "footwear": ["Zapatillas deportivas cómodas (las principales)", "Chanclas/sandalias (para onsen o ducharse)"],
+    "underwear": ["Calcetines (×7, limpios para templos)", "Ropa interior (×7)", "Pijama (×1)"],
+    "items": ["Smartphone + cargador", "Gimbal para móvil", "Auriculares", "Batería externa (power bank)", "Adaptador enchufe tipo A (americano)", "Ladrón (regleta pequeña)", "Paraguas plegable", "Riñonera o bandolera", "Bolsa plegable para compras", "Medidor de peso para maleta (vuelta)"],
+    "accessories": ["Gafas de sol", "Gorra o gorro", "Bufanda ligera", "Cinturón"],
+    "documents": ["DNI", "Pasaporte (obligatorio fuera de UE)", "Carnet de conducir (no necesario)", "Tarjeta de crédito (Visa/Mastercard)", "Dinero metálico (sacar ¥ en 7-Eleven al llegar)", "Billetes de avión (digital)", "Reservas de hotel (digital)", "Seguro de viaje (impreso o digital)"],
+    "toiletries": ["Peine", "Gel ducha (tamaño viaje)", "Champú (tamaño viaje)", "Cepillo y pasta de dientes", "Desodorante", "Crema solar (el sol de marzo es traicionero)", "Pañuelos", "Cortaúñas"],
+    "health": ["Medicación crónica personal (con receta/informe en inglés)", "Analgésicos (paracetamol, ibuprofeno)", "Antihistamínico (alergia al polen de cedro en marzo)", "Protector gástrico", "Tiritas"]
+  },
+
+  "shopping": {
+    "authentic_products": ["Kit Kat sabores exclusivos (matcha, sake, fresa)", "Tokyo Banana", "Wagashi (dulces tradicionales)", "Matcha en polvo de Uji", "Sake local", "Cuchillos japoneses (Kioto/Osaka)", "Maneki-neko (gato de la suerte)", "Sensu (abanico plegable)", "Furoshiki (pañuelos de tela para envolver)", "Figuras anime y manga"],
+    "avoid": ["Electrónica genérica (no siempre más barata que en España)", "Kimonos 'turísticos' de baja calidad en tiendas de souvenirs", "Katanas de imitación (problemas en aduana)"],
+    "best_places": ["Don Quijote (souvenirs, cosméticos, dulces)", "Akihabara (Tokio) - figuras, manga, retrogaming", "Nishiki Market (Kioto) - cuchillos, dulces, sake", "Shinsaibashi (Osaka) - moda", "Daimaru / Isetan (planta de souvenirs gourmet)"]
+  },
+
+  "emergency": {
+    "local_emergency": "110 (policía) / 119 (bomberos y ambulancia)",
+    "medical": "Buscar 'hospital near me' en Google Maps. Muchos hospitales grandes tienen servicio en inglés. Farmacia: Matsumoto Kiyoshi, Sundrug.",
+    "police": "Koban (mini-comisarías) en cada barrio. Son muy serviciales con turistas, incluso para indicaciones.",
+    "embassy": "Embajada de España en Tokio: +81-3-3583-8531. Consulado en Osaka: no hay (competencia de la Embajada). Atención consular 24h: +34-91-379-1700.",
+    "insurance_reminder": "La TSE no funciona en Japón. Contratad seguro de viaje (IATI, Chapka, Mondo...) con cobertura médica mínima de 100.000 €."
+  },
+
+  "apps_recommended": [
+    { "name": "Google Maps", "purpose": "Navegación, transporte público, rutas a pie" },
+    { "name": "Google Translate", "purpose": "Traducción con cámara de textos en japonés" },
+    { "name": "Suica / ICOCA", "purpose": "Pago digital para transporte y tiendas" },
+    { "name": "SmartEX", "purpose": "Reserva y pago de Shinkansen" },
+    { "name": "Tabelog", "purpose": "Reseñas de restaurantes (el TripAdvisor japonés)" },
+    { "name": "XE Currency", "purpose": "Conversor de divisas EUR ↔ JPY" },
+    { "name": "Navitime", "purpose": "Rutas de transporte público japonés (alternativa a Google Maps)" },
+    { "name": "USJ App", "purpose": "Tiempos de cola y timed entry en Universal Studios Japan" }
+  ],
+
+  "generation_metadata": {
+    "generated_at": "2026-04-24T12:00:00Z",
+    "schema_version": "1.2",
+    "claude_model": "claude-opus-4-6",
+    "web_search_count": 8,
+    "verification_note": "Precios y horarios verificados con web_search en abril 2026. Los precios pueden variar para marzo 2027. Verificar presencialmente horarios exactos y disponibilidad."
+  }
+}
+
+</script>
+
+<!-- =========================================================
+     LÓGICA
+     ========================================================= -->
+<script>
+(function () {
+  'use strict';
+
+  // ------------------------------------------------------
+  // 1. CARGA DE DATOS Y STORAGE
+  // ------------------------------------------------------
+  const DATA = JSON.parse(document.getElementById('guide-data').textContent);
+  const SLUG = (DATA.meta?.destination?.name || 'guia').toLowerCase().replace(/\s+/g, '-');
+  const STORE_KEY = 'guia_' + SLUG + '_v1';
+
+  const defaultStore = {
+    checklist: {},       // { "day1_tl3": true, ... }
+    notes: {},           // { "day1": "texto", ... }
+    expenses: [],        // [{ id, day, category, desc, amount, date }]
+    packing: {},         // { "clothing_0": true, ... }
+    packing_custom: null,// items añadidos/editados por el usuario (override de DATA.packing_list)
+    budget_edit: null,   // { breakdown } editado por el usuario
+    split: null,         // { people: [], expenses: [] } gastos compartidos
+    theme: null          // "light" | "dark" | null (= auto)
+  };
+
+  function loadStore() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return { ...defaultStore };
+      return { ...defaultStore, ...JSON.parse(raw) };
+    } catch (e) { return { ...defaultStore }; }
+  }
+  function saveStore() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {}
+  }
+
+  const store = loadStore();
+
+  // ------------------------------------------------------
+  // 2. UTILIDADES
+  // ------------------------------------------------------
+  const fmtDate = (isoDate, opts = { day: 'numeric', month: 'short' }) => {
+    const d = new Date(isoDate + 'T00:00:00');
+    return d.toLocaleDateString('es-ES', opts);
+  };
+  const fmtMoney = (n, currency = 'EUR') => {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+  };
+  const el = (sel) => document.querySelector(sel);
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  const todayISO = () => new Date().toISOString().slice(0, 10);
+
+  function getCurrentTripDay() {
+    const today = todayISO();
+    const d = DATA.days.find(d => d.date === today);
+    return d || null;
+  }
+
+  // ------------------------------------------------------
+  // 3. TEMA (modo oscuro)
+  // ------------------------------------------------------
+  function applyTheme() {
+    let t = store.theme;
+    if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = t === 'dark' ? '#14110E' : (DATA.meta?.theme_color || '#C65D3A');
+  }
+  el('#btn-theme').addEventListener('click', () => {
+    const current = document.documentElement.dataset.theme;
+    store.theme = current === 'dark' ? 'light' : 'dark';
+    saveStore();
+    applyTheme();
+  });
+  applyTheme();
+
+  // Tema dinámico desde el JSON
+  if (DATA.meta?.theme_color) {
+    document.documentElement.style.setProperty('--accent', DATA.meta.theme_color);
+  }
+
+  // ------------------------------------------------------
+  // 4. RENDERS POR PÁGINA
+  // ------------------------------------------------------
+
+  // --- HOME -----------------------------------------------
+  function renderHome() {
+    const meta = DATA.meta;
+    const intro = DATA.intro;
+    const tripDay = getCurrentTripDay();
+
+    let todayHTML = '';
+    if (tripDay) {
+      todayHTML = `
+        <button class="today-card" onclick="window.__nav.goDay(${tripDay.day})">
+          <div class="today-card__label">Hoy — Día ${tripDay.day}</div>
+          <div class="today-card__title">${esc(tripDay.title)}</div>
+          <p class="today-card__summary">${esc(DATA.summary.find(s => s.day === tripDay.day)?.summary || '')}</p>
+          <span class="today-card__link">Ver itinerario →</span>
+        </button>`;
+    }
+
+    const valueProps = (intro.value_props || []).map(v => `
+      <div class="prop-card">
+        <div class="prop-card__icon">${esc(v.icon)}</div>
+        <div>
+          <div class="prop-card__title">${esc(v.title)}</div>
+          <div class="prop-card__text">${esc(v.text)}</div>
+        </div>
+      </div>`).join('');
+
+    const historyHTML = DATA.history ? `
+      <h2 class="section-title">${esc(DATA.history.title || 'Contexto histórico')}</h2>
+      <div class="history" id="history-block">
+        <p class="history__summary">${esc(DATA.history.summary || '')}</p>
+        <button class="history__toggle" onclick="document.getElementById('history-block').classList.toggle('is-open')">
+          Ampliar <span class="chev">▾</span>
+        </button>
+        <div class="history__detail">
+          ${(DATA.history.periods || []).map(p => `
+            <div class="history__period">
+              ${p.range ? `<div class="history__period-range">${esc(p.range)}</div>` : ''}
+              <div class="history__period-title">${esc(p.title)}</div>
+              <p class="history__period-text">${esc(p.text)}</p>
+            </div>`).join('')}
+        </div>
+      </div>` : '';
+
+    el('#page-home').innerHTML = `
+      <section class="hero ${meta.cover_image ? 'hero--with-image' : ''}">
+        ${meta.cover_image ? `<div class="hero__bg" style="background-image: url('${esc(meta.cover_image)}')"></div>` : ''}
+        <div class="hero__eyebrow">Guía ${esc(meta.destination.country)}</div>
+        <h1 class="hero__title">${esc(meta.title)}</h1>
+        ${meta.subtitle ? `<div class="hero__subtitle">${esc(meta.subtitle)}</div>` : ''}
+        <div class="hero__meta">
+          <span class="hero__meta-item">📅 ${fmtDate(meta.dates.start)} – ${fmtDate(meta.dates.end, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+          <span class="hero__meta-item">🧭 ${meta.dates.days} días</span>
+          <span class="hero__meta-item">👥 ${meta.travelers.adults}${meta.travelers.children ? ' + ' + meta.travelers.children + ' 👶' : ''}</span>
+        </div>
+      </section>
+
+      ${todayHTML}
+
+      <h2 class="section-title">Qué ofrece el viaje</h2>
+      <div class="props-grid">${valueProps}</div>
+
+      ${historyHTML}
+    `;
+
+    el('#header-title').textContent = meta.title;
+  }
+
+  // --- DAYS LIST ------------------------------------------
+  function dayProgress(day) {
+    const items = day.timeline || [];
+    if (!items.length) return 0;
+    const done = items.filter((_, idx) => store.checklist[`d${day.day}_t${idx}`]).length;
+    return Math.round((done / items.length) * 100);
+  }
+
+  function renderDaysList() {
+    const daysHTML = DATA.days.map(d => {
+      const sum = DATA.summary.find(s => s.day === d.day)?.summary || '';
+      const prog = dayProgress(d);
+      return `
+        <button class="day-card" onclick="window.__nav.goDay(${d.day})">
+          <div class="day-card__num">
+            <span class="day-card__num-label">Día</span>
+            <span class="day-card__num-value">${d.day}</span>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="day-card__date">${fmtDate(d.date, { weekday: 'short', day: 'numeric', month: 'short' })}</div>
+            <div class="day-card__title">${esc(d.title)}</div>
+            <div class="day-card__summary">${esc(sum)}</div>
+            <div class="day-card__progress">
+              <span>${prog}%</span>
+              <div class="progress-bar"><div class="progress-bar__fill" style="width:${prog}%"></div></div>
+            </div>
+          </div>
+        </button>`;
+    }).join('');
+
+    el('#page-days').innerHTML = `
+      <h2 class="section-title" style="margin-top:0">Itinerario día a día</h2>
+      <div class="days-list">${daysHTML}</div>
+    `;
+  }
+
+  // --- DAY DETAIL -----------------------------------------
+  function renderDay(dayNum) {
+    const d = DATA.days.find(x => x.day === dayNum);
+    if (!d) { el('#page-day').innerHTML = '<p>Día no encontrado.</p>'; return; }
+
+    const timelineHTML = (d.timeline || []).map((t, idx) => {
+      const key = `d${d.day}_t${idx}`;
+      const done = !!store.checklist[key];
+      const place = t.place_id ? (d.places || []).find(p => p.id === t.place_id) : null;
+      return `
+        <div class="tl-item ${done ? 'is-done' : ''}" data-icon="${esc(t.icon || '•')}" data-key="${key}">
+          <div class="tl-item__head">
+            <span class="tl-item__time">${esc(t.time)}</span>
+            <button class="tl-item__check" onclick="window.__actions.toggleChecklist('${key}')"></button>
+          </div>
+          <div class="tl-item__title">${esc(t.title)}</div>
+          <div class="tl-item__description">${esc(t.description)}</div>
+          ${place ? `<div class="tl-item__place">📍 ${esc(place.name)}</div>` : ''}
+        </div>`;
+    }).join('');
+
+    const placesHTML = (d.places || []).map(p => {
+      const gmaps = p.gmaps_url || `https://www.google.com/maps/search/?api=1&query=${p.coords.lat},${p.coords.lng}`;
+      const waze = `https://waze.com/ul?ll=${p.coords.lat},${p.coords.lng}&navigate=yes`;
+      const waShare = `https://wa.me/?text=${encodeURIComponent(p.name + ' — ' + gmaps)}`;
+      return `
+        <div class="place-card" id="place-${esc(p.id)}">
+          <div class="place-card__name">📍 ${esc(p.name)}</div>
+          ${p.review ? `<p class="place-card__review">${esc(p.review)}</p>` : ''}
+          <div class="place-card__meta">
+            ${p.hours ? `<div class="place-card__meta-item"><span class="place-card__meta-label">🕐</span> ${esc(p.hours)}</div>` : ''}
+            ${p.price ? `<div class="place-card__meta-item"><span class="place-card__meta-label">💶</span> ${esc(p.price)}</div>` : ''}
+            ${p.tips ? `<div class="place-card__meta-item"><span class="place-card__meta-label">💡</span> ${esc(p.tips)}</div>` : ''}
+          </div>
+          <div class="place-card__actions">
+            <a class="btn btn--primary btn--sm" href="${gmaps}" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+              Google Maps
+            </a>
+            <a class="btn btn--ghost btn--sm" href="${waze}" target="_blank" rel="noopener">Waze</a>
+            <a class="btn btn--ghost btn--sm" href="${waShare}" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-1 1.1-.2.2-.4.2-.7.1-.3-.1-1.2-.4-2.3-1.4-.8-.7-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5-.2 0-.4 0-.6 0-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.1 3 .1.2 2 3.1 4.9 4.3 2.9 1.2 2.9.8 3.4.8.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.1-.2-.2-.5-.3zM12 2a10 10 0 0 0-8.7 14.9L2 22l5.3-1.4A10 10 0 1 0 12 2z"/></svg>
+              WhatsApp
+            </a>
+          </div>
+        </div>`;
+    }).join('');
+
+    const restaurantsHTML = (d.restaurants || []).length ? `
+      <h3 class="section-title section-title--small">🍽 Dónde comer</h3>
+      <div class="restaurants">
+        ${(d.restaurants || []).map(r => `
+          <div class="rest-card">
+            <div class="rest-card__head">
+              <span class="rest-card__name">${esc(r.name)}</span>
+              ${r.price_range ? `<span class="rest-card__price">${esc(r.price_range)}</span>` : ''}
+            </div>
+            ${r.speciality ? `<div class="rest-card__spec">${esc(r.speciality)}</div>` : ''}
+            ${r.meal ? `<span class="rest-card__meal">${esc(r.meal)}${r.reservation_required ? ' · reserva' : ''}</span>` : ''}
+          </div>`).join('')}
+      </div>` : '';
+
+    const alt = d.alternative_plans || {};
+    const altHTML = (alt.more_time || alt.less_time || alt.rainy_day || alt.with_kids) ? `
+      <h3 class="section-title section-title--small">🔀 Planes alternativos</h3>
+      <div class="alt-plans">
+        ${alt.more_time ? `<div class="alt-plan"><div class="alt-plan__label">Si tienes más tiempo</div><div class="alt-plan__text">${esc(alt.more_time)}</div></div>` : ''}
+        ${alt.less_time ? `<div class="alt-plan"><div class="alt-plan__label">Si tienes menos tiempo</div><div class="alt-plan__text">${esc(alt.less_time)}</div></div>` : ''}
+        ${alt.rainy_day ? `<div class="alt-plan"><div class="alt-plan__label">Si llueve</div><div class="alt-plan__text">${esc(alt.rainy_day)}</div></div>` : ''}
+        ${alt.with_kids ? `<div class="alt-plan"><div class="alt-plan__label">Con niños</div><div class="alt-plan__text">${esc(alt.with_kids)}</div></div>` : ''}
+      </div>` : '';
+
+    const info = d.info || {};
+    const infoHTML = [
+      info.travel_tips ? { t: '💡 Consejos', items: info.travel_tips } : null,
+      info.access ? { t: '🎟 Acceso', items: info.access } : null,
+      info.facts ? { t: '📊 Datos de interés', items: info.facts } : null
+    ].filter(Boolean).map(b => `
+      <div class="info-block">
+        <div class="info-block__title">${esc(b.t)}</div>
+        <ul class="info-block__list">${b.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
+      </div>`).join('');
+
+    const log = d.logistics || {};
+    const logisticsHTML = (log.driving_km || log.walking_km || log.public_transport) ? `
+      <div class="day-detail__logistics">
+        ${log.driving_km ? `<span class="day-detail__logistics-item">🚗 ${log.driving_km} km · ${Math.round((log.driving_time_min||0)/60*10)/10}h</span>` : ''}
+        ${log.walking_km ? `<span class="day-detail__logistics-item">🚶 ${log.walking_km} km · ${Math.round((log.walking_time_min||0)/60*10)/10}h</span>` : ''}
+        ${log.public_transport ? `<span class="day-detail__logistics-item">🚌 ${esc(log.public_transport)}</span>` : ''}
+      </div>` : '';
+
+    const noteKey = `d${d.day}`;
+    const noteVal = store.notes[noteKey] || '';
+
+    el('#page-day').innerHTML = `
+      <div class="day-detail__head">
+        <button class="back-btn" onclick="window.__nav.go('days')">← Volver al itinerario</button>
+        <div class="day-detail__eyebrow">Día ${d.day} — ${fmtDate(d.date, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+        <h1 class="day-detail__title">${esc(d.title)}</h1>
+        ${logisticsHTML}
+      </div>
+
+      <div class="timeline">${timelineHTML}</div>
+
+      ${placesHTML ? `<h3 class="section-title section-title--small">🏛 Lugares del día</h3>${placesHTML}` : ''}
+
+      ${restaurantsHTML}
+      ${altHTML}
+      ${infoHTML}
+
+      <div class="day-notes">
+        <div class="day-notes__label">📝 Tus notas del día</div>
+        <textarea class="day-notes__textarea" id="note-input" placeholder="Impresiones, fotos tomadas, gastos del día…">${esc(noteVal)}</textarea>
+      </div>
+    `;
+
+    el('#note-input').addEventListener('input', (e) => {
+      store.notes[noteKey] = e.target.value;
+      saveStore();
+    });
+
+    el('#header-title').textContent = `Día ${d.day} · ${d.title}`;
+  }
+
+  // --- MAP ------------------------------------------------
+  let mapInstance = null;
+  let mapLoadAttempts = 0;
+  function renderMap() {
+    if (!window.L) {
+      mapLoadAttempts++;
+      if (mapLoadAttempts > 20) {  // ~4 segundos
+        el('#map').innerHTML = `<div class="empty-state" style="padding:40px 20px">
+          🗺️ <br><br>
+          <strong>Mapa no disponible</strong><br>
+          <span style="font-size:13px">Este archivo necesita conexión para cargar los mapas.<br>Los datos del itinerario siguen disponibles en las otras pestañas.</span>
+        </div>`;
+        return;
+      }
+      setTimeout(renderMap, 200);
+      return;
+    }
+    const om = DATA.overview_map;
+    if (!om) { el('#map').innerHTML = '<p style="padding:20px">Sin datos de mapa.</p>'; return; }
+
+    try {
+      if (mapInstance) { mapInstance.remove(); mapInstance = null; }
+
+      mapInstance = L.map('map', { zoomControl: true, attributionControl: true })
+        .setView([om.center.lat, om.center.lng], om.zoom || 8);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(mapInstance);
+
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+      (om.markers || []).forEach(m => {
+        const icon = L.divIcon({
+          className: 'custom-marker',
+          html: `<div style="width:30px;height:30px;background:${accent};color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff">${m.day}</div>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        });
+        L.marker([m.coords.lat, m.coords.lng], { icon })
+          .addTo(mapInstance)
+          .bindPopup(`<strong>${esc(m.name)}</strong><br><small>Día ${m.day}</small><br><a href="#" onclick="window.__nav.goDay(${m.day});return false;">Ver día →</a>`);
+      });
+    } catch (err) {
+      console.error('Error al inicializar el mapa:', err);
+      el('#map').innerHTML = `<div class="empty-state" style="padding:40px 20px">
+        ⚠️ Error al cargar el mapa.<br>
+        <small>${esc(err.message || 'Desconocido')}</small>
+      </div>`;
+    }
+  }
+
+  // --- TIPS -----------------------------------------------
+  function renderTips() {
+    const tipsHTML = (DATA.practical_tips || []).map((g, idx) => `
+      <div class="tip-group" id="tip-group-${idx}">
+        <button class="tip-group__head" onclick="document.getElementById('tip-group-${idx}').classList.toggle('is-open')">
+          <div class="tip-group__head-left">
+            <span class="tip-group__icon">${esc(g.icon)}</span>
+            <span class="tip-group__title">${esc(g.title)}</span>
+          </div>
+          <span class="chev">▾</span>
+        </button>
+        <div class="tip-group__body">
+          ${(g.items || []).map(i => `
+            <div class="tip-item">
+              <div class="tip-item__subtitle">${esc(i.subtitle)}</div>
+              <div class="tip-item__text">${esc(i.text)}</div>
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+
+    const emergencyHTML = DATA.emergency ? `
+      <h2 class="section-title section-title--small">🆘 Emergencias</h2>
+      <div class="tool-card">
+        ${DATA.emergency.local_emergency ? `<div style="margin-bottom:8px"><strong>General:</strong> ${esc(DATA.emergency.local_emergency)}</div>` : ''}
+        ${DATA.emergency.medical ? `<div style="margin-bottom:8px"><strong>Médico:</strong> ${esc(DATA.emergency.medical)}</div>` : ''}
+        ${DATA.emergency.police ? `<div style="margin-bottom:8px"><strong>Policía:</strong> ${esc(DATA.emergency.police)}</div>` : ''}
+        ${DATA.emergency.embassy ? `<div style="margin-bottom:8px"><strong>Embajada:</strong> ${esc(DATA.emergency.embassy)}</div>` : ''}
+      </div>` : '';
+
+    const appsHTML = (DATA.apps_recommended || []).length ? `
+      <h2 class="section-title section-title--small">📱 Apps recomendadas</h2>
+      <div class="tool-card">
+        ${(DATA.apps_recommended || []).map(a => `<div style="padding:6px 0;border-bottom:1px dashed var(--line)"><strong>${esc(a.name)}:</strong> ${esc(a.purpose)}</div>`).join('')}
+      </div>` : '';
+
+    el('#page-tips').innerHTML = `
+      <h2 class="section-title" style="margin-top:0">Consejos prácticos</h2>
+      ${tipsHTML}
+      ${emergencyHTML}
+      ${appsHTML}
+    `;
+  }
+
+  // --- ME (checklist, presupuesto, packing, herramientas) --
+  function totalExpenses() {
+    return store.expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  }
+  function overallProgress() {
+    const allKeys = DATA.days.flatMap(d => (d.timeline || []).map((_, idx) => `d${d.day}_t${idx}`));
+    if (!allKeys.length) return 0;
+    const done = allKeys.filter(k => store.checklist[k]).length;
+    return Math.round((done / allKeys.length) * 100);
+  }
+  function packingProgress() {
+    const groups = store.packing_custom || DATA.packing_list || {};
+    let total = 0, done = 0;
+    Object.keys(groups).forEach(cat => {
+      (groups[cat] || []).forEach((_, idx) => {
+        total++;
+        if (store.packing[`${cat}_${idx}`]) done++;
+      });
+    });
+    return total ? Math.round((done / total) * 100) : 0;
+  }
+
+  function renderMe() {
+    const tabs = [
+      { k: 'overview', l: 'Resumen' },
+      { k: 'budget', l: 'Presupuesto' },
+      { k: 'packing', l: 'Equipaje' },
+      { k: 'tools', l: 'Herramientas' }
+    ];
+
+    el('#page-me').innerHTML = `
+      <h2 class="section-title" style="margin-top:0">Mi viaje</h2>
+      <div class="me-tabs">
+        ${tabs.map(t => `<button class="me-tab ${t.k === 'overview' ? 'is-active' : ''}" data-me-tab="${t.k}">${t.l}</button>`).join('')}
+      </div>
+      <div class="me-pane is-active" data-me-pane="overview"></div>
+      <div class="me-pane" data-me-pane="budget"></div>
+      <div class="me-pane" data-me-pane="packing"></div>
+      <div class="me-pane" data-me-pane="tools"></div>
+    `;
+
+    document.querySelectorAll('[data-me-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.me-tab').forEach(b => b.classList.remove('is-active'));
+        document.querySelectorAll('.me-pane').forEach(p => p.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        document.querySelector(`[data-me-pane="${btn.dataset.meTab}"]`).classList.add('is-active');
+      });
+    });
+
+    renderMeOverview();
+    renderMeBudget();
+    renderMePacking();
+    renderMeTools();
+  }
+
+  function renderMeOverview() {
+    const progress = overallProgress();
+    const packProg = packingProgress();
+    const totalExp = totalExpenses();
+    const bdKeys_ov = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
+    const budget = store.budget_edit ? bdKeys_ov.reduce((s, k) => s + (store.budget_edit.breakdown[k] || 0), 0) : (DATA.meta.budget?.total_estimated || 0);
+    const curr = DATA.meta.currency || 'EUR';
+
+    const paneEl = document.querySelector('[data-me-pane="overview"]');
+    if (!paneEl) return;
+
+    paneEl.innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card__value">${progress}%</div>
+          <div class="stat-card__label">Itinerario</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value">${packProg}%</div>
+          <div class="stat-card__label">Equipaje</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value">${fmtMoney(totalExp, curr)}</div>
+          <div class="stat-card__label">Gastado</div>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-card__title">📊 Presupuesto</div>
+        <div class="budget-row">
+          <span class="budget-row__label">Estimado</span>
+          <span class="budget-row__value">${fmtMoney(budget, curr)}</span>
+        </div>
+        <div class="budget-row">
+          <span class="budget-row__label">Gastado</span>
+          <span class="budget-row__value">${fmtMoney(totalExp, curr)}</span>
+        </div>
+        <div class="budget-progress">
+          <div class="budget-progress__fill ${totalExp > budget ? 'is-over' : ''}" style="width:${Math.min(100, budget ? (totalExp/budget)*100 : 0)}%"></div>
+        </div>
+        <div class="budget-row" style="margin-top:10px">
+          <span class="budget-row__label">Restante</span>
+          <span class="budget-row__value" style="color:${totalExp > budget ? 'var(--c-danger)' : 'var(--c-success)'}">${fmtMoney(budget - totalExp, curr)}</span>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-card__title">☁️ Clima en destino</div>
+        <div id="weather-content" class="empty-state">Cargando…</div>
+      </div>
+    `;
+
+    loadWeather();
+  }
+
+  async function loadWeather() {
+    const w = document.getElementById('weather-content');
+    if (!w) return;
+    const om = DATA.overview_map;
+    if (!om) { w.textContent = 'Sin coordenadas.'; return; }
+    const start = DATA.meta.dates.start;
+    const end = DATA.meta.dates.end;
+
+    // Open-Meteo es gratis y no requiere API key
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${om.center.lat}&longitude=${om.center.lng}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&start_date=${start}&end_date=${end}`;
+
+    try {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('fetch failed');
+      const j = await r.json();
+      if (!j.daily) { w.textContent = 'Previsión fuera de rango.'; return; }
+
+      const codes = {
+        0: '☀️', 1: '🌤', 2: '⛅', 3: '☁️',
+        45: '🌫', 48: '🌫',
+        51: '🌦', 53: '🌦', 55: '🌦',
+        61: '🌧', 63: '🌧', 65: '🌧',
+        71: '🌨', 73: '🌨', 75: '🌨',
+        80: '🌦', 81: '🌧', 82: '⛈',
+        95: '⛈', 96: '⛈', 99: '⛈'
+      };
+
+      const daysHTML = j.daily.time.map((t, i) => `
+        <div class="weather-day">
+          <div class="weather-day__date">${fmtDate(t, { weekday: 'short', day: 'numeric' })}</div>
+          <div class="weather-day__icon">${codes[j.daily.weather_code[i]] || '🌡'}</div>
+          <div class="weather-day__temp">${Math.round(j.daily.temperature_2m_max[i])}° <span class="weather-day__temp-min">${Math.round(j.daily.temperature_2m_min[i])}°</span></div>
+        </div>`).join('');
+      w.outerHTML = `<div class="weather-grid" id="weather-content">${daysHTML}</div>`;
+    } catch (e) {
+      w.textContent = 'Sin conexión para clima.';
+    }
+  }
+
+  function renderMeBudget() {
+    const paneEl = document.querySelector('[data-me-pane="budget"]');
+    if (!paneEl) return;
+    const curr = DATA.meta.currency || 'EUR';
+
+    // Inicializar desde DATA si no hay override guardado
+    if (!store.budget_edit) {
+      const bd = DATA.meta.budget?.breakdown || {};
+      store.budget_edit = {
+        breakdown: {
+          flights: bd.flights || 0,
+          accommodation: bd.accommodation || 0,
+          transport: bd.transport || 0,
+          food: bd.food || 0,
+          activities: bd.activities || 0,
+          shopping: bd.shopping || 0,
+          other: bd.other || 0
+        }
+      };
+    }
+    // Inicializar gastos compartidos si no existe
+    if (!store.split) {
+      store.split = { people: [], expenses: [] };
+    }
+
+    const be = store.budget_edit;
+    const bdLabels = { flights: 'Vuelos', accommodation: 'Alojamiento', transport: 'Transporte local', food: 'Comida', activities: 'Actividades', shopping: 'Compras', other: 'Otros' };
+    const bdKeys = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
+    // Total = suma de partidas (no editable directamente)
+    const budgetTotal = bdKeys.reduce((sum, k) => sum + (be.breakdown[k] || 0), 0);
+    const totalExp = totalExpenses();
+    const categories = ['Transporte', 'Alojamiento', 'Comida', 'Actividades', 'Compras', 'Otros'];
+
+    const budgetHTML = `
+      <div class="budget-summary">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:0 0 10px">Presupuesto estimado</div>
+        ${bdKeys.map(k => `
+          <div class="budget-row" style="margin-bottom:4px">
+            <span class="budget-row__label" style="font-size:13px">${bdLabels[k]}</span>
+            <div style="display:flex;align-items:center;gap:4px">
+              <input type="number" data-bd-key="${k}" value="${be.breakdown[k] || 0}" style="width:75px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;text-align:right">
+              <span style="font-size:11px;color:var(--text-muted)">€</span>
+            </div>
+          </div>`).join('')}
+
+        <hr class="divider" style="margin:12px 0 10px">
+        <div class="budget-row">
+          <span class="budget-row__label" style="font-weight:700">Total presupuestado</span>
+          <span class="budget-row__value" id="budget-auto-total" style="font-size:20px">${fmtMoney(budgetTotal, curr)}</span>
+        </div>
+        <div class="budget-row" style="margin-top:6px">
+          <span class="budget-row__label">Gastado</span>
+          <span class="budget-row__value">${fmtMoney(totalExp, curr)}</span>
+        </div>
+        <div class="budget-progress">
+          <div class="budget-progress__fill ${totalExp > budgetTotal ? 'is-over' : ''}" style="width:${Math.min(100, budgetTotal ? (totalExp/budgetTotal)*100 : 0)}%"></div>
+        </div>
+        <div class="budget-row" style="margin-top:6px">
+          <span class="budget-row__label">Restante</span>
+          <span class="budget-row__value" style="color:${totalExp > budgetTotal ? 'var(--c-danger)' : 'var(--c-success)'}">${fmtMoney(budgetTotal - totalExp, curr)}</span>
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:20px 0 8px">Añadir gasto</div>
+      <div class="expense-form">
+        <input id="exp-desc" placeholder="Concepto">
+        <input id="exp-amount" type="number" step="0.01" placeholder="€">
+        <select id="exp-cat">${categories.map(c => `<option>${c}</option>`).join('')}</select>
+        <button id="exp-add">+</button>
+      </div>
+      <ul class="expense-list" id="exp-list">
+        ${store.expenses.length === 0 ? '<li class="empty-state">Aún no has añadido gastos.</li>' : ''}
+        ${store.expenses.slice().reverse().map(e => `
+          <li class="expense-item">
+            <div>
+              <div class="expense-item__desc">${esc(e.desc)}</div>
+              <div class="expense-item__cat">${esc(e.category)}</div>
+            </div>
+            <span class="expense-item__amount">${fmtMoney(e.amount, curr)}</span>
+            <button class="expense-item__del" data-del="${e.id}">✕</button>
+          </li>`).join('')}
+      </ul>
+    `;
+
+    // --- Sección gastos compartidos ---
+    const sp = store.split;
+    const today = todayISO();
+
+    // Calcular balances netos: para cada gasto, cada beneficiario debe su parte proporcional
+    const balances = {}; // balance positivo = le deben, negativo = debe
+    sp.people.forEach(p => { balances[p] = 0; });
+    const splitGrandTotal = sp.expenses.reduce((s, e) => s + e.amount, 0);
+
+    sp.expenses.forEach(e => {
+      const beneficiaries = (e.forWhom && e.forWhom.length > 0) ? e.forWhom : sp.people;
+      const share = e.amount / beneficiaries.length;
+      // El pagador adelanta el total
+      balances[e.paidBy] = (balances[e.paidBy] || 0) + e.amount;
+      // Cada beneficiario "consume" su parte
+      beneficiaries.forEach(b => {
+        balances[b] = (balances[b] || 0) - share;
+      });
+    });
+
+    // Calcular transferencias mínimas para liquidar
+    function calcTransfers(bal) {
+      const debtors = []; // deben dinero (balance negativo)
+      const creditors = []; // les deben (balance positivo)
+      Object.keys(bal).forEach(p => {
+        const b = Math.round(bal[p] * 100) / 100;
+        if (b < -0.01) debtors.push({ name: p, amount: -b });
+        else if (b > 0.01) creditors.push({ name: p, amount: b });
+      });
+      // Ordenar de mayor a menor para minimizar transferencias
+      debtors.sort((a,b) => b.amount - a.amount);
+      creditors.sort((a,b) => b.amount - a.amount);
+
+      const transfers = [];
+      let di = 0, ci = 0;
+      while (di < debtors.length && ci < creditors.length) {
+        const pay = Math.min(debtors[di].amount, creditors[ci].amount);
+        if (pay > 0.01) {
+          transfers.push({ from: debtors[di].name, to: creditors[ci].name, amount: Math.round(pay * 100) / 100 });
+        }
+        debtors[di].amount -= pay;
+        creditors[ci].amount -= pay;
+        if (debtors[di].amount < 0.01) di++;
+        if (creditors[ci].amount < 0.01) ci++;
+      }
+      return transfers;
+    }
+
+    const transfers = sp.expenses.length > 0 ? calcTransfers({...balances}) : [];
+
+    // Cuánto ha pagado cada persona en total
+    const totalPaid = {};
+    sp.people.forEach(p => { totalPaid[p] = 0; });
+    sp.expenses.forEach(e => { totalPaid[e.paidBy] = (totalPaid[e.paidBy] || 0) + e.amount; });
+
+    // HTML de la sección
+    const splitHTML = `
+      <hr class="divider" style="margin:24px 0 16px">
+      <div class="tool-card" style="border:2px solid var(--accent);border-radius:var(--radius)">
+        <div class="tool-card__title">👥 Gastos compartidos</div>
+        <p style="font-size:12.5px;color:var(--text-soft);margin-bottom:12px">Añade viajeros, registra quién paga cada gasto y para quién es. Al final del viaje, verás quién debe pagar a quién.</p>
+
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px">Viajeros</div>
+        <div id="split-people" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+          ${sp.people.map((p, i) => `
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:var(--bg-elev);border-radius:999px;font-size:13px;font-weight:600">
+              ${esc(p)}
+              <button data-rm-person="${i}" style="font-size:11px;color:var(--c-danger);opacity:0.6;cursor:pointer;background:none;border:none">✕</button>
+            </span>`).join('')}
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:16px">
+          <input id="split-new-person" placeholder="Nombre" style="flex:1;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
+          <button id="split-add-person" class="btn btn--primary btn--sm">Añadir</button>
+        </div>
+
+        ${sp.people.length >= 2 ? `
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px">Registrar pago</div>
+          <div style="display:grid;grid-template-columns:1fr 70px;gap:6px;margin-bottom:6px">
+            <input id="split-desc" placeholder="Concepto" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;min-width:0">
+            <input id="split-amount" type="number" step="0.01" placeholder="€" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center">
+            <div>
+              <label style="font-size:11px;color:var(--text-muted);font-weight:600">Pagó</label>
+              <select id="split-who" style="width:100%;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;margin-top:2px">
+                ${sp.people.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--text-muted);font-weight:600">Fecha</label>
+              <input id="split-date" type="date" value="${today}" style="width:100%;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;margin-top:2px">
+            </div>
+            <button id="split-add-exp" class="btn btn--primary btn--sm" style="align-self:end;margin-bottom:1px">+</button>
+          </div>
+          <div style="margin-bottom:12px">
+            <label style="font-size:11px;color:var(--text-muted);font-weight:600">¿Para quién es este gasto?</label>
+            <div id="split-for-whom" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
+              ${sp.people.map(p => `
+                <label style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--bg-elev);border-radius:999px;font-size:12px;cursor:pointer;user-select:none">
+                  <input type="checkbox" value="${esc(p)}" checked style="accent-color:var(--accent);width:14px;height:14px">
+                  ${esc(p)}
+                </label>`).join('')}
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Por defecto, todos seleccionados = gasto del grupo.</div>
+          </div>
+
+          ${sp.expenses.length > 0 ? `
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 6px">Historial de pagos</div>
+            <ul class="expense-list" style="margin-bottom:12px">
+              ${sp.expenses.slice().reverse().map((e, ri) => {
+                const idx = sp.expenses.length - 1 - ri;
+                const forLabel = (e.forWhom && e.forWhom.length > 0 && e.forWhom.length < sp.people.length)
+                  ? e.forWhom.join(', ')
+                  : 'todos';
+                return `
+                <li class="expense-item" style="grid-template-columns:1fr auto auto">
+                  <div>
+                    <div class="expense-item__desc">${esc(e.desc)}</div>
+                    <div class="expense-item__cat">Pagó: ${esc(e.paidBy)} · Para: ${esc(forLabel)} · ${esc(e.date || '')}</div>
+                  </div>
+                  <span class="expense-item__amount">${fmtMoney(e.amount, curr)}</span>
+                  <button class="expense-item__del" data-del-split="${idx}">✕</button>
+                </li>`;
+              }).join('')}
+            </ul>
+
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 8px">Resumen</div>
+            <div style="background:var(--bg-elev);border-radius:var(--radius);padding:12px 14px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;color:var(--text-soft)">
+                <span>Gasto total del grupo</span>
+                <span style="font-weight:700;color:var(--text)">${fmtMoney(splitGrandTotal, curr)}</span>
+              </div>
+              <hr class="divider" style="margin:6px 0 8px">
+              ${sp.people.map(p => {
+                const paid = totalPaid[p] || 0;
+                const bal = Math.round((balances[p] || 0) * 100) / 100;
+                const color = bal >= 0 ? 'var(--c-success)' : 'var(--c-danger)';
+                const label = bal > 0.01 ? `le deben ${fmtMoney(bal, curr)}` : bal < -0.01 ? `debe ${fmtMoney(-bal, curr)}` : 'saldado ✓';
+                return `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px">
+                  <div>
+                    <span style="font-weight:700">${esc(p)}</span>
+                    <span style="color:var(--text-muted)"> · pagó ${fmtMoney(paid, curr)}</span>
+                  </div>
+                  <span style="font-weight:700;color:${color}">${label}</span>
+                </div>`;
+              }).join('')}
+
+              ${transfers.length > 0 ? `
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin:14px 0 6px">💸 Para liquidar</div>
+                ${transfers.map(t => `
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px;border-bottom:1px dashed var(--line)">
+                    <span><strong>${esc(t.from)}</strong> paga a <strong>${esc(t.to)}</strong></span>
+                    <span style="font-weight:700;color:var(--accent)">${fmtMoney(t.amount, curr)}</span>
+                  </div>`).join('')}
+              ` : ''}
+            </div>
+          ` : '<div class="empty-state" style="padding:16px 0">Añade un pago para ver el resumen.</div>'}
+        ` : sp.people.length === 1 ? '<p style="font-size:13px;color:var(--text-muted)">Añade al menos 2 viajeros para usar los gastos compartidos.</p>' : ''}
+      </div>
+    `;
+
+    paneEl.innerHTML = budgetHTML + splitHTML;
+
+    // --- Listeners para partidas del presupuesto ---
+    document.querySelectorAll('[data-bd-key]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        store.budget_edit.breakdown[inp.dataset.bdKey] = parseFloat(inp.value) || 0;
+        saveStore();
+        const newTotal = bdKeys.reduce((s, k) => s + (store.budget_edit.breakdown[k] || 0), 0);
+        const totalEl = document.getElementById('budget-auto-total');
+        if (totalEl) totalEl.textContent = fmtMoney(newTotal, curr);
+        renderMeOverview();
+      });
+    });
+
+    // --- Listeners para gastos personales ---
+    document.getElementById('exp-add').addEventListener('click', () => {
+      const desc = document.getElementById('exp-desc').value.trim();
+      const amount = parseFloat(document.getElementById('exp-amount').value);
+      const category = document.getElementById('exp-cat').value;
+      if (!desc || !amount || isNaN(amount)) return;
+      store.expenses.push({ id: 'e_' + Date.now(), desc, amount, category, date: todayISO() });
+      saveStore();
+      renderMeBudget();
+      renderMeOverview();
+    });
+    document.querySelectorAll('[data-del]').forEach(b => {
+      b.addEventListener('click', () => {
+        store.expenses = store.expenses.filter(e => e.id !== b.dataset.del);
+        saveStore();
+        renderMeBudget();
+        renderMeOverview();
+      });
+    });
+
+    // --- Listeners para gastos compartidos ---
+    const addPersonBtn = document.getElementById('split-add-person');
+    const newPersonInp = document.getElementById('split-new-person');
+    if (addPersonBtn) {
+      const doAddPerson = () => {
+        const name = newPersonInp.value.trim();
+        if (!name || store.split.people.includes(name)) return;
+        store.split.people.push(name);
+        saveStore();
+        renderMeBudget();
+      };
+      addPersonBtn.addEventListener('click', doAddPerson);
+      newPersonInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doAddPerson(); } });
+    }
+
+    document.querySelectorAll('[data-rm-person]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.rmPerson);
+        const removed = store.split.people[idx];
+        store.split.people.splice(idx, 1);
+        store.split.expenses = store.split.expenses.filter(e => e.paidBy !== removed);
+        // También limpiar de forWhom
+        store.split.expenses.forEach(e => {
+          if (e.forWhom) e.forWhom = e.forWhom.filter(p => p !== removed);
+        });
+        saveStore();
+        renderMeBudget();
+      });
+    });
+
+    const addSplitBtn = document.getElementById('split-add-exp');
+    if (addSplitBtn) {
+      addSplitBtn.addEventListener('click', () => {
+        const desc = document.getElementById('split-desc').value.trim();
+        const amount = parseFloat(document.getElementById('split-amount').value);
+        const who = document.getElementById('split-who').value;
+        const date = document.getElementById('split-date').value || todayISO();
+        // Leer beneficiarios seleccionados
+        const checkboxes = document.querySelectorAll('#split-for-whom input[type="checkbox"]');
+        const forWhom = [];
+        checkboxes.forEach(cb => { if (cb.checked) forWhom.push(cb.value); });
+        if (!desc || !amount || isNaN(amount) || !who || forWhom.length === 0) {
+          if (forWhom.length === 0) alert('Selecciona al menos una persona como beneficiario del gasto.');
+          return;
+        }
+        store.split.expenses.push({ desc, amount, paidBy: who, forWhom, date });
+        saveStore();
+        renderMeBudget();
+      });
+    }
+
+    document.querySelectorAll('[data-del-split]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.delSplit);
+        store.split.expenses.splice(idx, 1);
+        saveStore();
+        renderMeBudget();
+      });
+    });
+  }
+
+  function getPackingData() {
+    // Si el usuario ha editado, usa la copia custom. Si no, parte de DATA.
+    if (store.packing_custom) return JSON.parse(JSON.stringify(store.packing_custom));
+    return JSON.parse(JSON.stringify(DATA.packing_list || {}));
+  }
+  function savePackingData(pl) {
+    store.packing_custom = pl;
+    saveStore();
+  }
+
+  function renderMePacking() {
+    const paneEl = document.querySelector('[data-me-pane="packing"]');
+    if (!paneEl) return;
+    const pl = getPackingData();
+    const labels = {
+      summer_clothing: '☀️ Ropa de verano', winter_clothing: '🧥 Ropa de invierno',
+      footwear: '👟 Calzado', underwear: '🩲 Ropa interior', items: '🎒 Objetos',
+      accessories: '🧢 Complementos', documents: '📄 Documentación',
+      toiletries: '🧴 Bolsa de aseo', health: '💊 Salud', other: '📦 Otros',
+      clothing: '👕 Ropa', tech: '🔌 Tecnología'
+    };
+    const preferredOrder = [
+      'summer_clothing', 'winter_clothing', 'clothing', 'footwear', 'underwear',
+      'items', 'tech', 'accessories', 'documents', 'toiletries', 'health', 'other'
+    ];
+    const orderedKeys = preferredOrder.filter(k => pl[k] && pl[k].length > 0).concat(
+      Object.keys(pl).filter(k => !preferredOrder.includes(k) && pl[k] && pl[k].length > 0)
+    );
+
+    if (orderedKeys.length === 0) {
+      paneEl.innerHTML = '<div class="empty-state">Sin lista de equipaje definida.</div>';
+      return;
+    }
+
+    paneEl.innerHTML = orderedKeys.map(cat => `
+      <div class="packing-group" data-cat="${cat}">
+        <div class="packing-group__title">${labels[cat] || '📦 ' + cat}</div>
+        ${(pl[cat] || []).map((item, idx) => {
+          const key = `${cat}_${idx}`;
+          const packed = !!store.packing[key];
+          return `
+            <div class="packing-item ${packed ? 'is-packed' : ''}" data-pack-key="${key}" data-cat="${cat}" data-idx="${idx}">
+              <span class="packing-item__box" data-action="toggle"></span>
+              <input class="packing-item__edit" type="text" value="${esc(item)}" data-action="rename">
+              <button class="packing-item__remove" data-action="remove" title="Eliminar">✕</button>
+            </div>`;
+        }).join('')}
+        <div class="packing-add-row">
+          <input class="packing-add-input" data-add-cat="${cat}" placeholder="Añadir item…" type="text">
+          <button class="packing-add-btn" data-add-btn="${cat}">+</button>
+        </div>
+      </div>`).join('') + `
+      <div style="margin-top:12px">
+        <button class="btn btn--ghost btn--sm" id="packing-reset" style="font-size:12px">↩ Restaurar lista original</button>
+      </div>`;
+
+    // Toggle check
+    paneEl.querySelectorAll('[data-action="toggle"]').forEach(box => {
+      box.addEventListener('click', () => {
+        const item = box.closest('[data-pack-key]');
+        const k = item.dataset.packKey;
+        store.packing[k] = !store.packing[k];
+        saveStore();
+        item.classList.toggle('is-packed');
+        renderMeOverview();
+      });
+    });
+
+    // Rename inline
+    paneEl.querySelectorAll('[data-action="rename"]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const item = inp.closest('[data-pack-key]');
+        const cat = item.dataset.cat;
+        const idx = parseInt(item.dataset.idx);
+        const plData = getPackingData();
+        if (plData[cat] && plData[cat][idx] !== undefined) {
+          plData[cat][idx] = inp.value.trim() || plData[cat][idx];
+          savePackingData(plData);
+        }
+      });
+    });
+
+    // Remove item
+    paneEl.querySelectorAll('[data-action="remove"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('[data-pack-key]');
+        const cat = item.dataset.cat;
+        const idx = parseInt(item.dataset.idx);
+        const plData = getPackingData();
+        if (plData[cat]) {
+          plData[cat].splice(idx, 1);
+          // Also clean packing checks for this category (re-index)
+          const newPacking = {};
+          Object.keys(store.packing).forEach(k => {
+            if (!k.startsWith(cat + '_')) newPacking[k] = store.packing[k];
+          });
+          (plData[cat] || []).forEach((_, i) => {
+            // preserve check state by old position if possible
+          });
+          store.packing = newPacking;
+          savePackingData(plData);
+          renderMePacking();
+          renderMeOverview();
+        }
+      });
+    });
+
+    // Add item
+    paneEl.querySelectorAll('[data-add-btn]').forEach(btn => {
+      const cat = btn.dataset.addBtn;
+      const inp = paneEl.querySelector(`[data-add-cat="${cat}"]`);
+      const doAdd = () => {
+        const val = inp.value.trim();
+        if (!val) return;
+        const plData = getPackingData();
+        if (!plData[cat]) plData[cat] = [];
+        plData[cat].push(val);
+        savePackingData(plData);
+        inp.value = '';
+        renderMePacking();
+        renderMeOverview();
+      };
+      btn.addEventListener('click', doAdd);
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doAdd(); } });
+    });
+
+    // Reset to original
+    document.getElementById('packing-reset')?.addEventListener('click', () => {
+      if (confirm('¿Restaurar la lista original? Se perderán los cambios que hayas hecho.')) {
+        store.packing_custom = null;
+        store.packing = {};
+        saveStore();
+        renderMePacking();
+        renderMeOverview();
+      }
+    });
+  }
+
+  function renderMeTools() {
+    const paneEl = document.querySelector('[data-me-pane="tools"]');
+    if (!paneEl) return;
+    const destCurr = DATA.meta.currency || 'EUR';
+    const isEuro = destCurr === 'EUR';
+
+    const converterHTML = isEuro ? '' : `
+      <div class="tool-card">
+        <div class="tool-card__title">💱 EUR ↔ ${esc(destCurr)}</div>
+        <div class="tool-card__row">
+          <input id="conv-amount" type="number" placeholder="Cantidad" value="100">
+          <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">EUR</div>
+        </div>
+        <div class="tool-card__result" id="conv-result">—</div>
+        <small id="conv-rate" style="display:block;margin-top:4px;color:var(--text-muted);font-size:11px"></small>
+      </div>`;
+
+    paneEl.innerHTML = `
+      ${converterHTML}
+
+      <div class="tool-card">
+        <div class="tool-card__title">📤 Compartir esta guía</div>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Comparte el enlace de tu guía por WhatsApp, email o redes sociales.</p>
+        <button class="btn btn--primary" onclick="navigator.share ? navigator.share({title: document.title, text: 'Mira mi guía de viaje', url: location.href}).catch(()=>{}) : alert('Copia la URL del navegador y compártela')">Compartir</button>
+      </div>
+    `;
+
+    if (!isEuro) {
+      const amountEl = document.getElementById('conv-amount');
+      const resEl = document.getElementById('conv-result');
+      const rateEl = document.getElementById('conv-rate');
+
+      async function doConvert() {
+        const a = parseFloat(amountEl.value) || 0;
+        resEl.textContent = '…';
+        try {
+          const r = await fetch(`https://api.exchangerate.host/convert?from=EUR&to=${destCurr}&amount=${a}`);
+          const j = await r.json();
+          if (j.result != null) {
+            resEl.textContent = new Intl.NumberFormat('es-ES', { style: 'currency', currency: destCurr, maximumFractionDigits: 2 }).format(j.result);
+            rateEl.textContent = `1 EUR = ${j.info?.rate?.toFixed(4) || '?'} ${destCurr}`;
+          } else {
+            resEl.textContent = 'Error';
+          }
+        } catch (e) {
+          resEl.textContent = 'Sin conexión';
+        }
+      }
+      amountEl.addEventListener('input', doConvert);
+      doConvert();
+    }
+  }
+
+  // ------------------------------------------------------
+  // 5. ACCIONES GLOBALES
+  // ------------------------------------------------------
+  window.__actions = {
+    toggleChecklist(key) {
+      store.checklist[key] = !store.checklist[key];
+      saveStore();
+      const item = document.querySelector(`[data-key="${key}"]`);
+      if (item) item.classList.toggle('is-done');
+    }
+  };
+
+  // ------------------------------------------------------
+  // 6. NAVEGACIÓN
+  // ------------------------------------------------------
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('is-active'));
+    el('#page-' + id).classList.add('is-active');
+    window.scrollTo(0, 0);
+
+    document.querySelectorAll('.tabbar__item').forEach(b => {
+      b.classList.toggle('is-active', b.dataset.tab === id || (id === 'day' && b.dataset.tab === 'days'));
+    });
+
+    // (Re)renderizar contenido según la página
+    switch (id) {
+      case 'home': renderHome(); break;
+      case 'days': renderDaysList(); el('#header-title').textContent = 'Itinerario'; break;
+      case 'map':  renderMap(); el('#header-title').textContent = 'Mapa'; break;
+      case 'tips': renderTips(); el('#header-title').textContent = 'Consejos'; break;
+      case 'me':   renderMe(); el('#header-title').textContent = 'Mi viaje'; break;
+    }
+  }
+
+  window.__nav = {
+    go(id) { showPage(id); },
+    goDay(n) { renderDay(n); showPage('day'); }
+  };
+
+  document.querySelectorAll('.tabbar__item').forEach(btn => {
+    btn.addEventListener('click', () => showPage(btn.dataset.tab));
+  });
+
+  // ------------------------------------------------------
+  // 7. BUSCADOR GLOBAL
+  // ------------------------------------------------------
+  function buildSearchIndex() {
+    const idx = [];
+    DATA.days.forEach(d => {
+      idx.push({ type: 'Día', title: `Día ${d.day}: ${d.title}`, snippet: DATA.summary.find(s => s.day === d.day)?.summary || '', action: () => window.__nav.goDay(d.day) });
+      (d.timeline || []).forEach(t => idx.push({ type: `Día ${d.day}`, title: `${t.time} · ${t.title}`, snippet: t.description, action: () => window.__nav.goDay(d.day) }));
+      (d.places || []).forEach(p => idx.push({ type: `Día ${d.day} · Lugar`, title: p.name, snippet: p.review || '', action: () => window.__nav.goDay(d.day) }));
+      (d.restaurants || []).forEach(r => idx.push({ type: `Día ${d.day} · Restaurante`, title: r.name, snippet: r.speciality || '', action: () => window.__nav.goDay(d.day) }));
+    });
+    (DATA.practical_tips || []).forEach(g => {
+      (g.items || []).forEach(i => idx.push({ type: `Consejo · ${g.title}`, title: i.subtitle, snippet: i.text, action: () => window.__nav.go('tips') }));
+    });
+    return idx;
+  }
+
+  const searchIndex = buildSearchIndex();
+  const searchOverlay = el('#search-overlay');
+  const searchInput = el('#search-input');
+  const searchResults = el('#search-results');
+
+  el('#btn-search').addEventListener('click', () => {
+    searchOverlay.classList.add('is-open');
+    searchInput.value = '';
+    searchResults.innerHTML = '';
+    setTimeout(() => searchInput.focus(), 60);
+  });
+  el('#search-close').addEventListener('click', () => searchOverlay.classList.remove('is-open'));
+
+  function normalize(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+
+  searchInput.addEventListener('input', () => {
+    const q = normalize(searchInput.value.trim());
+    if (q.length < 2) { searchResults.innerHTML = ''; return; }
+    const matches = searchIndex
+      .map(it => ({ it, score: (normalize(it.title).includes(q) ? 2 : 0) + (normalize(it.snippet).includes(q) ? 1 : 0) }))
+      .filter(x => x.score > 0)
+      .sort((a,b) => b.score - a.score)
+      .slice(0, 30);
+    searchResults.innerHTML = matches.length
+      ? matches.map((m, i) => `
+          <div class="search-result" data-sr="${i}">
+            <div class="search-result__type">${esc(m.it.type)}</div>
+            <div class="search-result__title">${esc(m.it.title)}</div>
+            <div class="search-result__snippet">${esc(m.it.snippet)}</div>
+          </div>`).join('')
+      : '<div class="empty-state">Sin resultados.</div>';
+    searchResults.querySelectorAll('[data-sr]').forEach(n => {
+      n.addEventListener('click', () => {
+        const m = matches[Number(n.dataset.sr)];
+        searchOverlay.classList.remove('is-open');
+        m.it.action();
+      });
+    });
+  });
+
+  // ------------------------------------------------------
+  // 8. ARRANQUE
+  // ------------------------------------------------------
+  showPage('home');
+
+})();
+</script>
+
+</body>
+</html>
