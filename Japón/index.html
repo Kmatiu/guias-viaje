@@ -603,6 +603,29 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   line-height: 1.5;
 }
 
+/* Navegación entre días */
+.day-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.day-nav__btn {
+  padding: 12px 18px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--accent);
+  background: var(--bg-card);
+  border: 1.5px solid var(--accent);
+  transition: background var(--transition), transform var(--transition);
+}
+.day-nav__btn:active { transform: scale(0.96); background: var(--bg-elev); }
+.day-nav__btn--next { margin-left: auto; }
+
 /* =========================================================
    MAPA
    ========================================================= */
@@ -1001,7 +1024,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   "schema_version": "1.2",
   "meta": {
     "title": "Japón 15 días — Tokio · Kioto · Osaka",
-    "subtitle": "Semana Santa 2027",
+    "subtitle": "2 parejas, ritmo madrugador y tranquilo, marzo 2027",
     "destination": {
       "name": "Japón",
       "country": "Japón",
@@ -1053,7 +1076,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     "language": "es",
     "currency": "EUR",
     "cover_image": "cover.jpg",
-    "theme_color": "#C62828"
+    "theme_color": "#C62828",
+    "local_currency": "JPY"
   },
   "intro": {
     "narrative": "Quince días recorriendo Japón de punta a punta: desde el neón de Shinjuku hasta los torii bermellón de Fushimi Inari, pasando por el wagyu a la brasa, la ceremonia del té en Gion y el castillo de Osaka. Dos parejas desde Valencia, con ganas de madrugar para ver los templos sin aglomeraciones, recargar en un konbini al mediodía y dejarse sorprender por la cultura japonesa a cada paso. ¿Listos? いただきます！",
@@ -1088,28 +1112,33 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     ]
   },
   "history": {
-    "title": "Japón en pinceladas",
-    "summary": "Un archipiélago donde conviven la tecnología más avanzada y tradiciones milenarias. Desde los samuráis del periodo Sengoku hasta el Japón moderno de los rascacielos y el shinkansen, cada rincón cuenta una historia.",
+    "title": "Japón: tres milenios de historia que veréis en el viaje",
+    "summary": "Cada templo, santuario y barrio de vuestro itinerario es un capítulo vivo de la historia japonesa. Esta breve guía conecta lo que veréis cada día con la época que lo vio nacer.",
     "periods": [
       {
-        "range": "710-794",
-        "title": "Periodo Nara",
-        "text": "Primera capital fija en Nara. Influencia china en budismo, escritura y arquitectura."
+        "range": "710-1185",
+        "title": "Nara y Heian: el Japón clásico",
+        "text": "El Gran Buda de Todai-ji en Nara (día 10) se erigió en 752, cuando Nara era la capital imperial. El santuario de Kasuga Taisha (día 10), con sus miles de faroles, data del 768. Cuando la corte se trasladó a Kioto en 794, nació el refinado periodo Heian: Fushimi Inari Taisha (día 7), fundado en 711, ya existía antes del traslado y se convirtió en el santuario más importante dedicado al dios del arroz."
       },
       {
-        "range": "794-1185",
-        "title": "Periodo Heian",
-        "text": "La corte se traslada a Kioto. Florecimiento cultural: La novela de Genji, arte cortesano."
+        "range": "1185-1603",
+        "title": "Samuráis, shogunes y guerras civiles",
+        "text": "El Japón feudal está presente en cada rincón de vuestro viaje. Kinkaku-ji (día 8) fue construido en 1397 como villa de retiro del shogún Ashikaga Yoshimitsu. El Castillo de Osaka (día 11), levantado por Toyotomi Hideyoshi en 1583, fue clave en la unificación de Japón. En Miyajima (día 13), el torii flotante de Itsukushima ha marcado tierra sagrada desde 1168. El Museo Samurái Ninja de Asakusa (día 3) recrea esta era guerrera con armaduras y katanas originales."
       },
       {
         "range": "1603-1868",
-        "title": "Periodo Edo",
-        "text": "Los Tokugawa unifican Japón. Aislamiento del exterior, paz interna, auge del kabuki y ukiyo-e."
+        "title": "Periodo Edo: paz, aislamiento y cultura",
+        "text": "Los Tokugawa cerraron Japón al mundo durante 250 años, pero crearon una era de paz y florecimiento cultural. Senso-ji en Asakusa (día 3), aunque fundado en 645, alcanzó su máximo esplendor en esta época como templo protector de Edo (actual Tokio). El santuario Meiji Jingu (día 4), aunque construido en 1920, honra al emperador que acabó con esta era. La ceremonia del té que haréis en Gion (día 9) sigue los rituales codificados durante el periodo Edo."
       },
       {
-        "range": "1868-actual",
-        "title": "Japón moderno",
-        "text": "Restauración Meiji, industrialización, posguerra y el milagro económico. Hoy, potencia tecnológica y cultural."
+        "range": "1868-1945",
+        "title": "Restauración Meiji y Japón imperial",
+        "text": "Japón se abre al mundo y se moderniza a velocidad vertiginosa. El Parque Memorial de la Paz de Hiroshima (día 13) recuerda el momento más oscuro de esta era. El Domo de la Bomba Atómica, el único edificio que sobrevivió al impacto, es Patrimonio de la Humanidad y un recordatorio sobrecogedor."
+      },
+      {
+        "range": "1945-actualidad",
+        "title": "El milagro japonés: tecnología y pop culture",
+        "text": "Del Japón devastado al líder tecnológico mundial. Akihabara (día 3) encarna la revolución electrónica y otaku. Shibuya y Harajuku (día 4) son el epicentro de la moda y la cultura juvenil. El Shinkansen que os llevará a Kioto (día 7) fue el primer tren bala del mundo (1964). teamLab Planets (día 5) y Super Nintendo World en USJ (día 12) representan la fusión de arte, tecnología y entretenimiento que define el Japón contemporáneo. Captain Tsubasa en Yotsugi (día 5) muestra cómo el manga ha moldeado barrios enteros."
       }
     ]
   },
@@ -1303,8 +1332,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
       "day": 9,
       "date": "2027-03-26",
       "weekday": "Viernes",
-      "title": "👘 Kimono · Ceremonia del té · Gion",
-      "summary": "Alquiler de kimono, paseo por templos, ceremonia del té tradicional y Gion al atardecer."
+      "title": "🍵 Ceremonia del té con kimono · Gion",
+      "summary": "Ceremonia del té con kimono incluido (2×1), paseo con kimono por Higashiyama y templos, Gion al atardecer."
     },
     {
       "day": 10,
@@ -1346,7 +1375,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
       "date": "2027-04-01",
       "weekday": "Jueves",
       "title": "✈️ Vuelta Kansai → Valencia",
-      "summary": "Mañana libre, traslado a Kansai Airport. Vuelo a las 22:10. Llegada a Valencia el 2 de abril a las 09:40."
+      "summary": "Kuromon Market, compras finales en Namba, almuerzo de despedida, traslado a Kansai Airport. Vuelo a las 22:10."
     }
   ],
   "days": [
@@ -1386,6 +1415,10 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         "facts": [
           "El vuelo Valencia-Tokio con escala suele durar entre 15-18 horas."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Si tenéis escala larga, aprovechad para pasear por el aeropuerto de conexión.",
+        "less_time": "Dormid en el avión todo lo posible. Llegáis de noche a Tokio."
       }
     },
     {
@@ -1484,6 +1517,10 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         "facts": [
           "Narita está a 60 km de Tokio centro."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Si llegáis con energía, paseo nocturno por Kabukicho (zona segura y espectacular de noche).",
+        "less_time": "Directos al Airbnb y cena rápida de konbini. Descansar del jet lag."
       }
     },
     {
@@ -1639,7 +1676,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         }
       ],
       "alternative_plans": {
-        "rainy_day": "Si llueve, alargar la visita a Akihabara (todo cubierto) y añadir el Museo Nacional de Tokio en Ueno."
+        "more_time": "Añadir Ueno Park (Museo Nacional de Tokio, Ameyoko Market) entre Asakusa y Akihabara.",
+        "less_time": "Solo Senso-ji por la mañana y Akihabara por la tarde. Saltad el Museo Samurái.",
+        "rainy_day": "Todo funciona bajo lluvia. Akihabara es mayormente cubierto."
       },
       "logistics": {
         "walking_km": 10,
@@ -1816,6 +1855,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         "facts": [
           "El Shibuya Crossing lo cruzan hasta 3.000 personas a la vez en hora punta."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Añadir Yoyogi Park (junto a Meiji Jingu) para pasear si hay sakura, y Cat Street en Harajuku.",
+        "less_time": "Solo Meiji Jingu temprano y Shibuya Sky al atardecer.",
+        "rainy_day": "Shibuya Sky tiene zona interior. Dedicar más tiempo a shopping en Shibuya 109 y Omotesando Hills."
       }
     },
     {
@@ -1947,6 +1991,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           "En teamLab Planets guardad todo en las taquillas gratuitas. Solo llevad el móvil (con funda impermeable si podéis).",
           "Don Quijote Shinjuku: enseñar el pasaporte para el tax-free en compras superiores a ¥5.000."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Añadir Odaiba (junto a teamLab): Gundam gigante, centros comerciales, playa artificial.",
+        "less_time": "Solo teamLab Planets por la mañana y compras en Shinjuku por la tarde. Saltad Yotsugi.",
+        "rainy_day": "teamLab es interior. Shinjuku tiene galerías comerciales cubiertas."
       }
     },
     {
@@ -2201,6 +2250,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         "facts": [
           "Fushimi Inari tiene más de 10.000 torii donados por empresas y particulares. Un torii pequeño cuesta desde 400.000 ¥."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Subir hasta la cima del monte Inari (2-3h ida y vuelta) en lugar de quedarse en el mirador intermedio.",
+        "less_time": "Solo Fushimi Inari hasta Yotsutsuji (30 min). Saltar Kiyomizu-dera si no da tiempo.",
+        "rainy_day": "Fushimi Inari con paraguas es atmosférico. Kiyomizu-dera tiene zonas cubiertas."
       }
     },
     {
@@ -2345,12 +2399,17 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         "facts": [
           "Kinkaku-ji fue quemado intencionadamente por un monje en 1950. La reconstrucción actual data de 1955."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Añadir Ryoan-ji (jardín zen de roca, cerca de Kinkaku-ji) y paseo por el bosque de Arashiyama hasta Gioji.",
+        "less_time": "Solo bosque de bambú + Kinkaku-ji. Saltad Tenryu-ji.",
+        "rainy_day": "El bambú con lluvia es especialmente atmosférico. Kinkaku-ji merece incluso con lluvia (reflejos en el agua)."
       }
     },
     {
       "day": 9,
       "date": "2027-03-26",
-      "title": "👘 Kimono · Ceremonia del té · Gion",
+      "title": "🍵 Ceremonia del té con kimono · Gion",
       "timeline": [
         {
           "time": "08:00",
@@ -2362,65 +2421,65 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         },
         {
           "time": "09:00",
-          "icon": "👘",
-          "title": "Alquiler de kimono",
-          "description": "Alquiler de kimono en una tienda del barrio de Gion o Higashiyama. Precio: ~¥3.000-5.000/persona. Incluye vestido, peinado y complementos.",
+          "icon": "🍵",
+          "title": "Ceremonia del té con kimono incluido",
+          "description": "Reservar una ceremonia del té que incluya alquiler de kimono (Maikoya Kyoto ofrece packs combo ~¥5.000-7.000/persona). Os visten con kimono auténtico, hacéis la ceremonia y después podéis salir a la calle con el kimono puesto para fotos. Un 2×1 perfecto.",
           "type": "activity",
-          "duration_min": 60
+          "duration_min": 90
         },
         {
-          "time": "10:00",
+          "time": "10:30",
           "icon": "📸",
           "title": "Paseo con kimono por Higashiyama",
-          "description": "Recorrer Ninenzaka, Sannenzaka, Yasaka-no-to (pagoda) y alrededores con el kimono puesto. Fotos en cada rincón.",
+          "description": "Salir con el kimono de la ceremonia. Recorrer Ninenzaka, Sannenzaka, Yasaka-no-to (pagoda) y templos cercanos. El kimono se devuelve al final del día.",
           "type": "visit",
           "duration_min": 120
         },
         {
-          "time": "12:00",
-          "icon": "🍵",
-          "title": "Ceremonia del té",
-          "description": "Ceremonia tradicional del té (chado) en una casa de té de Gion. ~¥2.000-4.000/persona. Experiencia de 45-60 min.",
-          "type": "activity",
-          "duration_min": 60
-        },
-        {
-          "time": "13:00",
+          "time": "12:30",
           "icon": "🍱",
           "title": "Almuerzo",
-          "description": "Bento o comida ligera de konbini. O probar un kaiseki asequible (~¥2.500-4.000) si queréis la experiencia.",
+          "description": "Bento de konbini o probad un kaiseki ligero (~¥2.500-3.500) en algún restaurante de la zona de Higashiyama.",
           "type": "meal",
           "duration_min": 45
         },
         {
-          "time": "14:00",
+          "time": "13:30",
+          "icon": "⛩️",
+          "title": "Templos de la zona (Kodai-ji, Yasaka Shrine)",
+          "description": "Seguir con el kimono puesto visitando Kodai-ji (¥600) o Yasaka Shrine (gratis). Fotos en cada rincón.",
+          "type": "visit",
+          "duration_min": 90
+        },
+        {
+          "time": "15:30",
           "icon": "👘",
           "title": "Devolución del kimono",
-          "description": "Devolver el kimono a la tienda de alquiler.",
+          "description": "Volver a Maikoya (o la tienda elegida) para devolver el kimono.",
           "type": "activity",
-          "duration_min": 30
+          "duration_min": 20
         },
         {
-          "time": "15:00",
-          "icon": "⛩️",
-          "title": "Templos adicionales (opcional)",
-          "description": "Visitar Kodai-ji, Yasaka Shrine o pasear por el barrio de los templos sin prisas.",
-          "type": "visit",
-          "duration_min": 120
+          "time": "16:00",
+          "icon": "🛍️",
+          "title": "Tiempo libre / Nishiki Market",
+          "description": "Paseo por Nishiki Market para comprar recuerdos gastronómicos: cuchillos japoneses, sake, dulces.",
+          "type": "free",
+          "duration_min": 90
         },
         {
-          "time": "17:00",
+          "time": "17:30",
           "icon": "🏮",
           "title": "Paseo por Gion al atardecer",
-          "description": "Hanami-koji (la calle principal de Gion) y alrededores. Con suerte, veréis alguna geisha o maiko dirigiéndose al trabajo.",
+          "description": "Hanami-koji (la calle principal de Gion). Con suerte, veréis alguna maiko dirigiéndose al trabajo.",
           "type": "visit",
           "duration_min": 60
         },
         {
           "time": "19:00",
           "icon": "🍜",
-          "title": "Cena en Gion",
-          "description": "Cena en un restaurante del barrio o volver a Pontocho.",
+          "title": "Cena en Gion o Pontocho",
+          "description": "Última cena en Kioto. Pontocho con terraza kawadoko si la temperatura acompaña.",
           "type": "meal",
           "duration_min": 75
         }
@@ -2450,6 +2509,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           "El kimono de alquiler suele incluir geta (sandalias de madera). Si no estáis acostumbrados, id despacio.",
           "Reservad la ceremonia del té online. Buscar en Klook o directamente en Maikoya Kyoto."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Añadir visita al Kenninji (templo zen más antiguo de Kioto, en Gion) y paseo hasta Philosopher's Path.",
+        "less_time": "Ceremonia del té + fotos rápidas. Devolver kimono pronto y dedicar la tarde a Nishiki Market.",
+        "rainy_day": "La ceremonia del té es interior. Para las fotos con kimono, usar paraguas japonés (wagasa) que queda muy estético."
       }
     },
     {
@@ -2729,6 +2793,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           "Osaka es más barata que Tokio y Kioto para comer. Aprovechad para probar de todo.",
           "Kuromon Market cierra temprano (~17:00). Id antes de las 15:00 para mejor selección."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Subir al interior del Castillo de Osaka (¥600, vistas desde la planta 8) y pasear por Tennoji/Shinsekai.",
+        "less_time": "Saltad el castillo y centraos en Dotonbori + Kuromon Market.",
+        "rainy_day": "Interior del castillo + Dotonbori bajo los soportales. Kuromon Market es cubierto."
       }
     },
     {
@@ -2807,6 +2876,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         "facts": [
           "USJ recibe más de 15 millones de visitantes al año."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Express Pass para maximizar atracciones. Quedarse hasta cierre para ver el desfile nocturno.",
+        "less_time": "Sin Express Pass: centraos en Super Nintendo World + Harry Potter + 1-2 atracciones más.",
+        "rainy_day": "Muchas atracciones son interiores. Harry Potter y Mario Kart funcionan con lluvia."
       }
     },
     {
@@ -2951,6 +3025,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         "facts": [
           "El torii actual de Itsukushima data de 1875 y fue restaurado en 2022."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Subir al monte Misen en Miyajima (teleférico + caminata, 2-3h). Vistas espectaculares.",
+        "less_time": "Solo Parque de la Paz + ferry a Miyajima para ver el torii. Saltad el museo si vais justos.",
+        "rainy_day": "El Museo de la Paz es interior. Miyajima con lluvia es atmosférico."
       }
     },
     {
@@ -3045,6 +3124,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           "Compras tax-free: enseñar pasaporte. Mínimo ¥5.000 en la misma tienda para obtener el 10% de descuento.",
           "Despacho de souvenirs: Kit Kat de matcha, Tokyo Banana (sí, también se venden en Osaka), Royce chocolate, sake local."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Añadir Abeno Harukas 300 (mirador más alto de Osaka, ¥1.500) o Sumiyoshi Taisha (santuario precioso).",
+        "less_time": "Solo Shinsekai + compras finales en Shinsaibashi.",
+        "rainy_day": "Compras bajo techo en Shinsaibashi-suji (galería cubierta) y Namba Parks."
       }
     },
     {
@@ -3063,24 +3147,48 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         {
           "time": "09:00",
           "icon": "🛍️",
-          "title": "Mañana libre (si queda tiempo)",
-          "description": "Paseo final por Namba, últimas compras de souvenirs olvidados, o simplemente disfrutar del barrio.",
-          "type": "free",
-          "duration_min": 120
+          "title": "Kuromon Market (últimas compras)",
+          "description": "El hotel está al lado del Kuromon Market. Último paseo: marisco fresco para desayunar/picar, fruta de temporada, recuerdos gastronómicos.",
+          "type": "visit",
+          "duration_min": 60
         },
         {
-          "time": "11:00",
+          "time": "10:00",
+          "icon": "🏯",
+          "title": "Paseo por Namba / Shinsaibashi",
+          "description": "Últimas compras en Namba o Shinsaibashi. Don Quijote para souvenirs de última hora (tax-free).",
+          "type": "free",
+          "duration_min": 90
+        },
+        {
+          "time": "11:30",
+          "icon": "🍜",
+          "title": "Almuerzo de despedida",
+          "description": "Último ramen, takoyaki o lo que se antoje. Adiós gastronómico a Japón.",
+          "type": "meal",
+          "duration_min": 60
+        },
+        {
+          "time": "13:00",
+          "icon": "🧳",
+          "title": "Recoger maletas y preparar",
+          "description": "Vuelta al hotel o a las taquillas de la estación para recoger maletas.",
+          "type": "free",
+          "duration_min": 30
+        },
+        {
+          "time": "13:30",
           "icon": "🚃",
           "title": "Tren a Kansai Airport",
-          "description": "Nankai Rapi:t desde Namba Station a Kansai Airport. ~38 min, ¥1.290 (regular) o ¥1.790 (Rapi:t). Alternativa: JR Haruka (~50 min, ¥1.210).",
+          "description": "Nankai Rapi:t desde Namba (~38 min, ¥1.290) o JR Haruka (~50 min). Tiempo de sobra para duty-free.",
           "type": "transport",
           "duration_min": 45
         },
         {
-          "time": "12:00",
+          "time": "14:30",
           "icon": "✈️",
-          "title": "Llegada a Kansai International Airport",
-          "description": "Check-in, facturar maletas, pasar seguridad. Tiendas duty-free para últimas compras.",
+          "title": "Kansai International Airport",
+          "description": "Check-in, facturar, pasar seguridad. Duty-free para últimos souvenirs (matcha, sake, Kit Kat exclusivos). También hay un onsen en la Terminal 1 si queréis relajaros antes del vuelo.",
           "type": "transport",
           "duration_min": 120
         },
@@ -3088,7 +3196,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           "time": "22:10",
           "icon": "✈️",
           "title": "Despegue KIX → Valencia",
-          "description": "Vuelo de vuelta con escala. Llegada a Valencia el 2 de abril a las 09:40.",
+          "description": "Vuelo de vuelta con escala. Llegada a Valencia el 2 de abril a las 09:40. さようなら、日本！",
           "type": "transport",
           "duration_min": 840
         }
@@ -3118,6 +3226,10 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         "facts": [
           "Kansai Airport fue diseñado por Renzo Piano y construido sobre una isla artificial en la bahía de Osaka."
         ]
+      },
+      "alternative_plans": {
+        "more_time": "Si el vuelo sale a las 22:10, hay tiempo de sobra: ir a Osaka Aquarium Kaiyukan (¥2.700) o repetir Dotonbori.",
+        "less_time": "Directos al aeropuerto con tiempo para duty-free y onsen en la terminal."
       }
     }
   ],
@@ -3275,32 +3387,6 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         {
           "subtitle": "Bolsa plegable / eco-bag",
           "text": "Las bolsas de plástico son de pago en Japón (~3-5 ¥). Llevad una bolsa plegable para las compras."
-        }
-      ]
-    },
-    {
-      "icon": "📱",
-      "title": "Apps imprescindibles",
-      "items": [
-        {
-          "subtitle": "Google Maps",
-          "text": "Funciona perfecto en Japón para transporte público, rutas a pie y búsquedas de restaurantes."
-        },
-        {
-          "subtitle": "Google Translate",
-          "text": "La función de cámara traduce textos en japonés al instante. Imprescindible para cartas de restaurantes y carteles."
-        },
-        {
-          "subtitle": "Suica (iPhone/Apple Watch)",
-          "text": "App de pago digital para transporte y compras. Si no tenéis iPhone, comprad una ICOCA física."
-        },
-        {
-          "subtitle": "SmartEX",
-          "text": "Para reservar y pagar Shinkansen con tarjeta de crédito extranjera. QR code de embarque directo."
-        },
-        {
-          "subtitle": "Tabelog",
-          "text": "El TripAdvisor japonés. Puntuaciones más fiables para restaurantes (3.5+ es excelente en Tabelog)."
         }
       ]
     },
@@ -3512,7 +3598,6 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     "verification_note": "Precios y horarios verificados con web_search en abril 2026. Los precios pueden variar para marzo 2027. Verificar presencialmente horarios exactos y disponibilidad."
   }
 }
-
 </script>
 
 <!-- =========================================================
@@ -3819,6 +3904,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         <div class="day-notes__label">📝 Tus notas del día</div>
         <textarea class="day-notes__textarea" id="note-input" placeholder="Impresiones, fotos tomadas, gastos del día…">${esc(noteVal)}</textarea>
       </div>
+
+      <div class="day-nav">
+        ${d.day > 1 ? `<button class="day-nav__btn day-nav__btn--prev" onclick="window.__nav.goDay(${d.day - 1})">← Día ${d.day - 1}</button>` : '<div></div>'}
+        ${d.day < DATA.days.length ? `<button class="day-nav__btn day-nav__btn--next" onclick="window.__nav.goDay(${d.day + 1})">Día ${d.day + 1} →</button>` : '<div></div>'}
+      </div>
     `;
 
     el('#note-input').addEventListener('input', (e) => {
@@ -3884,9 +3974,33 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 
   // --- TIPS -----------------------------------------------
   function renderTips() {
-    const tipsHTML = (DATA.practical_tips || []).map((g, idx) => `
-      <div class="tip-group" id="tip-group-${idx}">
-        <button class="tip-group__head" onclick="document.getElementById('tip-group-${idx}').classList.toggle('is-open')">
+    // Separar los tips normales de los que son de apps (para fusionarlos con apps_recommended)
+    const appKeywords = ['app', 'apps', 'aplicacion', 'aplicaciones'];
+    const isAppGroup = (g) => appKeywords.some(kw => g.title.toLowerCase().includes(kw));
+
+    const normalTips = (DATA.practical_tips || []).filter(g => !isAppGroup(g));
+    const appTipGroups = (DATA.practical_tips || []).filter(g => isAppGroup(g));
+
+    // Fusionar items de apps de practical_tips + apps_recommended en un solo grupo
+    const appItems = [];
+    appTipGroups.forEach(g => {
+      (g.items || []).forEach(i => appItems.push(i));
+    });
+    // Añadir apps_recommended como items adicionales (evitando duplicados por nombre)
+    const existingNames = new Set(appItems.map(i => i.subtitle.toLowerCase()));
+    (DATA.apps_recommended || []).forEach(a => {
+      if (!existingNames.has(a.name.toLowerCase())) {
+        appItems.push({ subtitle: a.name, text: a.purpose });
+      }
+    });
+
+    let tipIdx = 0;
+
+    const normalHTML = normalTips.map(g => {
+      const id = tipIdx++;
+      return `
+      <div class="tip-group" id="tip-group-${id}">
+        <button class="tip-group__head" onclick="document.getElementById('tip-group-${id}').classList.toggle('is-open')">
           <div class="tip-group__head-left">
             <span class="tip-group__icon">${esc(g.icon)}</span>
             <span class="tip-group__title">${esc(g.title)}</span>
@@ -3900,26 +4014,67 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
               <div class="tip-item__text">${esc(i.text)}</div>
             </div>`).join('')}
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
 
-    const emergencyHTML = DATA.emergency ? `
-      <h2 class="section-title section-title--small">🆘 Emergencias</h2>
-      <div class="tool-card">
-        ${DATA.emergency.local_emergency ? `<div style="margin-bottom:8px"><strong>General:</strong> ${esc(DATA.emergency.local_emergency)}</div>` : ''}
-        ${DATA.emergency.medical ? `<div style="margin-bottom:8px"><strong>Médico:</strong> ${esc(DATA.emergency.medical)}</div>` : ''}
-        ${DATA.emergency.police ? `<div style="margin-bottom:8px"><strong>Policía:</strong> ${esc(DATA.emergency.police)}</div>` : ''}
-        ${DATA.emergency.embassy ? `<div style="margin-bottom:8px"><strong>Embajada:</strong> ${esc(DATA.emergency.embassy)}</div>` : ''}
-      </div>` : '';
+    // Emergencias como grupo desplegable
+    const em = DATA.emergency || {};
+    const emergencyItems = [
+      em.local_emergency ? { subtitle: 'Emergencias general', text: em.local_emergency } : null,
+      em.medical ? { subtitle: 'Médico / ambulancias', text: em.medical } : null,
+      em.police ? { subtitle: 'Policía', text: em.police } : null,
+      em.embassy ? { subtitle: 'Embajada / consulado', text: em.embassy } : null,
+      em.insurance_reminder ? { subtitle: 'Seguro de viaje', text: em.insurance_reminder } : null
+    ].filter(Boolean);
 
-    const appsHTML = (DATA.apps_recommended || []).length ? `
-      <h2 class="section-title section-title--small">📱 Apps recomendadas</h2>
-      <div class="tool-card">
-        ${(DATA.apps_recommended || []).map(a => `<div style="padding:6px 0;border-bottom:1px dashed var(--line)"><strong>${esc(a.name)}:</strong> ${esc(a.purpose)}</div>`).join('')}
-      </div>` : '';
+    let emergencyHTML = '';
+    if (emergencyItems.length > 0) {
+      const emId = tipIdx++;
+      emergencyHTML = `
+      <div class="tip-group" id="tip-group-${emId}">
+        <button class="tip-group__head" onclick="document.getElementById('tip-group-${emId}').classList.toggle('is-open')">
+          <div class="tip-group__head-left">
+            <span class="tip-group__icon">🆘</span>
+            <span class="tip-group__title">Emergencias</span>
+          </div>
+          <span class="chev">▾</span>
+        </button>
+        <div class="tip-group__body">
+          ${emergencyItems.map(i => `
+            <div class="tip-item">
+              <div class="tip-item__subtitle">${esc(i.subtitle)}</div>
+              <div class="tip-item__text">${esc(i.text)}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }
+
+    // Apps unificadas como grupo desplegable
+    let appsHTML = '';
+    if (appItems.length > 0) {
+      const appsId = tipIdx++;
+      appsHTML = `
+      <div class="tip-group" id="tip-group-${appsId}">
+        <button class="tip-group__head" onclick="document.getElementById('tip-group-${appsId}').classList.toggle('is-open')">
+          <div class="tip-group__head-left">
+            <span class="tip-group__icon">📱</span>
+            <span class="tip-group__title">Apps recomendadas</span>
+          </div>
+          <span class="chev">▾</span>
+        </button>
+        <div class="tip-group__body">
+          ${appItems.map(i => `
+            <div class="tip-item">
+              <div class="tip-item__subtitle">${esc(i.subtitle)}</div>
+              <div class="tip-item__text">${esc(i.text)}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }
 
     el('#page-tips').innerHTML = `
       <h2 class="section-title" style="margin-top:0">Consejos prácticos</h2>
-      ${tipsHTML}
+      ${normalHTML}
       ${emergencyHTML}
       ${appsHTML}
     `;
@@ -3988,7 +4143,6 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     const bdKeys_ov = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
     const budget = store.budget_edit ? bdKeys_ov.reduce((s, k) => s + (store.budget_edit.breakdown[k] || 0), 0) : (DATA.meta.budget?.total_estimated || 0);
     const curr = DATA.meta.currency || 'EUR';
-    const budgetCurr = 'EUR'; // Presupuesto siempre en EUR
 
     const paneEl = document.querySelector('[data-me-pane="overview"]');
     if (!paneEl) return;
@@ -4080,7 +4234,6 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     const paneEl = document.querySelector('[data-me-pane="budget"]');
     if (!paneEl) return;
     const curr = DATA.meta.currency || 'EUR';
-    const budgetCurr = 'EUR'; // Presupuesto siempre en EUR
 
     // Inicializar desde DATA si no hay override guardado
     if (!store.budget_edit) {
@@ -4559,18 +4712,31 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   function renderMeTools() {
     const paneEl = document.querySelector('[data-me-pane="tools"]');
     if (!paneEl) return;
-    const destCurr = 'JPY'; // Moneda local del destino
-    const isEuro = destCurr === 'EUR';
 
-    const converterHTML = `
+    // Detectar moneda local del destino: primero local_currency, luego currency si no es EUR, luego nada
+    const homeCurr = 'EUR';
+    const rawCurr = DATA.meta.local_currency || DATA.meta.currency || 'EUR';
+    const destCurr = rawCurr === homeCurr ? null : rawCurr;
+
+    const converterHTML = !destCurr ? '' : `
       <div class="tool-card">
-        <div class="tool-card__title">💱 EUR ↔ ${esc(destCurr)}</div>
-        <div class="tool-card__row">
-          <input id="conv-amount" type="number" placeholder="Cantidad" value="100">
+        <div class="tool-card__title">💱 Conversor EUR ↔ ${esc(destCurr)}</div>
+
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em">EUR → ${esc(destCurr)}</div>
+        <div class="tool-card__row" style="margin-bottom:4px">
+          <input id="conv-eur" type="number" placeholder="Euros" value="100">
           <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">EUR</div>
         </div>
-        <div class="tool-card__result" id="conv-result">—</div>
-        <small id="conv-rate" style="display:block;margin-top:4px;color:var(--text-muted);font-size:11px"></small>
+        <div class="tool-card__result" id="conv-result-fwd">—</div>
+
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:0.06em">${esc(destCurr)} → EUR</div>
+        <div class="tool-card__row" style="margin-bottom:4px">
+          <input id="conv-local" type="number" placeholder="${esc(destCurr)}" value="">
+          <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">${esc(destCurr)}</div>
+        </div>
+        <div class="tool-card__result" id="conv-result-rev">—</div>
+
+        <small id="conv-rate" style="display:block;margin-top:8px;color:var(--text-muted);font-size:11px"></small>
       </div>`;
 
     paneEl.innerHTML = `
@@ -4583,29 +4749,64 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
       </div>
     `;
 
-    if (true) { // Siempre mostrar conversor EUR/JPY
-      const amountEl = document.getElementById('conv-amount');
-      const resEl = document.getElementById('conv-result');
+    if (destCurr) {
+      const eurInput = document.getElementById('conv-eur');
+      const localInput = document.getElementById('conv-local');
+      const resFwd = document.getElementById('conv-result-fwd');
+      const resRev = document.getElementById('conv-result-rev');
       const rateEl = document.getElementById('conv-rate');
+      let cachedRate = null;
 
-      async function doConvert() {
-        const a = parseFloat(amountEl.value) || 0;
-        resEl.textContent = '…';
+      async function fetchRate() {
+        if (cachedRate) return cachedRate;
+        // Intentar con open.er-api.com (gratis, sin key, fiable)
         try {
-          const r = await fetch(`https://api.exchangerate.host/convert?from=EUR&to=${destCurr}&amount=${a}`);
+          const r = await fetch('https://open.er-api.com/v6/latest/EUR');
           const j = await r.json();
-          if (j.result != null) {
-            resEl.textContent = new Intl.NumberFormat('es-ES', { style: 'currency', currency: destCurr, maximumFractionDigits: 2 }).format(j.result);
-            rateEl.textContent = `1 EUR = ${j.info?.rate?.toFixed(4) || '?'} ${destCurr}`;
-          } else {
-            resEl.textContent = 'Error';
+          if (j.result === 'success' && j.rates && j.rates[destCurr]) {
+            cachedRate = j.rates[destCurr];
+            rateEl.textContent = '1 EUR = ' + cachedRate.toFixed(4) + ' ' + destCurr + ' (actualizado ' + (j.time_last_update_utc || 'hoy').split(' ').slice(0,4).join(' ') + ')';
+            return cachedRate;
           }
-        } catch (e) {
-          resEl.textContent = 'Sin conexión';
+        } catch (e) {}
+        // Fallback: exchangerate.host
+        try {
+          const r2 = await fetch('https://api.exchangerate.host/latest?base=EUR&symbols=' + destCurr);
+          const j2 = await r2.json();
+          if (j2.rates && j2.rates[destCurr]) {
+            cachedRate = j2.rates[destCurr];
+            rateEl.textContent = '1 EUR = ' + cachedRate.toFixed(4) + ' ' + destCurr;
+            return cachedRate;
+          }
+        } catch (e) {}
+        rateEl.textContent = 'Sin conexión para obtener tasas';
+        return null;
+      }
+
+      async function convertFwd() {
+        const a = parseFloat(eurInput.value) || 0;
+        const rate = await fetchRate();
+        if (rate) {
+          const result = a * rate;
+          resFwd.textContent = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(result) + ' ' + destCurr;
+        } else {
+          resFwd.textContent = 'Error';
         }
       }
-      amountEl.addEventListener('input', doConvert);
-      doConvert();
+      async function convertRev() {
+        const a = parseFloat(localInput.value) || 0;
+        const rate = await fetchRate();
+        if (rate) {
+          const result = a / rate;
+          resRev.textContent = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(result);
+        } else {
+          resRev.textContent = 'Error';
+        }
+      }
+
+      eurInput.addEventListener('input', convertFwd);
+      localInput.addEventListener('input', convertRev);
+      convertFwd();
     }
   }
 
