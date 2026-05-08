@@ -603,10 +603,36 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   line-height: 1.5;
 }
 
+/* Navegación entre días */
+.day-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.day-nav__btn {
+  padding: 12px 18px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--accent);
+  background: var(--bg-card);
+  border: 1.5px solid var(--accent);
+  transition: background var(--transition), transform var(--transition);
+}
+.day-nav__btn:active { transform: scale(0.96); background: var(--bg-elev); }
+.day-nav__btn--next { margin-left: auto; }
+
 /* =========================================================
    MAPA
    ========================================================= */
-#map-container { position: relative; height: calc(100vh - var(--tabbar-height) - var(--safe-bottom) - 70px); margin: -20px -20px 0; }
+#map-container { position: relative; height: calc(100dvh - var(--tabbar-height) - var(--safe-bottom) - var(--safe-top) - 120px); min-height: 300px; max-height: 700px; margin: 0 -20px; border-radius: 0; }
+@supports not (height: 100dvh) {
+  #map-container { height: calc(100vh - var(--tabbar-height) - var(--safe-bottom) - 140px); }
+}
 #map { height: 100%; width: 100%; }
 .map-legend {
   position: absolute;
@@ -745,6 +771,75 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .packing-item.is-packed .packing-item__box { background: var(--c-success); border-color: var(--c-success); }
 .packing-item.is-packed .packing-item__box::after { content: "✓"; color: white; font-size: 12px; font-weight: 700; }
 .packing-item__text { font-size: 14px; }
+
+/* Packing editable */
+.packing-item {
+  position: relative;
+}
+.packing-item__edit {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  padding: 2px 4px;
+  outline: none;
+  min-width: 0;
+  border-radius: 4px;
+  transition: background var(--transition);
+}
+.packing-item__edit:focus {
+  background: var(--bg-elev);
+}
+.packing-item.is-packed .packing-item__edit {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.packing-item__remove {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  color: var(--c-danger);
+  opacity: 0.4;
+  transition: opacity var(--transition), background var(--transition);
+}
+.packing-item__remove:hover, .packing-item__remove:active {
+  opacity: 1;
+  background: rgba(184,74,58,0.1);
+}
+.packing-add-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 0 12px 4px;
+}
+.packing-add-input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+.packing-add-input:focus { border-style: solid; border-color: var(--accent); }
+.packing-add-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 16px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
 
 /* Conversor */
 .tool-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
@@ -979,7 +1074,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     "language": "es",
     "currency": "EUR",
     "cover_image": "cover.jpg",
-    "theme_color": "#1B6B93"
+    "theme_color": "#1B6B93",
+    "local_currency": "HUF"
   },
   "intro": {
     "narrative": "Budapest no es una ciudad: son dos. Buda, la colina aristocrática con su castillo medieval y sus miradores sobre el Danubio, y Pest, la llanura vibrante de bulevares imperiales, cafés centenarios y ruinbars. En 4 días intensos recorrerás ambas orillas del río más importante de Europa Central, te sumergirás en aguas termales a 38°C, navegarás bajo los puentes iluminados y descubrirás una gastronomía que va mucho más allá del gulash.",
@@ -1025,33 +1121,38 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     ]
   },
   "history": {
-    "title": "De Aquincum a la Perla del Danubio",
-    "summary": "Budapest nace de la unión en 1873 de tres ciudades: Buda, Óbuda y Pest. Su historia abarca desde campamentos romanos hasta el imperio austrohúngaro, pasando por la ocupación otomana que dejó las primeras termas y la herida del siglo XX bajo nazis y soviéticos.",
+    "title": "De Aquincum a la Perla del Danubio: la historia que pisaréis",
+    "summary": "Dos mil años de historia se condensan entre las colinas de Buda y la llanura de Pest. Desde los baños romanos de Aquincum hasta las ruinbars del siglo XXI, cada piedra, cada puente y cada cúpula de esta ciudad tiene una historia que contar. Y vosotros vais a caminar sobre ella.",
     "periods": [
       {
-        "range": "Siglo I-IV d.C.",
-        "title": "Aquincum romana",
-        "text": "Los romanos fundan Aquincum en la actual Óbuda. Llegan a tener 30.000 habitantes y ya aprovechan las aguas termales naturales de la zona."
+        "range": "Siglo I – IV d.C.",
+        "title": "Aquincum: la frontera romana del Danubio",
+        "text": "Los romanos fundan Aquincum en la actual Óbuda hacia el año 89 d.C., convirtiéndola en capital de la provincia de Pannonia Inferior. La ciudad llega a albergar 30.000 habitantes, con anfiteatro, foro, acueductos y, crucialmente, los primeros baños termales que aprovechan los manantiales naturales de la zona. Esos mismos manantiales son los que alimentan hoy las termas Széchenyi, que visitaremos el día 2, y los baños Rudas, construidos sobre cimientos romanos. Cuando os sumerjáis en las piscinas humeantes de Széchenyi, estaréis continuando una tradición de baño que tiene casi 2.000 años en este mismo suelo."
       },
       {
-        "range": "1541-1686",
-        "title": "Ocupación otomana",
-        "text": "Los turcos gobiernan Buda durante 145 años. Construyen baños termales (Rudas, Király) que aún funcionan hoy, y mezquitas que luego se reconvierten en iglesias."
+        "range": "896 – 1541",
+        "title": "El reino magiar y la primera edad de oro",
+        "text": "En el año 896, las siete tribus magiares lideradas por Árpád cruzan los Cárpatos y conquistan la cuenca del Danubio. Las siete torres del Bastión de los Pescadores, que veréis el día 2 durante el Free Tour de Buda, representan precisamente esas siete tribus fundadoras. En el año 1000, Esteban I es coronado primer rey de Hungría con la Santa Corona, la misma que veréis expuesta en la Sala de la Cúpula del Parlamento durante la visita guiada del día 3. Buda se convierte en capital real en 1361, y el Castillo de Buda, que recorreréis en el Free Tour del día 2, se erige como residencia de los reyes húngaros. La Iglesia de Matías, coronada con su tejado de cerámica Zsolnay multicolor junto al Bastión, se construye en el siglo XIV y es donde se coronaron varios reyes de Hungría, incluido el emperador Francisco José I en 1867."
       },
       {
-        "range": "1867-1918",
-        "title": "Edad de Oro austrohúngara",
-        "text": "Budapest se convierte en cocapital del Imperio Austrohúngaro junto a Viena. Se construyen el Parlamento, la Ópera, la Basílica, los grandes bulevares y el metro continental más antiguo del mundo (línea M1, 1896)."
+        "range": "1541 – 1686",
+        "title": "La ocupación otomana: 145 años de medias lunas y hamams",
+        "text": "En 1541, el sultán Solimán el Magnífico conquista Buda sin disparar un solo tiro, y Hungría queda dividida durante 145 años. Los turcos transforman las iglesias en mezquitas y, sobre todo, construyen magníficos baños termales que aprovechan los manantiales calientes de Buda. Los baños Rudas (1550) y los baños Király (1565, actualmente en restauración) son herencia directa de esta época. Bajo las piscinas octogonales con cúpula de Rudas, el vapor se eleva exactamente igual que hace cinco siglos. Aunque no visitaremos Rudas en el itinerario, las termas Széchenyi del día 2 continúan esta misma tradición termal otomana, adaptada al esplendor neobarroco del siglo XX. La reconquista cristiana de Buda en 1686 destruye gran parte de la ciudad, incluido el Castillo Real, que será reconstruido en estilo barroco por los Habsburgo."
       },
       {
-        "range": "1944-1989",
-        "title": "Heridas del siglo XX",
-        "text": "La ocupación nazi arrasa el gueto judío. La dominación soviética (1945-1989) culmina con la revolución de 1956, brutalmente aplastada. El Telón de Acero cae en 1989 con la apertura de la frontera húngara con Austria."
+        "range": "1867 – 1918",
+        "title": "El Compromiso austrohúngaro y la fiebre constructora",
+        "text": "El Compromiso de 1867 convierte a Budapest en cocapital del Imperio Austrohúngaro junto a Viena. Comienza una edad de oro sin precedentes: en apenas 40 años se construyen la mayoría de los monumentos que visitaréis. El Parlamento, que recorreréis por dentro el día 3, se erige entre 1885 y 1904 con 40 millones de ladrillos y 40 kg de oro, diseñado por Imre Steindl para rivalizar con Westminster. Su cúpula de 96 metros alude al año 896 de la conquista magiar. La Basílica de San Esteban, cuyo mirador subiréis también el día 3, se consagra en 1905 con idéntica altura de 96 metros: por ley, ningún edificio de Budapest puede superar esta cota. La avenida Andrássy, por la que pasearéis camino a la Plaza de los Héroes, se inaugura en 1876, y bajo ella se construye en 1896 el primer metro de Europa continental (línea M1, la amarilla), que aún podéis tomar para ir a las termas Széchenyi. La Gran Sinagoga de la calle Dohány, que visitaréis el día 1, se había adelantado a esta fiebre: construida en 1859 en estilo morisco-bizantino, ya era la mayor de Europa. La estación Nyugati, donde cenaréis en el McDonald's Lounge el día 1, fue diseñada en 1877 por la empresa de Gustave Eiffel."
       },
       {
-        "range": "1989-presente",
-        "title": "Renacimiento cultural",
-        "text": "Budapest se reinventa como destino cultural europeo. Las ruinbars del barrio judío, la restauración del Castillo y la escena gastronómica la sitúan como una de las capitales más vibrantes del continente."
+        "range": "1918 – 1989",
+        "title": "Guerras, holocausto y el Telón de Acero",
+        "text": "El fin de la Primera Guerra Mundial trae el Tratado de Trianón (1920), que amputa dos tercios del territorio húngaro: una herida nacional que sigue viva. Durante la Segunda Guerra Mundial, Budapest sufre uno de los episodios más oscuros de Europa: entre octubre de 1944 y febrero de 1945, las Cruces Flechadas (fascistas húngaros aliados con los nazis) asesinan a miles de judíos y los arrojan al Danubio. El memorial Zapatos a la orilla del Danubio, junto al Parlamento, conmemora a estas víctimas. El gueto judío, cuyo centro era precisamente la Gran Sinagoga que visitaréis el día 1, albergó a 70.000 personas en condiciones terribles; más de 2.000 murieron y fueron enterradas en el cementerio del patio de la sinagoga, donde veréis el Árbol de la Vida. Diplomáticos como Raoul Wallenberg y Ángel Sanz-Briz (el «Ángel de Budapest», español) salvaron a miles emitiendo pasaportes de protección. Tras la guerra, la ocupación soviética impone el comunismo. La revolución de 1956 es aplastada por los tanques soviéticos, y Hungría permanece tras el Telón de Acero hasta 1989, cuando abre su frontera con Austria, precipitando la caída del Muro de Berlín."
+      },
+      {
+        "range": "1989 – presente",
+        "title": "Renacimiento: de las ruinas al esplendor",
+        "text": "La transición democrática de 1989 y la entrada en la UE en 2004 transforman Budapest. El barrio judío, que durante décadas estuvo degradado y semiabandonado, renace de forma inesperada: los edificios en ruinas del distrito VII se convierten en los famosos ruinbars (romkocsmák). Szimpla Kert, que visitaréis el día 1, abre en 2002 en una antigua fábrica y lanza un movimiento cultural único en el mundo. El Castillo de Buda se restaura, los cafés centenarios como el New York (donde desayunaréis el día 4) recuperan su esplendor dorado, y Budapest se posiciona como una de las capitales gastronómicas de Europa. La escena culinaria actual, con sus kifőzde (cantinas) donde comeréis en Frici Papa y Kádár Étkezde, convive con restaurantes Michelin y mercados como el Central, que exploraréis el día 3. Incluso la estación Nyugati ha encontrado una segunda vida nocturna con su McDonald's Lounge."
       }
     ]
   },
@@ -1141,6 +1242,14 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           "lat": 47.4863,
           "lng": 19.0404
         }
+      },
+      {
+        "day": 1,
+        "name": "McDonald's Nyugati Lounge",
+        "coords": {
+          "lat": 47.5097,
+          "lng": 19.0558
+        }
       }
     ]
   },
@@ -1150,14 +1259,14 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
       "date": "2026-06-06",
       "weekday": "Sa",
       "title": "Llegada, barrio judío y ruinbars",
-      "summary": "Vuelo desde Alicante, check-in en el Airbnb del barrio judío, Gran Sinagoga, paseo por el barrio, cena húngara y Szimpla Kert."
+      "summary": "Vuelo desde Alicante, check-in en el barrio judío, Gran Sinagoga, paseo, cena-espectáculo en el McDonald's Nyugati Lounge (DJ + proyecciones) y Szimpla Kert."
     },
     {
       "day": 2,
       "date": "2026-06-07",
       "weekday": "Do",
       "title": "Free Tour Buda, termas y crucero nocturno",
-      "summary": "Free Tour del Castillo de Buda por la mañana, Bastión de los Pescadores, Iglesia de Matías. Tarde en las Termas Széchenyi (o alternativa). Crucero nocturno por el Danubio."
+      "summary": "Free Tour del Castillo de Buda por la mañana. Tarde en las Termas Széchenyi (o alternativa). Crucero nocturno por el Danubio a las 21:30."
     },
     {
       "day": 3,
@@ -1228,17 +1337,18 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           "duration_min": 60
         },
         {
-          "time": "19:00",
-          "icon": "🍽",
-          "title": "Cena en Kék Rózsa Étterem",
-          "description": "Restaurante húngaro auténtico junto a la Gran Sinagoga. Gulash, rakott krumpli (gratinado de patata) y estofado de ternera. Precios locales, menú en inglés disponible.",
-          "type": "meal"
+          "time": "19:30",
+          "icon": "🍔",
+          "title": "Cena-espectáculo en McDonald's Nyugati Lounge",
+          "description": "El McDonald's más bonito del mundo, ubicado en la estación Nyugati (edificio de 1877, diseñado por la empresa de Gustave Eiffel). Viernes y sábados a partir de las 22:00: DJ en directo, proyecciones inmersivas en el techo histórico del edificio (escenas submarinas, espacio, jungla...) y ambiente de lounge. Cenáis tranquilos y a las 22:00 empieza el show. Entrada gratuita. Metro M3: Nyugati pályaudvar.",
+          "type": "meal",
+          "place_id": "mcdonalds_nyugati"
         },
         {
-          "time": "21:00",
+          "time": "23:00",
           "icon": "🍻",
           "title": "Szimpla Kert",
-          "description": "La ruinbar original y más famosa de Budapest, abierta desde 2002 en un edificio industrial abandonado. Cócteles, música en directo y decoración caótica. No os lo perdáis.",
+          "description": "Si aún tenéis energía después del espectáculo del Nyugati Lounge, la ruinbar original está a 15 min en metro (M3 Nyugati → M2 Astoria). Abierto hasta las 04:00.",
           "type": "activity",
           "place_id": "szimpla"
         }
@@ -1279,6 +1389,19 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           "price": "Entrada gratuita. Cervezas ~1.000-1.500 HUF.",
           "tips": "Id pronto (21:00-22:00) para encontrar sitio. A partir de medianoche se llena mucho.",
           "gmaps_url": "https://maps.app.goo.gl/szimpla"
+        },
+        {
+          "id": "mcdonalds_nyugati",
+          "name": "McDonald's Nyugati Lounge",
+          "coords": {
+            "lat": 47.5097,
+            "lng": 19.0558
+          },
+          "review": "Ubicado en la histórica estación Nyugati (1877), diseñada por la empresa de Gustave Eiffel. Considerado el McDonald's más elegante del mundo por Lonely Planet. Tras una renovación de 8 meses en 2024, los viernes y sábados de 22:00 a 04:00 se transforma en el Nyugati Lounge: un DJ se coloca en el balcón sobre la cocina, se apagan las luces y proyecciones mapping iluminan el techo histórico con escenas submarinas, espaciales, jungla y ciudades futuristas. Ambiente de ruin bar moderno con hamburguesas.",
+          "hours": "Restaurante: 24h. Nyugati Lounge (DJ + proyecciones): Vie-Sáb 22:00-04:00.",
+          "price": "Entrada libre. Precios McDonald's estándar. Hamburguesa especial Goosey Gustav (con foie gras): ~3.500 HUF.",
+          "tips": "Llegad pronto (21:30-22:00) para pillar sitio. A las 22:00 en punto se apagan las luces y empieza el show. No os sentéis fuera: la experiencia es dentro, bajo el techo histórico.",
+          "gmaps_url": "https://maps.app.goo.gl/nyugati"
         }
       ],
       "restaurants": [
@@ -1295,16 +1418,16 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           "notes": "Calle Király utca. Solo efectivo. Menú del día (napi menü) completo desde 2.000 HUF."
         },
         {
-          "name": "Kék Rózsa Étterem",
+          "name": "McDonald's Nyugati Lounge",
           "meal": "cena",
-          "speciality": "Cocina húngara casera: gulash, rakott krumpli, estofado de ternera en vino tinto",
-          "price_range": "€€",
-          "reservation_required": true,
+          "speciality": "El McDonald's más bonito del mundo. Sáb 22:00-04:00: DJ en directo con proyecciones inmersivas en el techo del edificio histórico de 1877 (empresa de Eiffel). Hamburguesas, Goosey Gustav (con foie gras) y McFlurry mientras bailáis.",
+          "price_range": "€",
+          "reservation_required": false,
           "coords": {
-            "lat": 47.496,
-            "lng": 19.0595
+            "lat": 47.5097,
+            "lng": 19.0558
           },
-          "notes": "Wesselényi utca, junto a la Gran Sinagoga. Menú en inglés. Abierto hasta 20:00, id pronto."
+          "notes": "Nyugati tér 1-2. Metro M3: Nyugati pályaudvar. Llegad a las 19:30-20:00 para cenar tranquilos. A las 22:00 empieza el espectáculo de luces y DJ. Entrada libre."
         }
       ],
       "alternative_plans": {
@@ -1391,10 +1514,10 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           "type": "meal"
         },
         {
-          "time": "21:00",
+          "time": "21:30",
           "icon": "🚢",
           "title": "Crucero nocturno por el Danubio",
-          "description": "Crucero de ~70 min con audioguía y bebida de bienvenida. El Parlamento, el Castillo, el Bastión y los puentes iluminados reflejados en el agua. Embarcadero junto al Puente Isabel (Pest). Desde ~€14/persona. Reservad online con antelación (junio es temporada alta).",
+          "description": "Crucero de ~70 min con audioguía y bebida de bienvenida. El Parlamento, el Castillo, el Bastión y los puentes iluminados reflejados en el agua. En junio anochece sobre las 21:00, así que a las 21:30 veréis todo iluminado. Embarcadero junto al Puente Isabel (Pest). Desde ~€14/persona. Reservad online.",
           "type": "activity",
           "place_id": "crucero",
           "duration_min": 70
@@ -2010,10 +2133,10 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     }
   ],
   "generation_metadata": {
-    "generated_at": "2026-04-19T18:00:00Z",
+    "generated_at": "2026-05-08T12:00:00Z",
     "schema_version": "1.2",
     "claude_model": "claude-opus-4-6",
-    "web_search_count": 7,
+    "web_search_count": 8,
     "verification_note": "Precios y horarios verificados con búsquedas web de abril 2026. Coordenadas GPS verificadas. Precios de termas Széchenyi basados en tarifas publicadas 2026. Gellért Baths confirmado cerrado por renovación hasta 2028. Parlamento: precios actualizados desde 1 enero 2026."
   }
 }
@@ -2038,6 +2161,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     notes: {},           // { "day1": "texto", ... }
     expenses: [],        // [{ id, day, category, desc, amount, date }]
     packing: {},         // { "clothing_0": true, ... }
+    packing_custom: null,// items añadidos/editados por el usuario (override de DATA.packing_list)
+    budget_edit: null,   // { breakdown } editado por el usuario
+    split: null,         // { people: [], expenses: [] } gastos compartidos
     theme: null          // "light" | "dark" | null (= auto)
   };
 
@@ -2320,6 +2446,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         <div class="day-notes__label">📝 Tus notas del día</div>
         <textarea class="day-notes__textarea" id="note-input" placeholder="Impresiones, fotos tomadas, gastos del día…">${esc(noteVal)}</textarea>
       </div>
+
+      <div class="day-nav">
+        ${d.day > 1 ? `<button class="day-nav__btn day-nav__btn--prev" onclick="window.__nav.goDay(${d.day - 1})">← Día ${d.day - 1}</button>` : '<div></div>'}
+        ${d.day < DATA.days.length ? `<button class="day-nav__btn day-nav__btn--next" onclick="window.__nav.goDay(${d.day + 1})">Día ${d.day + 1} →</button>` : '<div></div>'}
+      </div>
     `;
 
     el('#note-input').addEventListener('input', (e) => {
@@ -2385,9 +2516,33 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 
   // --- TIPS -----------------------------------------------
   function renderTips() {
-    const tipsHTML = (DATA.practical_tips || []).map((g, idx) => `
-      <div class="tip-group" id="tip-group-${idx}">
-        <button class="tip-group__head" onclick="document.getElementById('tip-group-${idx}').classList.toggle('is-open')">
+    // Separar los tips normales de los que son de apps (para fusionarlos con apps_recommended)
+    const appKeywords = ['app', 'apps', 'aplicacion', 'aplicaciones'];
+    const isAppGroup = (g) => appKeywords.some(kw => g.title.toLowerCase().includes(kw));
+
+    const normalTips = (DATA.practical_tips || []).filter(g => !isAppGroup(g));
+    const appTipGroups = (DATA.practical_tips || []).filter(g => isAppGroup(g));
+
+    // Fusionar items de apps de practical_tips + apps_recommended en un solo grupo
+    const appItems = [];
+    appTipGroups.forEach(g => {
+      (g.items || []).forEach(i => appItems.push(i));
+    });
+    // Añadir apps_recommended como items adicionales (evitando duplicados por nombre)
+    const existingNames = new Set(appItems.map(i => i.subtitle.toLowerCase()));
+    (DATA.apps_recommended || []).forEach(a => {
+      if (!existingNames.has(a.name.toLowerCase())) {
+        appItems.push({ subtitle: a.name, text: a.purpose });
+      }
+    });
+
+    let tipIdx = 0;
+
+    const normalHTML = normalTips.map(g => {
+      const id = tipIdx++;
+      return `
+      <div class="tip-group" id="tip-group-${id}">
+        <button class="tip-group__head" onclick="document.getElementById('tip-group-${id}').classList.toggle('is-open')">
           <div class="tip-group__head-left">
             <span class="tip-group__icon">${esc(g.icon)}</span>
             <span class="tip-group__title">${esc(g.title)}</span>
@@ -2401,26 +2556,67 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
               <div class="tip-item__text">${esc(i.text)}</div>
             </div>`).join('')}
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
 
-    const emergencyHTML = DATA.emergency ? `
-      <h2 class="section-title section-title--small">🆘 Emergencias</h2>
-      <div class="tool-card">
-        ${DATA.emergency.local_emergency ? `<div style="margin-bottom:8px"><strong>General:</strong> ${esc(DATA.emergency.local_emergency)}</div>` : ''}
-        ${DATA.emergency.medical ? `<div style="margin-bottom:8px"><strong>Médico:</strong> ${esc(DATA.emergency.medical)}</div>` : ''}
-        ${DATA.emergency.police ? `<div style="margin-bottom:8px"><strong>Policía:</strong> ${esc(DATA.emergency.police)}</div>` : ''}
-        ${DATA.emergency.embassy ? `<div style="margin-bottom:8px"><strong>Embajada:</strong> ${esc(DATA.emergency.embassy)}</div>` : ''}
-      </div>` : '';
+    // Emergencias como grupo desplegable
+    const em = DATA.emergency || {};
+    const emergencyItems = [
+      em.local_emergency ? { subtitle: 'Emergencias general', text: em.local_emergency } : null,
+      em.medical ? { subtitle: 'Médico / ambulancias', text: em.medical } : null,
+      em.police ? { subtitle: 'Policía', text: em.police } : null,
+      em.embassy ? { subtitle: 'Embajada / consulado', text: em.embassy } : null,
+      em.insurance_reminder ? { subtitle: 'Seguro de viaje', text: em.insurance_reminder } : null
+    ].filter(Boolean);
 
-    const appsHTML = (DATA.apps_recommended || []).length ? `
-      <h2 class="section-title section-title--small">📱 Apps recomendadas</h2>
-      <div class="tool-card">
-        ${(DATA.apps_recommended || []).map(a => `<div style="padding:6px 0;border-bottom:1px dashed var(--line)"><strong>${esc(a.name)}:</strong> ${esc(a.purpose)}</div>`).join('')}
-      </div>` : '';
+    let emergencyHTML = '';
+    if (emergencyItems.length > 0) {
+      const emId = tipIdx++;
+      emergencyHTML = `
+      <div class="tip-group" id="tip-group-${emId}">
+        <button class="tip-group__head" onclick="document.getElementById('tip-group-${emId}').classList.toggle('is-open')">
+          <div class="tip-group__head-left">
+            <span class="tip-group__icon">🆘</span>
+            <span class="tip-group__title">Emergencias</span>
+          </div>
+          <span class="chev">▾</span>
+        </button>
+        <div class="tip-group__body">
+          ${emergencyItems.map(i => `
+            <div class="tip-item">
+              <div class="tip-item__subtitle">${esc(i.subtitle)}</div>
+              <div class="tip-item__text">${esc(i.text)}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }
+
+    // Apps unificadas como grupo desplegable
+    let appsHTML = '';
+    if (appItems.length > 0) {
+      const appsId = tipIdx++;
+      appsHTML = `
+      <div class="tip-group" id="tip-group-${appsId}">
+        <button class="tip-group__head" onclick="document.getElementById('tip-group-${appsId}').classList.toggle('is-open')">
+          <div class="tip-group__head-left">
+            <span class="tip-group__icon">📱</span>
+            <span class="tip-group__title">Apps recomendadas</span>
+          </div>
+          <span class="chev">▾</span>
+        </button>
+        <div class="tip-group__body">
+          ${appItems.map(i => `
+            <div class="tip-item">
+              <div class="tip-item__subtitle">${esc(i.subtitle)}</div>
+              <div class="tip-item__text">${esc(i.text)}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }
 
     el('#page-tips').innerHTML = `
       <h2 class="section-title" style="margin-top:0">Consejos prácticos</h2>
-      ${tipsHTML}
+      ${normalHTML}
       ${emergencyHTML}
       ${appsHTML}
     `;
@@ -2437,7 +2633,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     return Math.round((done / allKeys.length) * 100);
   }
   function packingProgress() {
-    const groups = DATA.packing_list || {};
+    const groups = store.packing_custom || DATA.packing_list || {};
     let total = 0, done = 0;
     Object.keys(groups).forEach(cat => {
       (groups[cat] || []).forEach((_, idx) => {
@@ -2486,7 +2682,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     const progress = overallProgress();
     const packProg = packingProgress();
     const totalExp = totalExpenses();
-    const budget = DATA.meta.budget?.total_estimated || 0;
+    const bdKeys_ov = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
+    const budget = store.budget_edit ? bdKeys_ov.reduce((s, k) => s + (store.budget_edit.breakdown[k] || 0), 0) : (DATA.meta.budget?.total_estimated || 0);
     const curr = DATA.meta.currency || 'EUR';
 
     const paneEl = document.querySelector('[data-me-pane="overview"]');
@@ -2579,26 +2776,72 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     const paneEl = document.querySelector('[data-me-pane="budget"]');
     if (!paneEl) return;
     const curr = DATA.meta.currency || 'EUR';
-    const budget = DATA.meta.budget?.total_estimated || 0;
-    const total = totalExpenses();
+
+    // Inicializar desde DATA si no hay override guardado
+    if (!store.budget_edit) {
+      const bd = DATA.meta.budget?.breakdown || {};
+      store.budget_edit = {
+        breakdown: {
+          flights: bd.flights || 0,
+          accommodation: bd.accommodation || 0,
+          transport: bd.transport || 0,
+          food: bd.food || 0,
+          activities: bd.activities || 0,
+          shopping: bd.shopping || 0,
+          other: bd.other || 0
+        }
+      };
+    }
+    // Inicializar gastos compartidos si no existe
+    if (!store.split) {
+      store.split = { people: [], expenses: [] };
+    }
+
+    const be = store.budget_edit;
+    const bdLabels = { flights: 'Vuelos', accommodation: 'Alojamiento', transport: 'Transporte local', food: 'Comida', activities: 'Actividades', shopping: 'Compras', other: 'Otros' };
+    const bdKeys = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
+    // Total = suma de partidas (no editable directamente)
+    const budgetTotal = bdKeys.reduce((sum, k) => sum + (be.breakdown[k] || 0), 0);
+    const totalExp = totalExpenses();
     const categories = ['Transporte', 'Alojamiento', 'Comida', 'Actividades', 'Compras', 'Otros'];
 
-    paneEl.innerHTML = `
+    const budgetHTML = `
       <div class="budget-summary">
-        <div class="budget-row"><span class="budget-row__label">Presupuesto</span><span class="budget-row__value">${fmtMoney(budget, curr)}</span></div>
-        <div class="budget-row budget-row--total"><span class="budget-row__label">Gastado</span><span class="budget-row__value">${fmtMoney(total, curr)}</span></div>
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:0 0 10px">Presupuesto estimado</div>
+        ${bdKeys.map(k => `
+          <div class="budget-row" style="margin-bottom:4px">
+            <span class="budget-row__label" style="font-size:13px">${bdLabels[k]}</span>
+            <div style="display:flex;align-items:center;gap:4px">
+              <input type="number" data-bd-key="${k}" value="${be.breakdown[k] || 0}" style="width:75px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;text-align:right">
+              <span style="font-size:11px;color:var(--text-muted)">€</span>
+            </div>
+          </div>`).join('')}
+
+        <hr class="divider" style="margin:12px 0 10px">
+        <div class="budget-row">
+          <span class="budget-row__label" style="font-weight:700">Total presupuestado</span>
+          <span class="budget-row__value" id="budget-auto-total" style="font-size:20px">${fmtMoney(budgetTotal, curr)}</span>
+        </div>
+        <div class="budget-row" style="margin-top:6px">
+          <span class="budget-row__label">Gastado</span>
+          <span class="budget-row__value">${fmtMoney(totalExp, curr)}</span>
+        </div>
         <div class="budget-progress">
-          <div class="budget-progress__fill ${total > budget ? 'is-over' : ''}" style="width:${Math.min(100, budget ? (total/budget)*100 : 0)}%"></div>
+          <div class="budget-progress__fill ${totalExp > budgetTotal ? 'is-over' : ''}" style="width:${Math.min(100, budgetTotal ? (totalExp/budgetTotal)*100 : 0)}%"></div>
+        </div>
+        <div class="budget-row" style="margin-top:6px">
+          <span class="budget-row__label">Restante</span>
+          <span class="budget-row__value" style="color:${totalExp > budgetTotal ? 'var(--c-danger)' : 'var(--c-success)'}">${fmtMoney(budgetTotal - totalExp, curr)}</span>
         </div>
       </div>
 
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:20px 0 8px">Añadir gasto</div>
       <div class="expense-form">
         <input id="exp-desc" placeholder="Concepto">
         <input id="exp-amount" type="number" step="0.01" placeholder="€">
         <select id="exp-cat">${categories.map(c => `<option>${c}</option>`).join('')}</select>
         <button id="exp-add">+</button>
       </div>
-
       <ul class="expense-list" id="exp-list">
         ${store.expenses.length === 0 ? '<li class="empty-state">Aún no has añadido gastos.</li>' : ''}
         ${store.expenses.slice().reverse().map(e => `
@@ -2613,21 +2856,193 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
       </ul>
     `;
 
+    // --- Sección gastos compartidos ---
+    const sp = store.split;
+    const today = todayISO();
+
+    // Calcular balances netos: para cada gasto, cada beneficiario debe su parte proporcional
+    const balances = {}; // balance positivo = le deben, negativo = debe
+    sp.people.forEach(p => { balances[p] = 0; });
+    const splitGrandTotal = sp.expenses.reduce((s, e) => s + e.amount, 0);
+
+    sp.expenses.forEach(e => {
+      const beneficiaries = (e.forWhom && e.forWhom.length > 0) ? e.forWhom : sp.people;
+      const share = e.amount / beneficiaries.length;
+      // El pagador adelanta el total
+      balances[e.paidBy] = (balances[e.paidBy] || 0) + e.amount;
+      // Cada beneficiario "consume" su parte
+      beneficiaries.forEach(b => {
+        balances[b] = (balances[b] || 0) - share;
+      });
+    });
+
+    // Calcular transferencias mínimas para liquidar
+    function calcTransfers(bal) {
+      const debtors = []; // deben dinero (balance negativo)
+      const creditors = []; // les deben (balance positivo)
+      Object.keys(bal).forEach(p => {
+        const b = Math.round(bal[p] * 100) / 100;
+        if (b < -0.01) debtors.push({ name: p, amount: -b });
+        else if (b > 0.01) creditors.push({ name: p, amount: b });
+      });
+      // Ordenar de mayor a menor para minimizar transferencias
+      debtors.sort((a,b) => b.amount - a.amount);
+      creditors.sort((a,b) => b.amount - a.amount);
+
+      const transfers = [];
+      let di = 0, ci = 0;
+      while (di < debtors.length && ci < creditors.length) {
+        const pay = Math.min(debtors[di].amount, creditors[ci].amount);
+        if (pay > 0.01) {
+          transfers.push({ from: debtors[di].name, to: creditors[ci].name, amount: Math.round(pay * 100) / 100 });
+        }
+        debtors[di].amount -= pay;
+        creditors[ci].amount -= pay;
+        if (debtors[di].amount < 0.01) di++;
+        if (creditors[ci].amount < 0.01) ci++;
+      }
+      return transfers;
+    }
+
+    const transfers = sp.expenses.length > 0 ? calcTransfers({...balances}) : [];
+
+    // Cuánto ha pagado cada persona en total
+    const totalPaid = {};
+    sp.people.forEach(p => { totalPaid[p] = 0; });
+    sp.expenses.forEach(e => { totalPaid[e.paidBy] = (totalPaid[e.paidBy] || 0) + e.amount; });
+
+    // HTML de la sección
+    const splitHTML = `
+      <hr class="divider" style="margin:24px 0 16px">
+      <div class="tool-card" style="border:2px solid var(--accent);border-radius:var(--radius)">
+        <div class="tool-card__title">👥 Gastos compartidos</div>
+        <p style="font-size:12.5px;color:var(--text-soft);margin-bottom:12px">Añade viajeros, registra quién paga cada gasto y para quién es. Al final del viaje, verás quién debe pagar a quién.</p>
+
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px">Viajeros</div>
+        <div id="split-people" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+          ${sp.people.map((p, i) => `
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:var(--bg-elev);border-radius:999px;font-size:13px;font-weight:600">
+              ${esc(p)}
+              <button data-rm-person="${i}" style="font-size:11px;color:var(--c-danger);opacity:0.6;cursor:pointer;background:none;border:none">✕</button>
+            </span>`).join('')}
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:16px">
+          <input id="split-new-person" placeholder="Nombre" style="flex:1;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
+          <button id="split-add-person" class="btn btn--primary btn--sm">Añadir</button>
+        </div>
+
+        ${sp.people.length >= 2 ? `
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px">Registrar pago</div>
+          <div style="display:grid;grid-template-columns:1fr 70px;gap:6px;margin-bottom:6px">
+            <input id="split-desc" placeholder="Concepto" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;min-width:0">
+            <input id="split-amount" type="number" step="0.01" placeholder="€" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center">
+            <div>
+              <label style="font-size:11px;color:var(--text-muted);font-weight:600">Pagó</label>
+              <select id="split-who" style="width:100%;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;margin-top:2px">
+                ${sp.people.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--text-muted);font-weight:600">Fecha</label>
+              <input id="split-date" type="date" value="${today}" style="width:100%;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;margin-top:2px">
+            </div>
+            <button id="split-add-exp" class="btn btn--primary btn--sm" style="align-self:end;margin-bottom:1px">+</button>
+          </div>
+          <div style="margin-bottom:12px">
+            <label style="font-size:11px;color:var(--text-muted);font-weight:600">¿Para quién es este gasto?</label>
+            <div id="split-for-whom" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
+              ${sp.people.map(p => `
+                <label style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--bg-elev);border-radius:999px;font-size:12px;cursor:pointer;user-select:none">
+                  <input type="checkbox" value="${esc(p)}" checked style="accent-color:var(--accent);width:14px;height:14px">
+                  ${esc(p)}
+                </label>`).join('')}
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Por defecto, todos seleccionados = gasto del grupo.</div>
+          </div>
+
+          ${sp.expenses.length > 0 ? `
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 6px">Historial de pagos</div>
+            <ul class="expense-list" style="margin-bottom:12px">
+              ${sp.expenses.slice().reverse().map((e, ri) => {
+                const idx = sp.expenses.length - 1 - ri;
+                const forLabel = (e.forWhom && e.forWhom.length > 0 && e.forWhom.length < sp.people.length)
+                  ? e.forWhom.join(', ')
+                  : 'todos';
+                return `
+                <li class="expense-item" style="grid-template-columns:1fr auto auto">
+                  <div>
+                    <div class="expense-item__desc">${esc(e.desc)}</div>
+                    <div class="expense-item__cat">Pagó: ${esc(e.paidBy)} · Para: ${esc(forLabel)} · ${esc(e.date || '')}</div>
+                  </div>
+                  <span class="expense-item__amount">${fmtMoney(e.amount, curr)}</span>
+                  <button class="expense-item__del" data-del-split="${idx}">✕</button>
+                </li>`;
+              }).join('')}
+            </ul>
+
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 8px">Resumen</div>
+            <div style="background:var(--bg-elev);border-radius:var(--radius);padding:12px 14px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;color:var(--text-soft)">
+                <span>Gasto total del grupo</span>
+                <span style="font-weight:700;color:var(--text)">${fmtMoney(splitGrandTotal, curr)}</span>
+              </div>
+              <hr class="divider" style="margin:6px 0 8px">
+              ${sp.people.map(p => {
+                const paid = totalPaid[p] || 0;
+                const bal = Math.round((balances[p] || 0) * 100) / 100;
+                const color = bal >= 0 ? 'var(--c-success)' : 'var(--c-danger)';
+                const label = bal > 0.01 ? `le deben ${fmtMoney(bal, curr)}` : bal < -0.01 ? `debe ${fmtMoney(-bal, curr)}` : 'saldado ✓';
+                return `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px">
+                  <div>
+                    <span style="font-weight:700">${esc(p)}</span>
+                    <span style="color:var(--text-muted)"> · pagó ${fmtMoney(paid, curr)}</span>
+                  </div>
+                  <span style="font-weight:700;color:${color}">${label}</span>
+                </div>`;
+              }).join('')}
+
+              ${transfers.length > 0 ? `
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin:14px 0 6px">💸 Para liquidar</div>
+                ${transfers.map(t => `
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px;border-bottom:1px dashed var(--line)">
+                    <span><strong>${esc(t.from)}</strong> paga a <strong>${esc(t.to)}</strong></span>
+                    <span style="font-weight:700;color:var(--accent)">${fmtMoney(t.amount, curr)}</span>
+                  </div>`).join('')}
+              ` : ''}
+            </div>
+          ` : '<div class="empty-state" style="padding:16px 0">Añade un pago para ver el resumen.</div>'}
+        ` : sp.people.length === 1 ? '<p style="font-size:13px;color:var(--text-muted)">Añade al menos 2 viajeros para usar los gastos compartidos.</p>' : ''}
+      </div>
+    `;
+
+    paneEl.innerHTML = budgetHTML + splitHTML;
+
+    // --- Listeners para partidas del presupuesto ---
+    document.querySelectorAll('[data-bd-key]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        store.budget_edit.breakdown[inp.dataset.bdKey] = parseFloat(inp.value) || 0;
+        saveStore();
+        const newTotal = bdKeys.reduce((s, k) => s + (store.budget_edit.breakdown[k] || 0), 0);
+        const totalEl = document.getElementById('budget-auto-total');
+        if (totalEl) totalEl.textContent = fmtMoney(newTotal, curr);
+        renderMeOverview();
+      });
+    });
+
+    // --- Listeners para gastos personales ---
     document.getElementById('exp-add').addEventListener('click', () => {
       const desc = document.getElementById('exp-desc').value.trim();
       const amount = parseFloat(document.getElementById('exp-amount').value);
       const category = document.getElementById('exp-cat').value;
       if (!desc || !amount || isNaN(amount)) return;
-      store.expenses.push({
-        id: 'e_' + Date.now(),
-        desc, amount, category,
-        date: todayISO()
-      });
+      store.expenses.push({ id: 'e_' + Date.now(), desc, amount, category, date: todayISO() });
       saveStore();
       renderMeBudget();
       renderMeOverview();
     });
-
     document.querySelectorAll('[data-del]').forEach(b => {
       b.addEventListener('click', () => {
         store.expenses = store.expenses.filter(e => e.id !== b.dataset.del);
@@ -2636,36 +3051,95 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         renderMeOverview();
       });
     });
+
+    // --- Listeners para gastos compartidos ---
+    const addPersonBtn = document.getElementById('split-add-person');
+    const newPersonInp = document.getElementById('split-new-person');
+    if (addPersonBtn) {
+      const doAddPerson = () => {
+        const name = newPersonInp.value.trim();
+        if (!name || store.split.people.includes(name)) return;
+        store.split.people.push(name);
+        saveStore();
+        renderMeBudget();
+      };
+      addPersonBtn.addEventListener('click', doAddPerson);
+      newPersonInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doAddPerson(); } });
+    }
+
+    document.querySelectorAll('[data-rm-person]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.rmPerson);
+        const removed = store.split.people[idx];
+        store.split.people.splice(idx, 1);
+        store.split.expenses = store.split.expenses.filter(e => e.paidBy !== removed);
+        // También limpiar de forWhom
+        store.split.expenses.forEach(e => {
+          if (e.forWhom) e.forWhom = e.forWhom.filter(p => p !== removed);
+        });
+        saveStore();
+        renderMeBudget();
+      });
+    });
+
+    const addSplitBtn = document.getElementById('split-add-exp');
+    if (addSplitBtn) {
+      addSplitBtn.addEventListener('click', () => {
+        const desc = document.getElementById('split-desc').value.trim();
+        const amount = parseFloat(document.getElementById('split-amount').value);
+        const who = document.getElementById('split-who').value;
+        const date = document.getElementById('split-date').value || todayISO();
+        // Leer beneficiarios seleccionados
+        const checkboxes = document.querySelectorAll('#split-for-whom input[type="checkbox"]');
+        const forWhom = [];
+        checkboxes.forEach(cb => { if (cb.checked) forWhom.push(cb.value); });
+        if (!desc || !amount || isNaN(amount) || !who || forWhom.length === 0) {
+          if (forWhom.length === 0) alert('Selecciona al menos una persona como beneficiario del gasto.');
+          return;
+        }
+        store.split.expenses.push({ desc, amount, paidBy: who, forWhom, date });
+        saveStore();
+        renderMeBudget();
+      });
+    }
+
+    document.querySelectorAll('[data-del-split]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.delSplit);
+        store.split.expenses.splice(idx, 1);
+        saveStore();
+        renderMeBudget();
+      });
+    });
+  }
+
+  function getPackingData() {
+    // Si el usuario ha editado, usa la copia custom. Si no, parte de DATA.
+    if (store.packing_custom) return JSON.parse(JSON.stringify(store.packing_custom));
+    return JSON.parse(JSON.stringify(DATA.packing_list || {}));
+  }
+  function savePackingData(pl) {
+    store.packing_custom = pl;
+    saveStore();
   }
 
   function renderMePacking() {
     const paneEl = document.querySelector('[data-me-pane="packing"]');
     if (!paneEl) return;
-    const pl = DATA.packing_list || {};
+    const pl = getPackingData();
     const labels = {
-      // Categorías v1.1
-      summer_clothing: '☀️ Ropa de verano',
-      winter_clothing: '🧥 Ropa de invierno',
-      footwear: '👟 Calzado',
-      underwear: '🩲 Ropa interior',
-      items: '🎒 Objetos',
-      accessories: '🧢 Complementos',
-      documents: '📄 Documentación',
-      toiletries: '🧴 Bolsa de aseo',
-      health: '💊 Salud',
-      other: '📦 Otros',
-      // Categorías v1.0 (retrocompatibilidad)
-      clothing: '👕 Ropa',
-      tech: '🔌 Tecnología'
+      summer_clothing: '☀️ Ropa de verano', winter_clothing: '🧥 Ropa de invierno',
+      footwear: '👟 Calzado', underwear: '🩲 Ropa interior', items: '🎒 Objetos',
+      accessories: '🧢 Complementos', documents: '📄 Documentación',
+      toiletries: '🧴 Bolsa de aseo', health: '💊 Salud', other: '📦 Otros',
+      clothing: '👕 Ropa', tech: '🔌 Tecnología'
     };
-
-    // Preservar orden de la lista maestra si las keys vienen en orden aleatorio
     const preferredOrder = [
       'summer_clothing', 'winter_clothing', 'clothing', 'footwear', 'underwear',
       'items', 'tech', 'accessories', 'documents', 'toiletries', 'health', 'other'
     ];
-    const orderedKeys = preferredOrder.filter(k => pl[k]).concat(
-      Object.keys(pl).filter(k => !preferredOrder.includes(k))
+    const orderedKeys = preferredOrder.filter(k => pl[k] && pl[k].length > 0).concat(
+      Object.keys(pl).filter(k => !preferredOrder.includes(k) && pl[k] && pl[k].length > 0)
     );
 
     if (orderedKeys.length === 0) {
@@ -2674,92 +3148,208 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     }
 
     paneEl.innerHTML = orderedKeys.map(cat => `
-      <div class="packing-group">
+      <div class="packing-group" data-cat="${cat}">
         <div class="packing-group__title">${labels[cat] || '📦 ' + cat}</div>
         ${(pl[cat] || []).map((item, idx) => {
           const key = `${cat}_${idx}`;
           const packed = !!store.packing[key];
           return `
-            <label class="packing-item ${packed ? 'is-packed' : ''}" data-pack-key="${key}">
-              <span class="packing-item__box"></span>
-              <span class="packing-item__text">${esc(item)}</span>
-            </label>`;
+            <div class="packing-item ${packed ? 'is-packed' : ''}" data-pack-key="${key}" data-cat="${cat}" data-idx="${idx}">
+              <span class="packing-item__box" data-action="toggle"></span>
+              <input class="packing-item__edit" type="text" value="${esc(item)}" data-action="rename">
+              <button class="packing-item__remove" data-action="remove" title="Eliminar">✕</button>
+            </div>`;
         }).join('')}
-      </div>`).join('');
+        <div class="packing-add-row">
+          <input class="packing-add-input" data-add-cat="${cat}" placeholder="Añadir item…" type="text">
+          <button class="packing-add-btn" data-add-btn="${cat}">+</button>
+        </div>
+      </div>`).join('') + `
+      <div style="margin-top:12px">
+        <button class="btn btn--ghost btn--sm" id="packing-reset" style="font-size:12px">↩ Restaurar lista original</button>
+      </div>`;
 
-    paneEl.querySelectorAll('[data-pack-key]').forEach(l => {
-      l.addEventListener('click', () => {
-        const k = l.dataset.packKey;
+    // Toggle check
+    paneEl.querySelectorAll('[data-action="toggle"]').forEach(box => {
+      box.addEventListener('click', () => {
+        const item = box.closest('[data-pack-key]');
+        const k = item.dataset.packKey;
         store.packing[k] = !store.packing[k];
         saveStore();
-        l.classList.toggle('is-packed');
+        item.classList.toggle('is-packed');
         renderMeOverview();
       });
+    });
+
+    // Rename inline
+    paneEl.querySelectorAll('[data-action="rename"]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const item = inp.closest('[data-pack-key]');
+        const cat = item.dataset.cat;
+        const idx = parseInt(item.dataset.idx);
+        const plData = getPackingData();
+        if (plData[cat] && plData[cat][idx] !== undefined) {
+          plData[cat][idx] = inp.value.trim() || plData[cat][idx];
+          savePackingData(plData);
+        }
+      });
+    });
+
+    // Remove item
+    paneEl.querySelectorAll('[data-action="remove"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('[data-pack-key]');
+        const cat = item.dataset.cat;
+        const idx = parseInt(item.dataset.idx);
+        const plData = getPackingData();
+        if (plData[cat]) {
+          plData[cat].splice(idx, 1);
+          // Also clean packing checks for this category (re-index)
+          const newPacking = {};
+          Object.keys(store.packing).forEach(k => {
+            if (!k.startsWith(cat + '_')) newPacking[k] = store.packing[k];
+          });
+          (plData[cat] || []).forEach((_, i) => {
+            // preserve check state by old position if possible
+          });
+          store.packing = newPacking;
+          savePackingData(plData);
+          renderMePacking();
+          renderMeOverview();
+        }
+      });
+    });
+
+    // Add item
+    paneEl.querySelectorAll('[data-add-btn]').forEach(btn => {
+      const cat = btn.dataset.addBtn;
+      const inp = paneEl.querySelector(`[data-add-cat="${cat}"]`);
+      const doAdd = () => {
+        const val = inp.value.trim();
+        if (!val) return;
+        const plData = getPackingData();
+        if (!plData[cat]) plData[cat] = [];
+        plData[cat].push(val);
+        savePackingData(plData);
+        inp.value = '';
+        renderMePacking();
+        renderMeOverview();
+      };
+      btn.addEventListener('click', doAdd);
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doAdd(); } });
+    });
+
+    // Reset to original
+    document.getElementById('packing-reset')?.addEventListener('click', () => {
+      if (confirm('¿Restaurar la lista original? Se perderán los cambios que hayas hecho.')) {
+        store.packing_custom = null;
+        store.packing = {};
+        saveStore();
+        renderMePacking();
+        renderMeOverview();
+      }
     });
   }
 
   function renderMeTools() {
     const paneEl = document.querySelector('[data-me-pane="tools"]');
     if (!paneEl) return;
-    const curr = DATA.meta.currency || 'EUR';
+
+    // Detectar moneda local del destino: primero local_currency, luego currency si no es EUR, luego nada
+    const homeCurr = 'EUR';
+    const rawCurr = DATA.meta.local_currency || DATA.meta.currency || 'EUR';
+    const destCurr = rawCurr === homeCurr ? null : rawCurr;
+
+    const converterHTML = !destCurr ? '' : `
+      <div class="tool-card">
+        <div class="tool-card__title">💱 Conversor EUR ↔ ${esc(destCurr)}</div>
+
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em">EUR → ${esc(destCurr)}</div>
+        <div class="tool-card__row" style="margin-bottom:4px">
+          <input id="conv-eur" type="number" placeholder="Euros" value="100">
+          <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">EUR</div>
+        </div>
+        <div class="tool-card__result" id="conv-result-fwd">—</div>
+
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:0.06em">${esc(destCurr)} → EUR</div>
+        <div class="tool-card__row" style="margin-bottom:4px">
+          <input id="conv-local" type="number" placeholder="${esc(destCurr)}" value="">
+          <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">${esc(destCurr)}</div>
+        </div>
+        <div class="tool-card__result" id="conv-result-rev">—</div>
+
+        <small id="conv-rate" style="display:block;margin-top:8px;color:var(--text-muted);font-size:11px"></small>
+      </div>`;
 
     paneEl.innerHTML = `
-      <div class="tool-card">
-        <div class="tool-card__title">💱 Conversor de moneda</div>
-        <div class="tool-card__row">
-          <input id="conv-amount" type="number" placeholder="Cantidad" value="100">
-          <select id="conv-from">
-            <option value="EUR">EUR</option><option value="USD">USD</option><option value="GBP">GBP</option>
-            <option value="JPY">JPY</option><option value="CHF">CHF</option>
-          </select>
-        </div>
-        <div class="tool-card__row">
-          <div style="align-self:center;font-size:13px;color:var(--text-muted)">a</div>
-          <select id="conv-to">
-            <option value="EUR" ${curr==='EUR'?'selected':''}>EUR</option>
-            <option value="USD" ${curr==='USD'?'selected':''}>USD</option>
-            <option value="GBP" ${curr==='GBP'?'selected':''}>GBP</option>
-            <option value="JPY">JPY</option><option value="CHF">CHF</option>
-          </select>
-        </div>
-        <div class="tool-card__result" id="conv-result">—</div>
-        <small id="conv-rate" style="display:block;margin-top:4px;color:var(--text-muted);font-size:11px"></small>
-      </div>
+      ${converterHTML}
 
       <div class="tool-card">
         <div class="tool-card__title">📤 Compartir esta guía</div>
-        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Envía este archivo HTML por WhatsApp, correo o guárdalo en Drive. Funciona sin conexión.</p>
-        <button class="btn btn--primary" onclick="navigator.share ? navigator.share({title: document.title, text: 'Mira mi guía de viaje', url: location.href}).catch(()=>{}) : alert('Usa el menú del navegador para compartir el archivo')">Compartir</button>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Comparte el enlace de tu guía por WhatsApp, email o redes sociales.</p>
+        <button class="btn btn--primary" onclick="navigator.share ? navigator.share({title: document.title, text: 'Mira mi guía de viaje', url: location.href}).catch(()=>{}) : alert('Copia la URL del navegador y compártela')">Compartir</button>
       </div>
     `;
 
-    // Conversor de moneda — usa exchangerate.host (gratis, sin key)
-    const amountEl = document.getElementById('conv-amount');
-    const fromEl = document.getElementById('conv-from');
-    const toEl = document.getElementById('conv-to');
-    const resEl = document.getElementById('conv-result');
-    const rateEl = document.getElementById('conv-rate');
+    if (destCurr) {
+      const eurInput = document.getElementById('conv-eur');
+      const localInput = document.getElementById('conv-local');
+      const resFwd = document.getElementById('conv-result-fwd');
+      const resRev = document.getElementById('conv-result-rev');
+      const rateEl = document.getElementById('conv-rate');
+      let cachedRate = null;
 
-    async function doConvert() {
-      const a = parseFloat(amountEl.value) || 0;
-      const from = fromEl.value, to = toEl.value;
-      if (from === to) { resEl.textContent = fmtMoney(a, to); rateEl.textContent = ''; return; }
-      resEl.textContent = '…';
-      try {
-        const r = await fetch(`https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${a}`);
-        const j = await r.json();
-        if (j.result != null) {
-          resEl.textContent = fmtMoney(j.result, to);
-          rateEl.textContent = `Tasa: 1 ${from} = ${j.info?.rate?.toFixed(4) || '?'} ${to}`;
-        } else {
-          resEl.textContent = 'Error';
-        }
-      } catch (e) {
-        resEl.textContent = 'Sin conexión';
+      async function fetchRate() {
+        if (cachedRate) return cachedRate;
+        // Intentar con open.er-api.com (gratis, sin key, fiable)
+        try {
+          const r = await fetch('https://open.er-api.com/v6/latest/EUR');
+          const j = await r.json();
+          if (j.result === 'success' && j.rates && j.rates[destCurr]) {
+            cachedRate = j.rates[destCurr];
+            rateEl.textContent = '1 EUR = ' + cachedRate.toFixed(4) + ' ' + destCurr + ' (actualizado ' + (j.time_last_update_utc || 'hoy').split(' ').slice(0,4).join(' ') + ')';
+            return cachedRate;
+          }
+        } catch (e) {}
+        // Fallback: exchangerate.host
+        try {
+          const r2 = await fetch('https://api.exchangerate.host/latest?base=EUR&symbols=' + destCurr);
+          const j2 = await r2.json();
+          if (j2.rates && j2.rates[destCurr]) {
+            cachedRate = j2.rates[destCurr];
+            rateEl.textContent = '1 EUR = ' + cachedRate.toFixed(4) + ' ' + destCurr;
+            return cachedRate;
+          }
+        } catch (e) {}
+        rateEl.textContent = 'Sin conexión para obtener tasas';
+        return null;
       }
+
+      async function convertFwd() {
+        const a = parseFloat(eurInput.value) || 0;
+        const rate = await fetchRate();
+        if (rate) {
+          const result = a * rate;
+          resFwd.textContent = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(result) + ' ' + destCurr;
+        } else {
+          resFwd.textContent = 'Error';
+        }
+      }
+      async function convertRev() {
+        const a = parseFloat(localInput.value) || 0;
+        const rate = await fetchRate();
+        if (rate) {
+          const result = a / rate;
+          resRev.textContent = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(result);
+        } else {
+          resRev.textContent = 'Error';
+        }
+      }
+
+      eurInput.addEventListener('input', convertFwd);
+      localInput.addEventListener('input', convertRev);
+      convertFwd();
     }
-    [amountEl, fromEl, toEl].forEach(i => i.addEventListener('input', doConvert));
-    doConvert();
   }
 
   // ------------------------------------------------------
