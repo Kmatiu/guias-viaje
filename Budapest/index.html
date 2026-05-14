@@ -1091,7 +1091,6 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     "language": "es",
     "currency": "EUR",
     "cover_image": "cover.jpg",
-    "theme_color": "#1B6B93",
     "local_currency": "HUF"
   },
   "intro": {
@@ -2253,17 +2252,6 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 <!-- =========================================================
      LÓGICA
      ========================================================= -->
-
-<script>
-window.onerror = function(msg, src, line, col, err) {
-  var el = document.getElementById('page-home');
-  if (el) {
-    el.style.display = 'block';
-    el.innerHTML = '<div style="padding:20px;font-family:monospace;font-size:12px;color:red;background:#fff"><b>JS ERROR:</b><br>' + msg + '<br>Line: ' + line + '</div>';
-  }
-  return false;
-};
-</script>
 
 <script>
 (function () {
@@ -3654,11 +3642,7 @@ m.it.action();
 // ——————————————————
 // 8. ARRANQUE
 // ——————————————————
-if (document.readyState === ‘loading’) {
-document.addEventListener(‘DOMContentLoaded’, () => showPage(‘home’));
-} else {
 showPage(‘home’);
-}
 
 })();
 </script>
