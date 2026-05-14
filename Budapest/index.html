@@ -1091,6 +1091,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     "language": "es",
     "currency": "EUR",
     "cover_image": "cover.jpg",
+    "theme_color": "#1B6B93",
     "local_currency": "HUF"
   },
   "intro": {
@@ -2277,6 +2278,13 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 
   function loadStore() {
     try {
+      // Clear any data from previous broken versions (schema changes)
+      const schemaKey = STORE_KEY + '_schema';
+      const storedSchema = localStorage.getItem(schemaKey);
+      if (storedSchema !== '1.2') {
+        localStorage.removeItem(STORE_KEY);
+        localStorage.setItem(schemaKey, '1.2');
+      }
       const raw = localStorage.getItem(STORE_KEY);
       if (!raw) return { ...defaultStore };
       return { ...defaultStore, ...JSON.parse(raw) };
