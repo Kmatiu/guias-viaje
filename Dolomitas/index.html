@@ -1,1 +1,3031 @@
-hola
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#C65D3A">
+<title>Dolomitas · Junio 2027 — Carezza, Val Gardena, Cortina y Tre Cime</title>
+
+<!-- PWA: permite "Añadir a pantalla de inicio" en iOS y Android como app fullscreen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Guía">
+
+<!-- Icono para pantalla de inicio (una brújula mediterránea en SVG data URL) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='38' fill='%23C65D3A'/><circle cx='90' cy='90' r='55' fill='none' stroke='%23FAF4E8' stroke-width='4'/><polygon points='90,45 100,90 90,135 80,90' fill='%23FAF4E8'/><polygon points='45,90 90,100 135,90 90,80' fill='%23E6A23C' opacity='0.85'/><circle cx='90' cy='90' r='6' fill='%23FAF4E8'/></svg>">
+
+<!-- Web App Manifest embebido como data URL (funciona en Chrome/Edge Android) -->
+<link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Gu%C3%ADa%20de%20viaje%22%2C%22short_name%22%3A%22Gu%C3%ADa%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FAF4E8%22%2C%22theme_color%22%3A%22%23C65D3A%22%2C%22orientation%22%3A%22portrait%22%2C%22start_url%22%3A%22.%22%7D">
+
+<!-- Leaflet para el mapa interactivo -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
+
+<!-- Tipografías -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   TOKENS — paleta editorial mediterránea
+   ========================================================= */
+:root {
+  --c-terracotta: #C65D3A;
+  --c-terracotta-dark: #A34A2C;
+  --c-teal: #0F4C5C;
+  --c-teal-dark: #0A3540;
+  --c-cream: #FAF4E8;
+  --c-cream-2: #F2EADB;
+  --c-gold: #E6A23C;
+  --c-ink: #1A1A1A;
+  --c-ink-soft: #3A3A3A;
+  --c-muted: #6B6B6B;
+  --c-line: #E5DCC8;
+  --c-danger: #B84A3A;
+  --c-success: #4A7C59;
+
+  --bg: var(--c-cream);
+  --bg-card: #FFFFFF;
+  --bg-elev: var(--c-cream-2);
+  --text: var(--c-ink);
+  --text-soft: var(--c-ink-soft);
+  --text-muted: var(--c-muted);
+  --line: var(--c-line);
+  --accent: var(--c-terracotta);
+  --accent-ink: #FFFFFF;
+  --brand: var(--c-teal);
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+
+  --shadow-sm: 0 1px 2px rgba(26,26,26,0.04), 0 1px 3px rgba(26,26,26,0.06);
+  --shadow: 0 4px 12px rgba(26,26,26,0.08), 0 2px 4px rgba(26,26,26,0.04);
+  --shadow-lg: 0 12px 32px rgba(26,26,26,0.12), 0 4px 8px rgba(26,26,26,0.06);
+
+  --tabbar-height: 68px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --bg: #14110E;
+  --bg-card: #1F1B15;
+  --bg-elev: #2A251D;
+  --text: #F2EADB;
+  --text-soft: #D4CAB4;
+  --text-muted: #9A9485;
+  --line: #2F2921;
+  --accent: #E07A57;
+  --accent-ink: #14110E;
+  --brand: #4A9CAE;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow: 0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.6);
+}
+
+/* =========================================================
+   RESET & BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-bottom: calc(var(--tabbar-height) + var(--safe-bottom));
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; margin: 0; }
+h1 { font-size: clamp(28px, 7vw, 42px); }
+h2 { font-size: clamp(22px, 5.5vw, 30px); }
+h3 { font-size: 19px; }
+h4 { font-size: 16px; }
+p { margin: 0 0 12px; color: var(--text-soft); }
+small { color: var(--text-muted); }
+a { color: var(--accent); text-decoration: none; }
+button { font-family: inherit; border: none; cursor: pointer; background: none; color: inherit; }
+input, textarea, select { font-family: inherit; font-size: 16px; }
+
+/* =========================================================
+   LAYOUT — header + páginas + tabbar
+   ========================================================= */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: calc(14px + var(--safe-top)) 20px 14px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+@supports (background: color-mix(in srgb, red, blue)) {
+  .app-header {
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+  }
+}
+.app-header__title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+.app-header__actions { display: flex; gap: 4px; }
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text-soft);
+  transition: background var(--transition);
+}
+.icon-btn:hover, .icon-btn:active { background: var(--bg-elev); }
+.icon-btn svg { width: 20px; height: 20px; }
+
+.page { display: none; padding: 20px 20px 40px; max-width: 720px; margin: 0 auto; }
+.page.is-active { display: block; animation: fade-in 240ms ease; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Tabbar inferior */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  height: calc(var(--tabbar-height) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: var(--bg-card);
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+@supports (background: color-mix(in srgb, red, blue)) {
+  .tabbar {
+    background: color-mix(in srgb, var(--bg-card) 96%, transparent);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+  }
+}
+.tabbar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 8px 4px;
+  transition: color var(--transition);
+  position: relative;
+}
+.tabbar__item svg { width: 22px; height: 22px; }
+.tabbar__item.is-active { color: var(--accent); }
+.tabbar__item.is-active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--accent);
+}
+
+/* =========================================================
+   HOME
+   ========================================================= */
+.hero {
+  position: relative;
+  padding: 28px 22px 30px;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 85% 15%, rgba(230,162,60,0.22), transparent 55%),
+    linear-gradient(135deg, var(--c-teal) 0%, var(--c-teal-dark) 100%);
+  color: #F6EED9;
+  margin-bottom: 22px;
+  overflow: hidden;
+}
+.hero--with-image {
+  padding: 40px 22px 30px;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.hero--with-image .hero__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+.hero--with-image .hero__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.75) 100%);
+}
+.hero--with-image > *:not(.hero__bg) {
+  position: relative;
+  z-index: 1;
+}
+.hero--with-image .hero__title,
+.hero--with-image .hero__subtitle,
+.hero--with-image .hero__meta {
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3CfeColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.90 0 0 0 0 0.80 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.55;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+.hero__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-gold);
+  margin-bottom: 14px;
+}
+.hero__title {
+  color: #FAF4E8;
+  font-size: clamp(28px, 7vw, 38px);
+  margin-bottom: 6px;
+}
+.hero__subtitle {
+  color: rgba(250,244,232,0.85);
+  font-size: 15px;
+  line-height: 1.45;
+  margin-bottom: 18px;
+}
+.hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  font-size: 13px;
+  color: rgba(250,244,232,0.75);
+}
+.hero__meta-item { display: flex; align-items: center; gap: 6px; }
+
+.today-card {
+  margin-bottom: 22px;
+  padding: 18px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+.today-card__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.today-card__title { font-size: 17px; font-weight: 600; font-family: var(--font-display); margin-bottom: 6px; }
+.today-card__summary { font-size: 14px; color: var(--text-soft); margin: 0 0 12px; }
+.today-card__link { font-size: 13px; font-weight: 700; color: var(--accent); }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 28px 0 14px;
+  letter-spacing: -0.01em;
+}
+.section-title--small { font-size: 18px; margin: 22px 0 10px; }
+
+.props-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 520px) { .props-grid { grid-template-columns: 1fr 1fr; } }
+
+.prop-card {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.prop-card:active { transform: scale(0.98); }
+.prop-card__icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  background: var(--bg-elev);
+  border-radius: 10px;
+}
+.prop-card__title { font-size: 14px; font-weight: 700; margin-bottom: 2px; font-family: var(--font-body); }
+.prop-card__text { font-size: 13px; color: var(--text-soft); line-height: 1.45; }
+
+/* Historia colapsable */
+.history {
+  padding: 18px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+}
+.history__summary { font-size: 14px; color: var(--text-soft); margin: 0 0 10px; }
+.history__toggle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.history__detail { display: none; margin-top: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+.history.is-open .history__detail { display: block; }
+.history.is-open .history__toggle .chev { transform: rotate(180deg); }
+.chev { transition: transform 220ms ease; display: inline-block; }
+.history__period { margin-bottom: 14px; }
+.history__period-range {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 700;
+}
+.history__period-title { font-size: 16px; font-weight: 700; font-family: var(--font-display); margin: 2px 0 6px; }
+.history__period-text { font-size: 13.5px; color: var(--text-soft); line-height: 1.55; }
+
+/* =========================================================
+   DÍAS — lista y detalle
+   ========================================================= */
+.days-list { display: flex; flex-direction: column; gap: 10px; }
+.day-card {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  text-align: left;
+  width: 100%;
+  transition: transform var(--transition), border-color var(--transition);
+}
+.day-card:active { transform: scale(0.985); border-color: var(--accent); }
+.day-card__num {
+  flex-shrink: 0;
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elev);
+  border-radius: 10px;
+  padding: 8px 4px;
+}
+.day-card__num-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; }
+.day-card__num-value { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; }
+.day-card__date { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 3px; }
+.day-card__title { font-family: var(--font-display); font-size: 16px; font-weight: 600; margin-bottom: 4px; line-height: 1.25; }
+.day-card__summary { font-size: 13px; color: var(--text-soft); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.day-card__progress { margin-top: 8px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
+.progress-bar { flex: 1; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress-bar__fill { height: 100%; background: var(--c-success); transition: width 300ms ease; }
+
+/* Detalle día */
+.day-detail__head {
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.day-detail__eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 4px; }
+.day-detail__title { font-family: var(--font-display); font-size: 26px; font-weight: 600; line-height: 1.15; margin-bottom: 12px; }
+.day-detail__logistics {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.day-detail__logistics-item { display: flex; align-items: center; gap: 5px; }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: var(--line);
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 14px 14px 16px;
+  transition: border-color var(--transition), opacity var(--transition);
+}
+.tl-item.is-done { opacity: 0.55; }
+.tl-item.is-done .tl-item__title { text-decoration: line-through; }
+.tl-item::before {
+  content: attr(data-icon);
+  position: absolute;
+  left: -33px;
+  top: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.tl-item__head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.tl-item__time {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+.tl-item__check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--bg);
+  transition: all var(--transition);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.tl-item__check:hover { border-color: var(--accent); }
+.tl-item.is-done .tl-item__check { background: var(--c-success); border-color: var(--c-success); }
+.tl-item.is-done .tl-item__check::after {
+  content: "✓";
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+}
+.tl-item__title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.tl-item__description { font-size: 13.5px; color: var(--text-soft); line-height: 1.5; }
+.tl-item__place {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 8px;
+}
+
+/* Ficha de lugar */
+.place-card {
+  background: var(--bg-elev);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-top: 14px;
+}
+.place-card__name { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.place-card__review { font-size: 13px; color: var(--text-soft); line-height: 1.55; margin-bottom: 10px; }
+.place-card__meta { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 12.5px; margin-bottom: 10px; }
+.place-card__meta-item { display: flex; gap: 6px; }
+.place-card__meta-label { color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
+.place-card__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  transition: transform var(--transition), background var(--transition);
+}
+.btn:active { transform: scale(0.96); }
+.btn--primary { background: var(--accent); color: var(--accent-ink); }
+.btn--ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.btn--sm { padding: 6px 12px; font-size: 12px; }
+.btn svg { width: 14px; height: 14px; }
+
+/* Restaurantes */
+.restaurants { margin-top: 20px; }
+.rest-card {
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+.rest-card__head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.rest-card__name { font-weight: 700; font-size: 14.5px; }
+.rest-card__price { font-family: var(--font-display); color: var(--accent); font-weight: 700; font-size: 14px; }
+.rest-card__spec { font-size: 13px; color: var(--text-soft); }
+.rest-card__meal { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; background: var(--bg-elev); padding: 2px 8px; border-radius: 999px; color: var(--text-muted); margin-top: 6px; }
+
+/* Planes alternativos */
+.alt-plans { margin-top: 20px; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--line); overflow: hidden; }
+.alt-plan { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.alt-plan:last-child { border-bottom: none; }
+.alt-plan__label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--accent); margin-bottom: 3px; }
+.alt-plan__text { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+
+/* Info complementaria */
+.info-block { margin-top: 20px; }
+.info-block__title { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.info-block__list { list-style: none; padding: 0; margin: 0; }
+.info-block__list li { font-size: 13px; color: var(--text-soft); padding: 6px 0; border-bottom: 1px dashed var(--line); line-height: 1.45; }
+.info-block__list li:last-child { border-bottom: none; }
+
+/* Notas del día */
+.day-notes { margin-top: 24px; background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+.day-notes__label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; }
+.day-notes__textarea {
+  width: 100%;
+  min-height: 80px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  resize: vertical;
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+}
+
+/* =========================================================
+   MAPA
+   ========================================================= */
+#map { height: 340px; border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
+.map-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.map-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.map-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* =========================================================
+   CONSEJOS
+   ========================================================= */
+.tips-group {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.tips-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+.tips-group__header-left { display: flex; align-items: center; gap: 10px; }
+.tips-group__icon { font-size: 20px; }
+.tips-group__title { font-size: 15px; font-weight: 700; }
+.tips-group__chev { color: var(--text-muted); transition: transform 220ms ease; }
+.tips-group.is-open .tips-group__chev { transform: rotate(180deg); }
+.tips-group__body { display: none; padding: 0 16px 14px; }
+.tips-group.is-open .tips-group__body { display: block; }
+.tip-item { padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.tip-item:last-child { border-bottom: none; }
+.tip-item__subtitle { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.tip-item__text { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+
+/* =========================================================
+   MI VIAJE (equipaje, emergencias, presupuesto, apps)
+   ========================================================= */
+.me-section { margin-bottom: 22px; }
+.me-section__title { font-family: var(--font-display); font-size: 20px; font-weight: 600; margin-bottom: 12px; }
+
+.budget-total {
+  padding: 18px;
+  background: var(--brand);
+  color: #F6EED9;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.budget-total__label { font-size: 13px; opacity: 0.75; }
+.budget-total__amount { font-family: var(--font-display); font-size: 28px; font-weight: 700; }
+
+.budget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.budget-item {
+  padding: 12px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+.budget-item__label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 2px; }
+.budget-item__amount { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--accent); }
+
+.checklist-category { margin-bottom: 16px; }
+.checklist-category__title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--line);
+  cursor: pointer;
+  transition: opacity var(--transition);
+}
+.checklist-item:last-child { border-bottom: none; }
+.checklist-item.is-done { opacity: 0.45; }
+.checklist-item.is-done .ci-label { text-decoration: line-through; }
+.ci-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  transition: all var(--transition);
+}
+.checklist-item.is-done .ci-check { background: var(--c-success); border-color: var(--c-success); }
+.checklist-item.is-done .ci-check::after { content: "✓"; color: white; font-size: 11px; font-weight: 700; }
+.ci-label { font-size: 14px; }
+
+.emergency-card {
+  background: #FFF5F5;
+  border: 1px solid #FFCCCC;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+[data-theme="dark"] .emergency-card { background: #2A1515; border-color: #5A2020; }
+.emergency-card__item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px dashed #FFCCCC; font-size: 14px; }
+.emergency-card__item:last-child { border-bottom: none; }
+.emergency-card__label { font-weight: 700; color: var(--c-danger); flex-shrink: 0; min-width: 80px; }
+
+.app-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--line);
+}
+.app-item:last-child { border-bottom: none; }
+.app-item__icon {
+  width: 38px;
+  height: 38px;
+  background: var(--bg-elev);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.app-item__name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.app-item__purpose { font-size: 13px; color: var(--text-soft); line-height: 1.4; }
+
+/* =========================================================
+   BUSCADOR
+   ========================================================= */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+  display: none;
+  flex-direction: column;
+  padding: calc(16px + var(--safe-top)) 16px 16px;
+}
+.search-overlay.is-open { display: flex; }
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-elev);
+  border-radius: 999px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+}
+.search-bar input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--text);
+  outline: none;
+}
+.search-result {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+.search-result:active { background: var(--bg-elev); }
+.search-result__type { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+.search-result__title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.search-result__snippet { font-size: 12px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+#search-results { overflow-y: auto; flex: 1; }
+.empty-state { padding: 40px 0; text-align: center; color: var(--text-muted); font-size: 15px; }
+
+/* =========================================================
+   MODO OSCURO TOGGLE
+   ========================================================= */
+.theme-btn { font-size: 18px; }
+
+/* =========================================================
+   CONVERSOR + COMPARTIR
+   ========================================================= */
+.tool-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.tool-card__title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+.tool-card__row { display: flex; gap: 8px; align-items: center; }
+.tool-card__row input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+}
+.tool-card__result {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 4px;
+}
+</style>
+
+<!-- DATOS JSON DE LA GUÍA -->
+<script type="application/json" id="guide-data">
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "Dolomitas en 7 días: De Carezza a las Tre Cime",
+    "subtitle": "Road trip alpino desde Alicante/Valencia · Junio 2027",
+    "destination": {
+      "name": "Dolomitas",
+      "country": "Italia",
+      "region": "Trentino-Alto Adigio / Véneto"
+    },
+    "origin": {
+      "city": "Lorca / Valencia",
+      "country": "España"
+    },
+    "dates": {
+      "start": "2027-06-19",
+      "end": "2027-06-25",
+      "days": 7
+    },
+    "travelers": {
+      "adults": 2,
+      "children": 0,
+      "children_ages": []
+    },
+    "budget": {
+      "level": "medio",
+      "total_estimated": 2000,
+      "breakdown": {
+        "flights": 300,
+        "accommodation": 700,
+        "transport": 280,
+        "food": 420,
+        "activities": 200,
+        "shopping": 60,
+        "other": 40
+      }
+    },
+    "interests": [
+      "senderismo",
+      "naturaleza",
+      "fotografía",
+      "gastronomía tirolesa",
+      "drones"
+    ],
+    "transport": {
+      "to_destination": "avion",
+      "on_site": [
+        "coche_alquiler",
+        "a_pie"
+      ]
+    },
+    "language": "es",
+    "currency": "EUR",
+    "cover_image": "cover.jpg",
+    "theme_color": "#4A7C59"
+  },
+  "intro": {
+    "narrative": "Siete días para recorrer el techo de Italia en coche de alquiler desde el aeropuerto de Venecia: lagos de esmeralda, mesetas alpinas con flores silvestres, valles que parecen salidos de un cuento tirolés y las cimas más icónicas de los Alpes. Los Dolomitas, declarados Patrimonio Natural de la UNESCO en 2009, son uno de los paisajes montañosos más espectaculares del planeta. Este itinerario te lleva desde el mítico Lago di Carezza hasta las Tres Cimas de Lavaredo pasando por el Alpe di Siusi, el Valle di Funes, el Paso de Pordoi y los lagos de Braies y Sorapis. Reserva el aparcamiento de las Tres Cimas con antelación en auronzo.info, porque desde 2025 es obligatorio.",
+    "value_props": [
+      {
+        "icon": "🏔️",
+        "title": "Paisajes UNESCO",
+        "text": "Los Dolomitas son uno de los 15 Patrimonios Naturales de la UNESCO en Italia. Cada valle es una postal distinta: agujas de roca rosada, prados alpinos y lagos de color imposible."
+      },
+      {
+        "icon": "🚗",
+        "title": "Road trip perfecto",
+        "text": "Rutas panorámicas míticas como el Paso de Pordoi (2.239 m) y el Paso Giau (2.233 m). Carreteras espectaculares que son en sí mismas una experiencia."
+      },
+      {
+        "icon": "🥾",
+        "title": "Senderismo para todos",
+        "text": "Desde paseos fáciles alrededor del Lago di Braies hasta el circular de las Tres Cimas (10 km) o el Sendero Adolf Munkel en Val di Funes. Equipamiento completo de montaña imprescindible."
+      },
+      {
+        "icon": "🍺",
+        "title": "Gastronomía tirolesa",
+        "text": "Knödel de speck, canederli, Schlutzkrapfen (pasta rellena ladina), Strudel de manzana y vinos blancos del Alto Adigio. Una cocina a caballo entre Italia y Austria que enamora."
+      },
+      {
+        "icon": "📸",
+        "title": "Paraíso fotográfico",
+        "text": "La iglesia de San Giovanni in Ranui, el reflejo de las Odle en el lago del Rifugio, el amanecer sobre las Tres Cimas desde el Rifugio Auronzo. Momentos únicos para tu cámara."
+      },
+      {
+        "icon": "✈️",
+        "title": "Desde Valencia directo",
+        "text": "Ryanair y Wizz Air operan vuelos directos Valencia–Venecia Treviso durante el verano. El trayecto al lago Carezza desde el aeropuerto son poco más de 2 horas en coche."
+      }
+    ]
+  },
+  "history": {
+    "title": "Los Dolomitas: la historia escrita en piedra",
+    "summary": "Antes de ser un destino de postal, las Dolomitas fueron el campo de batalla más vertical de la Primera Guerra Mundial, el reino de pueblos ladinos que preservan una lengua milenaria, y el laboratorio geológico donde un geólogo francés descubrió una roca que hoy lleva su nombre. Caminar por estos valles es caminar sobre el fondo de un mar tropical que desapareció hace 250 millones de años.",
+    "periods": [
+      {
+        "range": "250 — 65 millones de años a.C.",
+        "title": "El mar que se convirtió en montaña",
+        "text": "Las torres y agujas que verás desde el Paso Giau (día 5) o sobre el Rifugio Odle (día 2) no son más que el esqueleto de un arrecife de coral tropical. Hace 250 millones de años, donde hoy se levantan las Tres Cimas de Lavaredo (2.999 m) existía un mar cálido y poco profundo en el que prosperaban esponjas y algas calcáreas. Los organismos marinos fueron acumulándose, capa a capa, durante millones de años hasta formar plataformas de caliza y dolomita de varios kilómetros de espesor. La colisión entre las placas tectónicas africana y euroasiática —iniciada hace unos 80 millones de años— empujó estos bloques hacia arriba con una violencia extraordinaria, creando las paredes verticales y los perfiles geométricos que distinguen a los Dolomitas de cualquier otro macizo alpino. El resultado es una roca con una particularidad química: está formada por dolomita, un carbonato doble de calcio y magnesio que toma ese color rosado al atardecer —el Enrosadira— que tantas veces has visto en fotografías."
+      },
+      {
+        "range": "Siglo XVIII",
+        "title": "El geólogo que dio nombre a una montaña",
+        "text": "En 1788, el geólogo y naturalista francés Déodat de Dolomieu visitó estas montañas y recogió muestras de una roca que no encajaba con ningún mineral conocido hasta entonces. Era carbonato de calcio, sí, pero con una proporción inusual de magnesio que le daba propiedades ópticas distintas. Dolomieu publicó sus observaciones y la ciencia le dio las gracias bautizando tanto el mineral —dolomita— como las montañas donde lo halló —los Dolomitas— con su nombre. Las mismas paredes que el geólogo estudió en el siglo XVIII son las que encuadrarán tus fotografías en el Lago Sorapis (día 4) o en las Tres Cimas (días 5 y 6)."
+      },
+      {
+        "range": "Época prehistórica — Siglo XV",
+        "title": "Los Ladinos: el pueblo que preservó una lengua romana",
+        "text": "Los valles de los Dolomitas no estaban vacíos cuando llegaron los romanos. Pero fue precisamente la romanización, a partir del siglo I a.C., la que dejó una huella lingüística extraordinaria: el ladino, una lengua romance que se ha hablado ininterrumpidamente en estos valles durante más de dos mil años. Los ladinos —el pueblo que verás representado en los museos de Ortisei, que visitaremos como base el día 2— son los herederos directos de las poblaciones rético-romanas que sobrevivieron a las invasiones medievales refugiándose en los valles más inaccesibles. Hoy quedan apenas 20.000 hablantes de ladino, distribuidos entre la Val Gardena, la Val Badia y la Val di Fassa. Ortisei, donde dormiremos, es la capital cultural de esta comunidad, con sus esculturas en madera que encontrarás en las tiendas del centro histórico."
+      },
+      {
+        "range": "Siglo XIX",
+        "title": "El descubrimiento alpinístico: los primeros escaladores",
+        "text": "A mediados del siglo XIX, los Dolomitas se convirtieron en el laboratorio del alpinismo europeo. Las primeras ascensiones registradas son de este período: la Marmolada fue escalada por primera vez en 1864 por Paul Grohmann, un austriaco que recorrió los valles en busca de cimas vírgenes. El sendero Adolf Munkel —que recorreremos en el Valle di Funes camino del Rifugio Odle el día 3— debe su nombre precisamente a Adolf Munkel (1856-1904), uno de los pioneros que trazó los primeros itinerarios de montaña en la zona de las Odle. En aquel tiempo, las agujas del gruppo delle Odle que verás recortarse sobre los prados de Santa Maddalena eran consideradas inescalables. Hoy son el motivo fotográfico más reproducido del Alto Adigio."
+      },
+      {
+        "range": "1915 — 1918",
+        "title": "La guerra blanca: trincheras a 3.000 metros",
+        "text": "La Primera Guerra Mundial convirtió los Dolomitas en el frente de combate más insólito de la historia. Cuando Italia declaró la guerra al Imperio Austro-Húngaro en mayo de 1915, la frontera pasaba exactamente por las cimas de estas montañas. Soldados de ambos bandos excavaron trincheras en el hielo, volaron túneles en la roca y dispararon cañones desde altitudes de 3.000 metros con temperaturas de -30°C. Las Tres Cimas de Lavaredo —que coronarán nuestro día 5— estuvieron en el epicentro de los combates: los austriacos ocupaban las cimas y los italianos atacaban desde abajo. Las gallerías excavadas por los austriacos bajo la Cima Grande aún son visitables. Más de 150.000 soldados murieron en este frente, muchos de ellos no por combate sino por avalanchas y congelamiento. Hoy, el Museo della Grande Guerra de Cortina d'Ampezzo —ciudad que sirve de base para los días 3 y 4— conserva una colección extraordinaria de este período."
+      },
+      {
+        "range": "1956 — Actualidad",
+        "title": "Los Juegos Olímpicos y el turismo moderno",
+        "text": "En 1956, Cortina d'Ampezzo acogió los VII Juegos Olímpicos de Invierno, transformándose de aldea alpina en destino de lujo internacional. Las instalaciones construidas para los Juegos —entre ellas la pista de bobsled que aún existe— dieron a Cortina una infraestructura hotelera y gastronómica que la convirtió en la joya de los Dolomitas. La ciudad volverá al foco mundial en 2026 cuando co-organice junto a Milán los XXV Juegos Olímpicos de Invierno, por lo que en junio de 2027, cuando la visitemos en los días 3 y 4, podrás ver los vestigios de esa transformación olímpica reciente. En 2009, los Dolomitas fueron inscritos en la Lista del Patrimonio Mundial de la UNESCO como 'Dolomites', reconociendo su valor geológico, paisajístico y cultural único. Ese mismo año, la afluencia turística se disparó y con ella las restricciones de acceso que hoy regulan lugares como el Lago di Braies o las Tres Cimas."
+      }
+    ]
+  },
+  "overview_map": {
+    "center": {
+      "lat": 46.55,
+      "lng": 11.85
+    },
+    "zoom": 9,
+    "markers": [
+      {
+        "day": 1,
+        "name": "Lago di Carezza",
+        "coords": {
+          "lat": 46.4089,
+          "lng": 11.5753
+        }
+      },
+      {
+        "day": 2,
+        "name": "Alpe di Siusi / Ortisei",
+        "coords": {
+          "lat": 46.5433,
+          "lng": 11.6567
+        }
+      },
+      {
+        "day": 3,
+        "name": "Valle di Funes / Cortina d'Ampezzo",
+        "coords": {
+          "lat": 46.5397,
+          "lng": 11.7478
+        }
+      },
+      {
+        "day": 4,
+        "name": "Lago di Braies",
+        "coords": {
+          "lat": 46.6942,
+          "lng": 12.0844
+        }
+      },
+      {
+        "day": 5,
+        "name": "Tres Cimas de Lavaredo",
+        "coords": {
+          "lat": 46.6175,
+          "lng": 12.2972
+        }
+      },
+      {
+        "day": 6,
+        "name": "Cadini di Misurina / Alleghe",
+        "coords": {
+          "lat": 46.4025,
+          "lng": 12.0244
+        }
+      },
+      {
+        "day": 7,
+        "name": "Aeropuerto Venecia VCE",
+        "coords": {
+          "lat": 45.5053,
+          "lng": 12.3519
+        }
+      }
+    ]
+  },
+  "summary": [
+    {
+      "day": 1,
+      "date": "2027-06-19",
+      "weekday": "sábado",
+      "title": "Aterrizaje y primer lago de esmeralda",
+      "summary": "Vuelo desde Valencia a Venecia Treviso, recogida del coche de alquiler y ruta directa al mítico Lago di Carezza. Primera noche en la zona de Nova Levante."
+    },
+    {
+      "day": 2,
+      "date": "2027-06-20",
+      "weekday": "domingo",
+      "title": "Alpe di Siusi: la meseta más grande de Europa",
+      "summary": "Teleférico desde Ortisei hasta el Alpe di Siusi, senderismo entre flores silvestres con vistas al Sassolungo y al Sciliar. Iglesia de San Valentín. Base en Ortisei."
+    },
+    {
+      "day": 3,
+      "date": "2027-06-21",
+      "weekday": "lunes",
+      "title": "Valle di Funes y Paso de Pordoi",
+      "summary": "Mañana en el Valle di Funes: la iglesia de San Giovanni y el Sendero Adolf Munkel hacia el Rifugio Odle. Tarde: cruzar el Paso de Pordoi y llegar a Cortina d'Ampezzo."
+    },
+    {
+      "day": 4,
+      "date": "2027-06-22",
+      "weekday": "martes",
+      "title": "Tres lagos: Braies, Sorapis y Landro",
+      "summary": "Lago di Braies al amanecer (antes de las 9:30 h para evitar restricciones de acceso), ruta al Lago Sorapis y paseo por el Lago di Landro. Base en Cortina d'Ampezzo."
+    },
+    {
+      "day": 5,
+      "date": "2027-06-23",
+      "weekday": "miércoles",
+      "title": "Paso Giau, Cinco Torres y Tres Cimas",
+      "summary": "Ruta panorámica por el Paso Giau y las Cinco Torres al amanecer. Por la tarde, reserva previa obligatoria para acceder a las Tres Cimas de Lavaredo y circular clásico."
+    },
+    {
+      "day": 6,
+      "date": "2027-06-24",
+      "weekday": "jueves",
+      "title": "Cadini di Misurina y bajada a Alleghe",
+      "summary": "Mañana en los Cadini di Misurina con vistas directas a las Tres Cimas. Tarde: descenso hacia el sur y base en el precioso Lago di Alleghe."
+    },
+    {
+      "day": 7,
+      "date": "2027-06-25",
+      "weekday": "viernes",
+      "title": "Regreso a Venecia",
+      "summary": "Mañana libre en Alleghe. Devolución del coche en el aeropuerto de Venecia y vuelo de regreso a Valencia."
+    }
+  ],
+  "days": [
+    {
+      "day": 1,
+      "date": "2027-06-19",
+      "title": "Aterrizaje y primer lago de esmeralda",
+      "hero_image": "",
+      "timeline": [
+        {
+          "time": "07:00",
+          "icon": "✈️",
+          "title": "Vuelo al norte de Italia",
+          "description": "Tienes tres buenas opciones directas: (A) ALC→BGY (Alicante→Bérgamo, Ryanair): la más barata, desde 15–50 €, pero son 3h 15 min en coche hasta el Lago di Carezza. (B) VLC→TSF (Valencia→Venecia Treviso, Ryanair/Wizz Air): más equilibrada, 33–80 €, solo 2h 15 min al primer destino. (C) Combinación open-jaw: ida ALC→BGY (barata) + vuelta VCE→ALC (cómoda). No uses MJV (Murcia): no tiene vuelos directos al norte de Italia. Consulta precios definitivos en Ryanair.com o Google Flights.",
+          "type": "transport",
+          "duration_min": 130
+        },
+        {
+          "time": "10:00",
+          "icon": "🚗",
+          "title": "Recogida del coche de alquiler",
+          "description": "Oficinas de alquiler en el aeropuerto de llegada: en BGY (Bérgamo) están en la planta baja de la terminal. En TSF (Treviso) en el mismo edificio de llegadas. En VCE (Marco Polo) en la planta 3 del parking P1. Reserva con antelación en Rentalcars o Skyscanner: semana compacto ronda 200–350 €. Confirma que el CDW esté incluido y recuerda: necesitas la matrícula del coche para hacer la reserva del parking de las Tres Cimas en auronzo.info.",
+          "type": "transport",
+          "duration_min": 45
+        },
+        {
+          "time": "11:30",
+          "icon": "🛣️",
+          "title": "Ruta hacia el Lago di Carezza",
+          "description": "Desde BGY (Bérgamo): A4 este hasta Verona, A22 norte hasta Bolzano, SS241 hasta Nova Levante. ≈ 3h 15 min, 265 km, peajes aprox. 20–25 €. Desde TSF/VCE (Venecia): A27 norte hasta Belluno, SS51/SS48. ≈ 2h 15 min, 145 km, peajes aprox. 10–15 €. La ruta desde Bérgamo pasa por el lago de Garda y el valle del Adige: preciosa pero más larga. Lleva algo de música y no tengas prisa.",
+          "type": "transport",
+          "duration_min": 135
+        },
+        {
+          "time": "14:00",
+          "icon": "🏔️",
+          "title": "Lago di Carezza (Karersee)",
+          "description": "El lago más fotogénico del Alto Adigio: sus aguas de color esmeralda reflejan las agujas del Latemar. El parking oficial junto al lago (Parking 1) cuesta aprox. 3 €/h para turismos. Hay un parking gratuito a 15 min a pie (Via Bellavista, máx. 2 h). El circuito alrededor del lago lleva unos 20 min. Madruga o llega tarde para evitar la masificación.",
+          "type": "visit",
+          "place_id": "lago-carezza",
+          "duration_min": 90
+        },
+        {
+          "time": "16:00",
+          "icon": "🏨",
+          "title": "Check-in en alojamiento zona Nova Levante / Welschnofen",
+          "description": "Nova Levante (Welschnofen) es el pueblo más cercano al Lago di Carezza, a unos 3 km. Hoteles recomendados: Hotel Posta Cavallino, Hotel Steinbock. También puedes optar por Ega/Kaltenbrunn. Los precios en temporada de verano rondan los 80–120 € la habitación doble con desayuno.",
+          "type": "checkin",
+          "duration_min": 30
+        },
+        {
+          "time": "19:30",
+          "icon": "🍽️",
+          "title": "Cena en Nova Levante",
+          "description": "Primera toma de contacto con la cocina tirolesa: prueba los Knödel (bolas de pan con speck o queso), el Gulasch de ternera o el Schlutzkrapfen (pasta ladina rellena de spinach y ricotta). El restaurante del Hotel Kupferkanne en el parking del lago tiene fama de buen precio y cocina local.",
+          "type": "meal",
+          "duration_min": 90
+        }
+      ],
+      "places": [
+        {
+          "id": "lago-carezza",
+          "name": "Lago di Carezza (Karersee)",
+          "coords": {
+            "lat": 46.4089,
+            "lng": 11.5753
+          },
+          "review": "Uno de los lagos más fotografiados de los Dolomitas por sus aguas verdeesmeralda y el reflejo del macizo del Latemar. Pequeño (el circuito lleva solo 20 min) pero de un impacto visual extraordinario. Mejor visitarlo a primera o última hora del día para evitar las multitudes de autobuses turísticos.",
+          "hours": "Abierto todo el día. Parking 1 atendido aprox. 8:00–20:00 h",
+          "price": "Entrada gratuita. Parking 1: aprox. 3 €/h turismos. Parking gratuito a 15 min a pie.",
+          "tips": "La luz es mejor a última hora de la tarde. Para el mejor reflejo, busca el ángulo desde el extremo sur del lago. No se puede bañar: es reserva natural protegida.",
+          "gmaps_url": "https://maps.app.goo.gl/YFNkZ1234LagoDiCarezza",
+          "verified_at": null
+        }
+      ],
+      "restaurants": [
+        {
+          "name": "Ristorante Kupferkanne",
+          "meal": "cena",
+          "speciality": "Knödel con speck, Schlutzkrapfen ladini",
+          "price_range": "€€",
+          "reservation_required": false,
+          "notes": "Junto al aparcamiento del lago. Cocina tirolesa familiar, fama de buena relación calidad-precio. Abierto en temporada de verano.",
+          "gmaps_url": "https://maps.app.goo.gl/KupferkanneLago"
+        }
+      ],
+      "alternative_plans": {
+        "more_time": "Si llegáis antes de las 13:00, podéis añadir un paseo por el Passo Costalunga (km 0 de ruta al lago desde Bolzano) y visitar el pueblo de Nova Levante, con su iglesia barroca del siglo XVII.",
+        "less_time": "Si el vuelo llega tarde o hay retrasos, el Lago di Carezza puede visitarse en solo 30 min con una vuelta rápida. Lo más importante es el check-in y descanso para el día siguiente.",
+        "rainy_day": "Con lluvia, el lago pierde parte de su magia reflejante. Alternativa: el Museo de la Val d'Ega en Cardano o explorar el pueblo de Nova Levante cubierto."
+      },
+      "logistics": {
+        "driving_km": 145,
+        "driving_time_min": 135,
+        "walking_km": 1,
+        "walking_time_min": 20,
+        "public_transport": "Bus línea 180 desde Bolzano hasta el lago (parada justo enfrente). No recomendado el día 1 si lleváis equipaje."
+      },
+      "info": {
+        "travel_tips": [
+          "Registra el operador de dron en D-Flight (ENAC Italia) antes del viaje: obligatorio para drones con cámara. Coste: 90 € (único pago). Web: d-flight.it",
+          "Descarga la app D-Flight para comprobar zonas de vuelo permitidas en tiempo real: los parques naturales están restringidos.",
+          "Guarda monedas de 1 y 2 € para las máquinas de parking de montaña: muchas no aceptan tarjeta.",
+          "El GPS puede fallar en los valles profundos: descarga los mapas offline de Google Maps o Maps.me antes de salir."
+        ],
+        "access": [
+          "Desde Venecia: A27 norte → Belluno → SS51 → SS48 hacia Predazzo → Passo di Costalunga → Nova Levante.",
+          "Desde Treviso TSF: Misma ruta pero empieza en la SP102 hacia Conegliano y luego A27."
+        ],
+        "facts": [
+          "El Lago di Carezza debe su nombre ('Karersee' en alemán) a una leyenda ladina: un brujo intentó atrapar a la ninfa del lago lanzando un arcoíris sobre ella. La ninfa huyó pero el arcoíris se hundió en el agua, tiñéndola de colores eternamente.",
+          "El macizo del Latemar que rodea el lago es Patrimonio UNESCO. Sus torres alcanzan los 2.842 m."
+        ]
+      }
+    },
+    {
+      "day": 2,
+      "date": "2027-06-20",
+      "title": "Alpe di Siusi: flores silvestres sobre los Dolomitas",
+      "hero_image": "",
+      "timeline": [
+        {
+          "time": "08:30",
+          "icon": "🚗",
+          "title": "Traslado Nova Levante → Ortisei (≈ 40 min)",
+          "description": "Ruta por el Val d'Ega y luego la Val Gardena. Paisaje espectacular todo el trayecto. Ortisei (Urtijëi en ladino) es la capital del Val Gardena y el punto de acceso al teleférico del Alpe di Siusi.",
+          "type": "transport",
+          "duration_min": 40
+        },
+        {
+          "time": "09:30",
+          "icon": "🚡",
+          "title": "Teleférico Ortisei → Alpe di Siusi (Mont Sëuc)",
+          "description": "El teleférico Funivia Ortisei – Alpe di Siusi asciende hasta la estación Mont Sëuc en pocos minutos. Precio: aprox. 23 € por persona ida y vuelta (precio mid-junio 2025: 46 € dos adultos sin regreso). El teleférico opera en temporada de verano aproximadamente de junio a octubre; confirma horarios en funiviaortisei.eu. Aparcamiento de pago junto a la estación base.",
+          "type": "transport",
+          "place_id": "teleferico-ortisei",
+          "duration_min": 15
+        },
+        {
+          "time": "10:00",
+          "icon": "🌸",
+          "title": "Senderismo en el Alpe di Siusi",
+          "description": "La meseta alpina más grande de Europa (56 km²) a 1.850 m de altitud. En junio es una explosión de flores silvestres (casi 800 especies). Ruta recomendada: circular desde Compatsch pasando por Saltria y el Rifugio Sanon (≈ 8–10 km, 3h). El Sassolungo y el Sciliar enmarcan el horizonte en todo momento. Las tormentas son frecuentes por la tarde: sal antes de las 14:00 h.",
+          "type": "activity",
+          "place_id": "alpe-di-siusi",
+          "duration_min": 180
+        },
+        {
+          "time": "13:30",
+          "icon": "🍽️",
+          "title": "Almuerzo en refugio de montaña",
+          "description": "Los rifugio del Alpe di Siusi sirven comida de montaña excelente: Gulasch, Knödel de queso, Strudel de manzana casero. Muchos solo aceptan efectivo. El Rifugio Sanon (Str. Saltria 59, Alpe di Siusi) es uno de los más recomendados por viajeros.",
+          "type": "meal",
+          "duration_min": 60
+        },
+        {
+          "time": "15:30",
+          "icon": "⛪",
+          "title": "Iglesia de San Valentín (Kapelle St. Valentin)",
+          "description": "Pequeña capilla del siglo XIV en el Alpe di Siusi, con vistas directas al Sassolungo. Una de las imágenes más icónicas de los Dolomitas. Accesible a pie desde Compatsch (≈ 1 km). Fotografía imprescindible.",
+          "type": "visit",
+          "place_id": "san-valentin",
+          "duration_min": 30
+        },
+        {
+          "time": "16:30",
+          "icon": "🚡",
+          "title": "Regreso en teleférico a Ortisei",
+          "description": "Bajada en teleférico incluida en el billete de ida y vuelta.",
+          "type": "transport",
+          "duration_min": 15
+        },
+        {
+          "time": "17:30",
+          "icon": "🏨",
+          "title": "Check-in en Ortisei",
+          "description": "Ortisei tiene una buena oferta de hoteles con baño privado. Opciones recomendadas: Hotel Angelo (3 estrellas, centro), Hotel Cosmea (3 estrellas, buen desayuno tirolés). Precio orientativo: 90–130 € doble con desayuno.",
+          "type": "checkin",
+          "duration_min": 30
+        },
+        {
+          "time": "20:00",
+          "icon": "🍽️",
+          "title": "Cena en Ortisei",
+          "description": "Prueba el restaurante Four (Piazza della Chiesa, Ortisei) para cocina tirolesa y mediterránea con vistas a la iglesia, o la Enoteca Cercia (Via Rezia 30) para vinos del Alto Adigio con platos de temporada. Ambos son de buena relación calidad-precio.",
+          "type": "meal",
+          "duration_min": 90
+        }
+      ],
+      "places": [
+        {
+          "id": "alpe-di-siusi",
+          "name": "Alpe di Siusi (Seiser Alm)",
+          "coords": {
+            "lat": 46.5433,
+            "lng": 11.6567
+          },
+          "review": "La meseta alpina más grande de Europa: 56 km² a 1.850 m de altitud con vistas directas al Sassolungo, el Sciliar y las Odle. En junio es un tapiz de flores silvestres que justifica por sí solo el viaje. Ideal para senderismo suave y fotografía.",
+          "hours": "Acceso libre. Teleférico desde Ortisei: consultar temporada en funiviaortisei.eu",
+          "price": "Teleférico aprox. 23 € / persona ida y vuelta. Carretera con coche restringida entre 9:00–17:00 h.",
+          "tips": "Empieza temprano para evitar nubes y tormentas de tarde. Lleva ropa de abrigo aunque salgas con sol: la temperatura puede bajar rápido. Los rifugio suelen pedir efectivo.",
+          "gmaps_url": "https://maps.app.goo.gl/AlpeDiSiusi",
+          "verified_at": null
+        },
+        {
+          "id": "teleferico-ortisei",
+          "name": "Funivia Ortisei – Alpe di Siusi (Mont Sëuc)",
+          "coords": {
+            "lat": 46.5747,
+            "lng": 11.6736
+          },
+          "review": "El acceso más cómodo y espectacular al Alpe di Siusi desde Ortisei. El trayecto dura pocos minutos y las vistas durante el ascenso ya merecen el precio.",
+          "hours": "Temporada verano: aprox. junio–octubre. Verificar en funiviaortisei.eu",
+          "price": "Aprox. 46 € dos adultos ida y vuelta (precio junio 2025).",
+          "tips": "Reserva online si hay opción para evitar colas. Aparcamiento de pago junto a la estación base en Ortisei.",
+          "gmaps_url": "https://maps.app.goo.gl/FuniviaOrtisei",
+          "verified_at": null
+        },
+        {
+          "id": "san-valentin",
+          "name": "Cappella di San Valentino (Alpe di Siusi)",
+          "coords": {
+            "lat": 46.5283,
+            "lng": 11.6517
+          },
+          "review": "Pequeña capilla del siglo XIV con el Sassolungo de fondo: una de las vistas más icónicas de los Dolomitas. El acceso es fácil desde Compatsch y la fotografía es imprescindible al atardecer.",
+          "hours": "Abierta todo el día (exterior). Interior: solo para culto.",
+          "price": "Acceso gratuito.",
+          "tips": "El ángulo clásico es desde el noroeste, con la capilla en primer plano y el Sassolungo detrás. Mejor luz al amanecer o media tarde.",
+          "gmaps_url": "https://maps.app.goo.gl/SanValentinAlpe",
+          "verified_at": null
+        }
+      ],
+      "restaurants": [
+        {
+          "name": "Rifugio Sanon (Malga Sanon)",
+          "meal": "almuerzo",
+          "speciality": "Knödel de queso, Gulasch de montaña, Strudel",
+          "price_range": "€€",
+          "reservation_required": false,
+          "notes": "Str. Saltria 59, Alpe di Siusi. Ambiente familiar de refugio de montaña. Mayormente efectivo. Abierto en temporada.",
+          "gmaps_url": "https://maps.app.goo.gl/RifugioSanon"
+        },
+        {
+          "name": "Ristorante Four",
+          "meal": "cena",
+          "speciality": "Cuisine tirolesa y mediterránea, pizza artesanal",
+          "price_range": "€€",
+          "reservation_required": true,
+          "notes": "Piazza della Chiesa, Ortisei. En el corazón peatonal de Ortisei. Recomendado por viajeros en temporada 2025.",
+          "gmaps_url": "https://maps.app.goo.gl/RistoranteFourOrtisei"
+        }
+      ],
+      "alternative_plans": {
+        "more_time": "Si el teleférico lleva temprano, añade el Sendero Panorámico desde Compatsch hasta Saltria (6 km, 2h) y la bajada a pie hasta Ortisei por el sendero del bosque (2h más). Una jornada épica de casi 15 km.",
+        "less_time": "Si las piernas no acompañan o el tiempo no es bueno, es posible llegar en coche a Compatsch (restricción entre 9:00–17:00 h; fuera de ese horario se puede acceder en coche). Un paseo de 1 hora alrededor de Compatsch ya merece la subida.",
+        "rainy_day": "Con lluvia baja, el Alpe di Siusi puede estar entre nubes y perder visibilidad. Alternativa: el Museo della Val Gardena (Museum Gherdëina) en Ortisei, dedicado al arte ladino y la historia del valle."
+      },
+      "logistics": {
+        "driving_km": 38,
+        "driving_time_min": 40,
+        "walking_km": 10,
+        "walking_time_min": 180,
+        "public_transport": "Bus público desde Castelrotto o Siusi a Compatsch. En temporada de verano hay buena frecuencia."
+      },
+      "info": {
+        "travel_tips": [
+          "El acceso en coche a la carretera de Compatsch está restringido entre las 9:00 y las 17:00 h: usa el teleférico o el autobús en esas horas.",
+          "Los refugios del Alpe di Siusi no siempre aceptan tarjeta: lleva al menos 30–40 € en efectivo para comida.",
+          "Las tormentas de tarde son muy frecuentes en junio. Empieza los senderos antes de las 10:00 h y planea estar bajando antes de las 14:00 h."
+        ],
+        "access": [
+          "Teleférico Funivia Ortisei desde el centro de Ortisei: funiviaortisei.eu",
+          "Telecabina Seiser Alm Bahn desde Siusi allo Sciliar hasta Compatsch: alternativa más económica."
+        ],
+        "facts": [
+          "El Alpe di Siusi alberga casi 800 especies de plantas, muchas de ellas endémicas de los Alpes.",
+          "En invierno es la mayor zona de esquí de alta altitud de los Alpes con más de 60 km de pistas."
+        ]
+      }
+    },
+    {
+      "day": 3,
+      "date": "2027-06-21",
+      "title": "Valle di Funes, las Odle y el Paso de Pordoi",
+      "hero_image": "",
+      "timeline": [
+        {
+          "time": "07:30",
+          "icon": "🚗",
+          "title": "Traslado Ortisei → Valle di Funes (≈ 45 min)",
+          "description": "Ruta por Bressanone (Brixen) y luego el valle hasta Santa Maddalena. El Valle di Funes es uno de los valles más hermosos y menos masificados del Alto Adigio.",
+          "type": "transport",
+          "duration_min": 45
+        },
+        {
+          "time": "08:30",
+          "icon": "⛪",
+          "title": "Iglesia de San Giovanni in Ranui",
+          "description": "La capilla más fotografiada de los Dolomitas: una pequeña iglesia del siglo XVII en un prado verde esmeralda con las agujas verticales del Gruppo delle Odle de fondo. El mirador gratuito está junto a la carretera principal. El acceso al recinto de la capilla cuesta 4 € (torno metálico). Merece la pena madrugue: antes de las 9:00 h casi no hay nadie.",
+          "type": "visit",
+          "place_id": "san-giovanni-ranui",
+          "duration_min": 60
+        },
+        {
+          "time": "09:45",
+          "icon": "🥾",
+          "title": "Sendero Adolf Munkel → Rifugio Odle (Geisleralm)",
+          "description": "Desde el aparcamiento de Malga Zannes (10 € turismo, reserva en zannesalm.com). El Sendero Adolf Munkel (Weg nr. 35) es uno de los más bellos de los Dolomitas: transcurre a media ladera bajo las agujas verticales del Gruppo delle Odle durante 6 km hasta el Rifugio Odle (Geisleralm). Desnivel aprox. 400 m. El refugio tiene una terraza espectacular con tumbonas para contemplar las Odle de frente —el 'cine de Odle'—. OJO: el Rifugio Odle NO permite pernoctar. Solo restaurante y terraza.",
+          "type": "activity",
+          "place_id": "rifugio-odle",
+          "duration_min": 180
+        },
+        {
+          "time": "13:00",
+          "icon": "🍽️",
+          "title": "Almuerzo en el Rifugio Odle",
+          "description": "Huevos fritos con jamón y patatas, Knödel de espinacas, cerveza artesanal tirolesa en la terraza con las Odle de fondo. Una de las experiencias gastronómicas más memorables del viaje. Lleva efectivo.",
+          "type": "meal",
+          "duration_min": 60
+        },
+        {
+          "time": "14:30",
+          "icon": "🚗",
+          "title": "Regreso y ruta al Paso de Pordoi (≈ 1h 45 min)",
+          "description": "Desde Funes hacia Bressanone, luego sur por la Val Gardena y Val di Fassa hasta el Paso de Pordoi (2.239 m). La carretera del Pordoi es una de las míticas del ciclismo alpino: 33 curvas en un solo lado. Las vistas desde el paso son soberbias.",
+          "type": "transport",
+          "duration_min": 105
+        },
+        {
+          "time": "17:00",
+          "icon": "🏔️",
+          "title": "Parada en el Paso de Pordoi",
+          "description": "El Paso de Pordoi (2.239 m) conecta la Val di Fassa con la Val Badia. Tiene una gran esplanada con refugios, tiendas de souvenirs y una terraza con vistas directas a la Marmolada (3.343 m, el glaciar más alto de los Dolomitas). Parada obligatoria de 30–45 min.",
+          "type": "visit",
+          "place_id": "paso-pordoi",
+          "duration_min": 45
+        },
+        {
+          "time": "18:30",
+          "icon": "🚗",
+          "title": "Ruta final a Cortina d'Ampezzo (≈ 1h 10 min)",
+          "description": "Desde el Paso de Pordoi bajas hacia Arabba y luego por el Paso Falzarego (2.105 m) hasta Cortina. Otro paso espectacular que puedes disfrutar aunque sea al atardecer.",
+          "type": "transport",
+          "duration_min": 70
+        },
+        {
+          "time": "20:00",
+          "icon": "🏨",
+          "title": "Check-in en Cortina d'Ampezzo",
+          "description": "Cortina es cara. Para presupuesto ajustado: Hotel Fiames (3 estrellas, a 3 km del centro), o apartamentos en Airbnb en las afueras. En el centro: Hotel de la Poste (4 estrellas, histórico, más caro). Precio orientativo: 100–160 € doble.",
+          "type": "checkin",
+          "duration_min": 30
+        },
+        {
+          "time": "21:00",
+          "icon": "🍽️",
+          "title": "Cena en Cortina",
+          "description": "Ristorante El Camineto (Largo delle Poste, Cortina): decoración de chalet tirolés, pizzas excelentes y primeros platos a precios razonables para lo que es Cortina. Opción económica: Bar dello Sport para un aperitivo y bocadillo en la terraza.",
+          "type": "meal",
+          "duration_min": 90
+        }
+      ],
+      "places": [
+        {
+          "id": "san-giovanni-ranui",
+          "name": "Kirchlein St. Johann in Ranui (San Giovanni in Ranui)",
+          "coords": {
+            "lat": 46.6683,
+            "lng": 11.775
+          },
+          "review": "Considerada la postal más icónica del Alto Adigio: una pequeña capilla del siglo XVII con las agujas del Gruppo delle Odle de fondo. Brutal antes de las 9:00 h. El mirador junto a la carretera es gratuito; el acceso al recinto cuesta 4 €.",
+          "hours": "Mirador: todo el día. Interior capilla: horarios de culto.",
+          "price": "Mirador gratuito. Acceso al recinto: 4 € (torno). Parking zona: 16 € turismo (7:00–21:00 h).",
+          "tips": "Llega antes de las 8:30 h para fotografía sin gente. El parking más cercano a la capilla (Waldschenke) es el inicio del sendero al Rifugio Odle.",
+          "gmaps_url": "https://maps.app.goo.gl/SanGiovanniRanui",
+          "verified_at": null
+        },
+        {
+          "id": "rifugio-odle",
+          "name": "Rifugio Odle (Geisleralm / Malga Geisler)",
+          "coords": {
+            "lat": 46.6606,
+            "lng": 11.7867
+          },
+          "review": "Refugio-restaurante a 2.033 m con la mejor terraza de los Dolomitas: las agujas del Gruppo delle Odle se alzan verticales a pocos metros. El 'cine de Odle' (tumbonas de madera mirando las cimas) es uno de esos momentos únicos de montaña. NO se puede pernoctar aquí.",
+          "hours": "Abierto en temporada de verano, aprox. junio–octubre. Confirma en geisleralm.com",
+          "price": "Acceso gratuito (pagas el parking en Malga Zannes: 10 € turismo). Comida a precios de rifugio.",
+          "tips": "Lleva efectivo. La ruta por el Sendero Adolf Munkel (Weg 35) desde Malga Zannes es la más bonita: 6 km, 400 m desnivel, 2h de subida.",
+          "gmaps_url": "https://maps.app.goo.gl/RifugioOdle",
+          "verified_at": null
+        },
+        {
+          "id": "paso-pordoi",
+          "name": "Passo Pordoi",
+          "coords": {
+            "lat": 46.4875,
+            "lng": 11.8186
+          },
+          "review": "Uno de los pasos de alta montaña más icónicos de los Dolomitas (2.239 m). Vistas directas a la Marmolada. En verano hay varios restaurantes y tiendas. Punto mítico del Giro d'Italia.",
+          "hours": "Acceso libre. Restaurantes y servicios aprox. 8:00–18:00 h en temporada.",
+          "price": "Acceso gratuito.",
+          "tips": "Aunque solo pares 30 min, merece la pena bajarse del coche. El teleférico desde el Paso hasta el Sass Pordoi (2.952 m) es opcional si tenéis tiempo.",
+          "gmaps_url": "https://maps.app.goo.gl/PasoPordoi",
+          "verified_at": null
+        }
+      ],
+      "restaurants": [
+        {
+          "name": "Rifugio Odle (Geisleralm)",
+          "meal": "almuerzo",
+          "speciality": "Huevos con speck, Knödel de espinacas, cerveza tirolesa",
+          "price_range": "€€",
+          "reservation_required": false,
+          "notes": "Solo efectivo. Posiblemente lleno en horas punta de verano. Llega antes de las 13:00 h.",
+          "gmaps_url": "https://maps.app.goo.gl/RifugioOdle"
+        },
+        {
+          "name": "Ristorante El Camineto",
+          "meal": "cena",
+          "speciality": "Pizza al horno de leña, cappellacci con speck, pasta tirolesa",
+          "price_range": "€€",
+          "reservation_required": true,
+          "notes": "Largo delle Poste, Cortina d'Ampezzo. Decoración de chalet, uno de los más razonables de precio en Cortina. Reserva recomendada en temporada.",
+          "gmaps_url": "https://maps.app.goo.gl/ElCaminetoCortina"
+        }
+      ],
+      "alternative_plans": {
+        "more_time": "Si llegas pronto al Valle di Funes, amplia el recorrido del Sendero Adolf Munkel hasta el Rifugio Gampenalm (Weg 35a) y haz el circular completo bajando por el Weg 36 (3h más). Una de las mejores jornadas de senderismo de los Dolomitas.",
+        "less_time": "Si el tiempo aprieta, omite el Paso de Pordoi y ve directamente a Cortina por el Paso Falzarego. Pierdes un paso espectacular pero llegas con luz para dar un paseo por el Corso Italia de Cortina.",
+        "rainy_day": "Con lluvia el Rifugio Odle sigue siendo visitable (la terraza cubierta es acogedora). El Paso de Pordoi entre niebla tiene una atmósfera casi mística. En caso de tormenta fuerte, visita el Museo della Grande Guerra en Cortina d'Ampezzo."
+      },
+      "logistics": {
+        "driving_km": 145,
+        "driving_time_min": 175,
+        "walking_km": 12,
+        "walking_time_min": 240,
+        "public_transport": "Bus línea 330 desde Bressanone a Malga Zannes (Val di Funes). Para el Paso de Pordoi: bus SAD desde Arabba."
+      },
+      "info": {
+        "travel_tips": [
+          "El parking de Malga Zannes (Val di Funes) tiene plazas limitadas. Llega antes de las 8:30 h en temporada alta. Se puede reservar online.",
+          "El Paso de Pordoi puede tener niebla incluso en verano. Si está despejado, sube al Sass Pordoi (teleférico, aprox. 15 €) para vistas de 360° sobre los Dolomitas.",
+          "En Cortina, el aparcamiento es escaso y caro: usa los parking públicos P1 y P2 en las afueras del centro."
+        ],
+        "access": [
+          "Val di Funes: desde Ortisei → Bressanone → SS12 hacia Chiusa → SP83 valle arriba hasta Santa Maddalena.",
+          "Paso de Pordoi: desde Val di Funes → Bressanone → Chiusa → Bolzano → SS241 → Val di Fassa → Passo Pordoi."
+        ],
+        "facts": [
+          "El Sendero Adolf Munkel debe su nombre a Adolf Munkel (1856-1904), pionero del montañismo dolomítico y figura clave en el desarrollo de la red de senderos de Val di Funes.",
+          "El Giro d'Italia ha coronado el Paso de Pordoi más de 50 veces: es el Cima Coppi (punto más alto) más repetido de la historia de la carrera."
+        ]
+      }
+    },
+    {
+      "day": 4,
+      "date": "2027-06-22",
+      "title": "Tres lagos azules: Braies, Sorapis y Landro",
+      "hero_image": "",
+      "timeline": [
+        {
+          "time": "06:30",
+          "icon": "🚗",
+          "title": "Salida temprana hacia el Lago di Braies (≈ 55 min)",
+          "description": "FUNDAMENTAL: La carretera al Lago di Braies cierra al tráfico privado entre las 9:30 y las 16:00 h en temporada (del 10 junio al 10 septiembre aprox.). Sal antes de las 6:30 para llegar antes de las 9:00 h y tener el lago casi solo. Los parkings P2 y P3 abren al amanecer.",
+          "type": "transport",
+          "duration_min": 55
+        },
+        {
+          "time": "07:30",
+          "icon": "🏞️",
+          "title": "Lago di Braies al amanecer",
+          "description": "El lago de los sueños: aguas turquesas perfectas rodeadas de abetos y el Seekofel de fondo. El circuito completo son 3,5 km (45 min). Alquiler de barcas desde las 9:30 h (5–8 €/15 min). El amanecer en el lago es uno de esos momentos que quedan grabados para siempre. El Hotel Pragser Wildsee sobre la orilla es la imagen más reproducida.",
+          "type": "visit",
+          "place_id": "lago-braies",
+          "duration_min": 120
+        },
+        {
+          "time": "10:00",
+          "icon": "🚗",
+          "title": "Traslado al Lago di Sorapis (≈ 1h 10 min)",
+          "description": "Ruta de vuelta hacia Cortina d'Ampezzo pasando por San Candido y Dobbiaco. Aparca en el Rifugio Tre Croci (2.042 m, junto a la carretera SS48, aprox. 5 € el parking).",
+          "type": "transport",
+          "duration_min": 70
+        },
+        {
+          "time": "11:30",
+          "icon": "🥾",
+          "title": "Ruta al Lago Sorapis (ida y vuelta: ≈ 3h)",
+          "description": "Una de las rutas de montaña más espectaculares del Veneto. El lago Sorapis tiene un color turquesa casi irreal causado por sedimentos glaciares. La ruta (Weg 215) es de dificultad media-alta con algunos tramos expuestos: imprescindibles botas de montaña y bastones. Desnivel: 500 m. Longitud: 8 km ida y vuelta. Las vistas durante la subida son excepcionales.",
+          "type": "activity",
+          "place_id": "lago-sorapis",
+          "duration_min": 180
+        },
+        {
+          "time": "15:00",
+          "icon": "🍽️",
+          "title": "Almuerzo en el Rifugio Vandelli",
+          "description": "Junto al Lago Sorapis hay el Rifugio Vandelli (2.694 m). Bocadillos, Knödel, bebidas calientes. El escenario mientras comes es el lago turquesa. Solo efectivo.",
+          "type": "meal",
+          "duration_min": 45
+        },
+        {
+          "time": "16:30",
+          "icon": "🏞️",
+          "title": "Lago di Landro (Dürrensee): parada rápida",
+          "description": "Aparcando junto a la carretera SS51 (gratuito junto al lago), el Lago di Landro ofrece una postal tranquila con los Tre Cime di Lavaredo al fondo. Paseo de 30 min alrededor del lago. Una parada sencilla y muy fotogénica de camino a Cortina.",
+          "type": "visit",
+          "place_id": "lago-landro",
+          "duration_min": 45
+        },
+        {
+          "time": "18:00",
+          "icon": "🏨",
+          "title": "Regreso al alojamiento en Cortina d'Ampezzo",
+          "description": "Segunda noche en Cortina. Aprovecha para dar un paseo por el Corso Italia, la calle peatonal de Cortina, y tomar un Aperol Spritz en alguna de sus terrazas.",
+          "type": "checkin",
+          "duration_min": 20
+        },
+        {
+          "time": "20:30",
+          "icon": "🍽️",
+          "title": "Cena en Cortina d'Ampezzo",
+          "description": "Ristorante Leone & Anna (Corso Italia 34, Cortina): considerado uno de los mejores para pasta casera de los Dolomitas. Recomendados por múltiples viajeros 2025: los ravioli y los gnocchi son excepcionales. Reserva imprescindible.",
+          "type": "meal",
+          "duration_min": 90
+        }
+      ],
+      "places": [
+        {
+          "id": "lago-braies",
+          "name": "Lago di Braies (Pragser Wildsee)",
+          "coords": {
+            "lat": 46.6942,
+            "lng": 12.0844
+          },
+          "review": "El lago más fotografiado de los Dolomitas: aguas turquesas perfectas, abetos, el Hotel Pragser Wildsee sobre la orilla y el Seekofel de fondo. Emocionante al amanecer cuando casi no hay nadie. El circuito completo (3,5 km) se hace en 45 min.",
+          "hours": "Abierto todo el día. Acceso en coche restringido 9:30–16:00 h en temporada alta (aprox. 10 jun–10 sep). Barcas: 9:30–17:00 h.",
+          "price": "Entrada gratuita. Parking P2/P3: aprox. 7 €/h o día completo. Parking P1 (reserva online, lejos del lago): 15 € con lanzadera incluida.",
+          "tips": "Llega antes de las 8:00 h para aparcar sin problema y disfrutar el lago casi solo. Reserva online en prags.bz si llegas entre las 9:30 y 16:00 h. Las barcas se agotan antes de las 11:00 h.",
+          "gmaps_url": "https://maps.app.goo.gl/LagoDiBraies",
+          "verified_at": null
+        },
+        {
+          "id": "lago-sorapis",
+          "name": "Lago Sorapis",
+          "coords": {
+            "lat": 46.5064,
+            "lng": 12.2083
+          },
+          "review": "Un lago de color turquesa imposible a 1.923 m de altitud. La ruta de acceso (Weg 215 desde el Rifugio Tre Croci) es de las más espectaculares del Véneto, con vistas directas a las Dolomitas ampezzanas. Dificultad media-alta por tramos expuestos.",
+          "hours": "Acceso libre (ruta de senderismo). Rifugio Vandelli junto al lago: temporada verano.",
+          "price": "Acceso gratuito. Parking Rifugio Tre Croci: aprox. 5 €.",
+          "tips": "Imprescindibles botas de montaña y bastones: hay tramos de roca resbaladiza y algún paso expuesto. La ruta puede tener nieve hasta finales de junio en años con mucho invierno.",
+          "gmaps_url": "https://maps.app.goo.gl/LagoSorapis",
+          "verified_at": null
+        },
+        {
+          "id": "lago-landro",
+          "name": "Lago di Landro (Dürrensee)",
+          "coords": {
+            "lat": 46.6444,
+            "lng": 12.2475
+          },
+          "review": "Lago tranquilo junto a la carretera SS51 con vistas directas a las Tres Cimas de Lavaredo al fondo. Sin masificación, sin parking de pago. Un paseo de 30 min muy tranquilo y muy fotogénico.",
+          "hours": "Acceso libre todo el día.",
+          "price": "Gratuito. Parking junto a la carretera gratuito.",
+          "tips": "Es una parada rápida de camino. El mejor ángulo para fotografiar las Tres Cimas con el lago en primer plano es desde el extremo norte del lago.",
+          "gmaps_url": "https://maps.app.goo.gl/LagoLandro",
+          "verified_at": null
+        }
+      ],
+      "restaurants": [
+        {
+          "name": "Rifugio Vandelli",
+          "meal": "almuerzo",
+          "speciality": "Bocadillos de montaña, Knödel, bebidas calientes",
+          "price_range": "€€",
+          "reservation_required": false,
+          "notes": "Junto al Lago Sorapis (2.694 m). Solo efectivo. Temporada de verano.",
+          "gmaps_url": "https://maps.app.goo.gl/RifugioVandelli"
+        },
+        {
+          "name": "Ristorante Leone & Anna",
+          "meal": "cena",
+          "speciality": "Pasta casera (ravioli, gnocchi), cocina italiana clásica de montaña",
+          "price_range": "€€€",
+          "reservation_required": true,
+          "notes": "Corso Italia 34, Cortina d'Ampezzo. Uno de los más valorados de Cortina en 2025. Reserva con 1-2 días de antelación.",
+          "gmaps_url": "https://maps.app.goo.gl/LeonneAnnaCortina"
+        }
+      ],
+      "alternative_plans": {
+        "more_time": "Si llegas muy pronto al Lago di Braies, añade la ruta hacia el Rifugio Biella (3h de trekking más exigente desde el lago). Si tienes energía después del Sorapis, el Lago di Misurina (a 5 km de camino a las Tres Cimas) es una parada fácil y muy fotogénica.",
+        "less_time": "Si la ruta al Lago Sorapis resulta demasiado larga o el tiempo no acompaña, sustitúyela por el Lago di Misurina (acceso directo en coche, paseo de 2 km alrededor). Mucho menos esforzado y también muy bonito.",
+        "rainy_day": "Con lluvia, el Lago Sorapis es peligroso por los tramos resbaladizos. Alternativa: visita el Museo Etnografico di Cortina, paseo por el Corso Italia y la antigua pista de hielo olímpica de 1956."
+      },
+      "logistics": {
+        "driving_km": 95,
+        "driving_time_min": 130,
+        "walking_km": 13,
+        "walking_time_min": 225,
+        "public_transport": "Bus 442 desde Villabassa al Lago di Braies (requiere reserva online en temporada alta). Para el Sorapis: no hay transporte público directo."
+      },
+      "info": {
+        "travel_tips": [
+          "El Lago di Braies tiene restricción de acceso en coche entre 9:30 y 16:00 h aproximadamente del 10 junio al 10 septiembre. Sal antes de las 6:30 h o reserva parking online en prags.bz.",
+          "La ruta al Lago Sorapis tiene tramos expuestos: no apta con zapatillas de deporte. Botas de trekking obligatorias.",
+          "En la ruta al Sorapis puede haber nieve residual a finales de junio: consulta condiciones en atlasdolomiti.com antes de salir."
+        ],
+        "access": [
+          "Lago di Braies: desde Cortina → SS51 norte → Dobbiaco → SS49 → desvío valle Braies.",
+          "Lago Sorapis: aparca en el Rifugio Tre Croci (SS48, entre Auronzo y Cortina)."
+        ],
+        "facts": [
+          "El Lago di Braies apareció en la serie de televisión italiana 'Un Passo dal Cielo', lo que multiplicó su popularidad turística.",
+          "El color turquesa del Lago Sorapis se debe a partículas de roca glaciar en suspensión que dispersan la luz azul del espectro solar."
+        ]
+      }
+    },
+    {
+      "day": 5,
+      "date": "2027-06-23",
+      "title": "Paso Giau, Cinco Torres y las legendarias Tres Cimas",
+      "hero_image": "",
+      "timeline": [
+        {
+          "time": "06:30",
+          "icon": "🚗",
+          "title": "Ruta al Paso Giau al amanecer (≈ 40 min desde Cortina)",
+          "description": "El Paso Giau (2.233 m) tiene una de las vistas más fotogénicas de los Dolomitas al amanecer: la Ra Gusela, las Tofane y el Pelmo iluminados por la primera luz del día. Madruga: la carretera puede estar vacía a las 7:00 h.",
+          "type": "transport",
+          "duration_min": 40
+        },
+        {
+          "time": "07:30",
+          "icon": "🏔️",
+          "title": "Paso Giau: amanecer y fotografía",
+          "description": "Uno de los pasos más fotogénicos de los Dolomitas a 2.233 m. La Ra Gusela (aguja de roca característica) destaca en primer plano. Hay un rifugio junto al paso para tomar un café antes de continuar. Parada de 45–60 min.",
+          "type": "visit",
+          "place_id": "paso-giau",
+          "duration_min": 60
+        },
+        {
+          "time": "09:00",
+          "icon": "🗼",
+          "title": "Cinque Torri (Cinco Torres)",
+          "description": "Las Cinque Torri son un grupo de cinco torres de roca dolomítica a 2.137 m de altitud. Acceso en teleférico desde el parking junto a la carretera (aprox. 8 € subida). El recorrido a pie entre las torres es de 45 min y el paisaje es fascinante. En junio 2027, recordad: cerca está el Open Air Museum de la I Guerra Mundial (restos de trincheras y material bélico originales).",
+          "type": "visit",
+          "place_id": "cinque-torri",
+          "duration_min": 90
+        },
+        {
+          "time": "11:00",
+          "icon": "🚗",
+          "title": "Traslado al área de las Tres Cimas (≈ 1h 15 min)",
+          "description": "Desde las Cinque Torri hacia Cortina y luego por el Lago di Misurina hasta el peaje de acceso a las Tres Cimas. OBLIGATORIO: reserva previa en auronzo.info. El peaje cuesta 40 € por turismo (2025, precio estimado similar en 2027). La reserva debe incluir la matrícula del coche de alquiler: introdúcela el día anterior a la visita.",
+          "type": "transport",
+          "duration_min": 75
+        },
+        {
+          "time": "12:30",
+          "icon": "🥾",
+          "title": "Circular de las Tres Cimas de Lavaredo",
+          "description": "El trekking más famoso de los Dolomitas: 10 km de circular (3h aprox.) que rodea las tres cimas míticas: Cima Piccola, Cima Grande y Cima Ovest (2.999 m la mayor). La ruta parte del Rifugio Auronzo (2.333 m), pasa por el Rifugio Lavaredo y el Rifugio Locatelli. El sector norte (vertiente austriaca) tiene las vistas más dramáticas. Desnivel: 535 m. Sin dificultades técnicas con equipamiento adecuado.",
+          "type": "activity",
+          "place_id": "tre-cime",
+          "duration_min": 180
+        },
+        {
+          "time": "16:00",
+          "icon": "🍽️",
+          "title": "Almuerzo tardío en el Rifugio Auronzo",
+          "description": "Al acabar la circular, el Rifugio Auronzo (junto al parking) sirve comida hasta última hora. Knödel, Gulasch, pasta. Vistas directas a las Tres Cimas desde la terraza. Acepta tarjeta.",
+          "type": "meal",
+          "duration_min": 60
+        },
+        {
+          "time": "18:00",
+          "icon": "🚗",
+          "title": "Traslado al alojamiento zona Misurina o Auronzo (≈ 20 min)",
+          "description": "Para este día recomendamos alojarte en la zona de Misurina o Auronzo di Cadore, más económica que Cortina y a 15 min de las Tres Cimas. También puedes quedarte en el propio parking del Rifugio Auronzo (pernocta permitida con el ticket de parking).",
+          "type": "checkin",
+          "duration_min": 30
+        },
+        {
+          "time": "20:00",
+          "icon": "🍽️",
+          "title": "Cena en zona Misurina",
+          "description": "Ristorante Lago di Misurina: cocina italiana clásica con vistas al lago. Alternativa: Rifugio Misurina (más informal, precios de refugio). Aprox. 25–35 € por persona.",
+          "type": "meal",
+          "duration_min": 90
+        }
+      ],
+      "places": [
+        {
+          "id": "paso-giau",
+          "name": "Passo Giau",
+          "coords": {
+            "lat": 46.4831,
+            "lng": 12.0489
+          },
+          "review": "Uno de los pasos alpinos más fotogénicos del mundo a 2.233 m. La Ra Gusela como aguja característica, rodeada de prados alpinos verdes. Al amanecer con la primera luz: impresionante. El Rifugio Giau justo en la cumbre.",
+          "hours": "Abierto todo el año (en invierno puede estar nevado). Rifugio: temporada de verano.",
+          "price": "Acceso gratuito.",
+          "tips": "El mejor fotograma es desde el norte del paso, con la Ra Gusela a contraluz del amanecer. Cuidado con la niebla matutina: puede cubrir el paso incluso en verano.",
+          "gmaps_url": "https://maps.app.goo.gl/PasoGiau",
+          "verified_at": null
+        },
+        {
+          "id": "cinque-torri",
+          "name": "Cinque Torri",
+          "coords": {
+            "lat": 46.5189,
+            "lng": 12.0214
+          },
+          "review": "Grupo de cinco torres de roca dolomítica con restos de la I Guerra Mundial (trincheras y material bélico en el Open Air Museum). El paisaje es inquietante y hermoso a la vez. Acceso en teleférico (≈ 8 €) o a pie desde el parking.",
+          "hours": "Acceso libre. Teleférico: temporada verano.",
+          "price": "Acceso a pie: gratuito. Teleférico: aprox. 8 €.",
+          "tips": "El Open Air Museum de la I Guerra Mundial junto a las torres es uno de los mejor conservados de los Alpes. Lleva media hora recorrerlo y vale mucho la pena.",
+          "gmaps_url": "https://maps.app.goo.gl/CinqueTorri",
+          "verified_at": null
+        },
+        {
+          "id": "tre-cime",
+          "name": "Tre Cime di Lavaredo (Tres Cimas de Lavaredo)",
+          "coords": {
+            "lat": 46.6175,
+            "lng": 12.2972
+          },
+          "review": "El trekking más icónico de los Dolomitas y uno de los más famosos de los Alpes. Las tres cimas (Cima Piccola, Cima Grande, Cima Ovest) son una de las formaciones rocosas más fotografiadas del mundo. La circular de 10 km es accesible para cualquiera con buena forma física y equipamiento adecuado.",
+          "hours": "Acceso libre. Peaje carretera: abierto mayo–octubre. RESERVA OBLIGATORIA en auronzo.info",
+          "price": "Peaje carretera + parking: aprox. 40 € turismo (precio 2025). Reserva previa con matrícula OBLIGATORIA desde 2025.",
+          "tips": "Reserva en auronzo.info con antelación: introduce la matrícula del coche de alquiler el día anterior. Sin reserva, la barrera no se abre. El parking se llena antes de las 10:00 h en julio/agosto; en junio hay más margen.",
+          "gmaps_url": "https://maps.app.goo.gl/TreCimeLavaredo",
+          "verified_at": "2025-05-24"
+        }
+      ],
+      "restaurants": [
+        {
+          "name": "Rifugio Auronzo",
+          "meal": "almuerzo",
+          "speciality": "Knödel, Gulasch, pasta, bebidas calientes",
+          "price_range": "€€",
+          "reservation_required": false,
+          "notes": "Junto al parking del Rifugio Auronzo (2.333 m). Acepta tarjeta. El más concurrido al mediodía. Llega antes de las 13:00 h para no esperar.",
+          "gmaps_url": "https://maps.app.goo.gl/RifugioAuronzo"
+        },
+        {
+          "name": "Ristorante Lago di Misurina",
+          "meal": "cena",
+          "speciality": "Pasta italiana, carnes a la brasa, postres caseros",
+          "price_range": "€€",
+          "reservation_required": false,
+          "notes": "Junto al Lago di Misurina. Más relajado y económico que Cortina. Vistas al lago.",
+          "gmaps_url": "https://maps.app.goo.gl/RistMisurina"
+        }
+      ],
+      "alternative_plans": {
+        "more_time": "Si quieres ver el amanecer sobre las Tres Cimas desde el Rifugio Locatelli (en el lado norte del circular), hay que pernoctar en el Rifugio Auronzo: precio aprox. 60 € con media pensión. Una experiencia memorable.",
+        "less_time": "Si el tiempo no acompaña o las piernas están cansadas, puedes hacer solo la parte sur de la circular hasta el Rifugio Lavaredo y volver (4 km, 1h 30 min). Ves las tres cimas perfectamente sin el circular completo.",
+        "rainy_day": "Con lluvia o niebla baja, el Paso Giau puede ser peligroso por la carretera mojada. Las Tres Cimas bajo niebla tienen una atmósfera espectral única, pero el circular puede ser resbaladizo. En caso de tormenta eléctrica: NO salgas de la circular; espera en el Rifugio más cercano."
+      },
+      "logistics": {
+        "driving_km": 85,
+        "driving_time_min": 115,
+        "walking_km": 11,
+        "walking_time_min": 210,
+        "public_transport": "Bus lanzadera 444 desde Dobbiaco a las Tres Cimas (temporada alta, requiere reserva). Bus desde Cortina al Lago di Misurina."
+      },
+      "info": {
+        "travel_tips": [
+          "CRÍTICO: Reserva el acceso a las Tres Cimas en auronzo.info antes del viaje. Sin reserva (con matrícula), la barrera no se abre. El precio aprox. es 40 € por coche.",
+          "Introduce la matrícula del coche de alquiler en la reserva: el sistema es automático por reconocimiento de matrícula. Puedes modificarla hasta 24h antes.",
+          "Sal a las 6:30 h para el Paso Giau: la luz de amanecer es espectacular y no habrá prácticamente nadie."
+        ],
+        "access": [
+          "Paso Giau: desde Cortina por la SS638 (carretera estrecha y sinuosa, cuidado).",
+          "Cinque Torri: desde el Paso Giau continuando hacia Pocol, parking junto a la carretera.",
+          "Tres Cimas: desde Misurina, la carretera de peaje empieza en el Lago Antorno."
+        ],
+        "facts": [
+          "La Cima Grande di Lavaredo (2.999 m) fue escalada por primera vez en 1869 por Paul Grohmann con guías locales.",
+          "Durante la Primera Guerra Mundial, los austriacos excavaron gallerías dentro de la propia Cima Grande: hoy son patrimonio histórico-militar."
+        ]
+      }
+    },
+    {
+      "day": 6,
+      "date": "2027-06-24",
+      "title": "Cadini di Misurina y la calma de Alleghe",
+      "hero_image": "",
+      "timeline": [
+        {
+          "time": "07:00",
+          "icon": "🥾",
+          "title": "Ruta a los Cadini di Misurina",
+          "description": "Los Cadini di Misurina son un grupo de agujas dolomíticas junto al Lago di Misurina. La ruta al mirador más famoso (desde el aparcamiento junto a la SS48, sendero señalizado) lleva 45 min y ofrece una vista frontal de las Tres Cimas de Lavaredo al fondo con los Cadini en primer plano. Una de las fotografías más buscadas de los Dolomitas. Dificultad baja-media.",
+          "type": "activity",
+          "place_id": "cadini-misurina",
+          "duration_min": 120
+        },
+        {
+          "time": "09:30",
+          "icon": "🍽️",
+          "title": "Desayuno en el Rifugio Misurina",
+          "description": "Café, cruasán y Strudel tirolés junto al Lago di Misurina. Uno de esos desayunos de postal alpina.",
+          "type": "meal",
+          "duration_min": 45
+        },
+        {
+          "time": "11:00",
+          "icon": "🚗",
+          "title": "Ruta hacia Alleghe (≈ 1h 45 min)",
+          "description": "Descenso hacia el sur pasando por Auronzo di Cadore, Pieve di Cadore y el Valle del Piave. Alleghe es un pequeño pueblo sobre el Lago di Alleghe, en la Val Zoldana, al pie del Monte Civetta. Un remanso de paz después de días intensos.",
+          "type": "transport",
+          "duration_min": 105
+        },
+        {
+          "time": "13:00",
+          "icon": "🏨",
+          "title": "Check-in en Alleghe",
+          "description": "Alleghe es mucho más tranquilo y económico que Cortina. Hotel Sport Alleghe (3 estrellas, junto al lago), Hotel Alla Posta. Precios: 70–100 € doble con desayuno. El lago artificial de Alleghe (creado por un deslizamiento de tierra en 1771) es muy fotogénico.",
+          "type": "checkin",
+          "duration_min": 30
+        },
+        {
+          "time": "14:00",
+          "icon": "🍽️",
+          "title": "Almuerzo en Alleghe",
+          "description": "Ristorante All'Alpino (Alleghe): cocina local véneta, pasta y polenta. Precios muy razonables comparados con Cortina.",
+          "type": "meal",
+          "duration_min": 75
+        },
+        {
+          "time": "16:00",
+          "icon": "🚶",
+          "title": "Tarde libre en Alleghe y el lago",
+          "description": "Paseo alrededor del Lago di Alleghe (3 km, 45 min), kayak o paddle surf de alquiler, o simplemente descanso en la terraza del hotel. El Civetta (3.220 m) domina el horizonte. Una tarde tranquila para recuperar piernas antes del regreso.",
+          "type": "free",
+          "duration_min": 120
+        },
+        {
+          "time": "20:00",
+          "icon": "🍽️",
+          "title": "Cena de despedida en Alleghe",
+          "description": "Ristorante da Beppe (Alleghe): cocina casera véneta, polenta con funghi, bigoli (pasta local), carnes a la brasa. El mejor sitio del pueblo según viajeros locales. Precio muy razonable (20–30 € por persona).",
+          "type": "meal",
+          "duration_min": 100
+        }
+      ],
+      "places": [
+        {
+          "id": "cadini-misurina",
+          "name": "Cadini di Misurina",
+          "coords": {
+            "lat": 46.5928,
+            "lng": 12.2756
+          },
+          "review": "Un grupo de agujas dolomíticas que se alzan sobre el Lago di Misurina. El mirador clásico ofrece una vista con las Tres Cimas de Lavaredo al fondo: una de las composiciones fotográficas más buscadas de los Dolomitas. Ruta corta y accesible.",
+          "hours": "Acceso libre. Mejor a primera hora.",
+          "price": "Acceso gratuito. Parking junto a la carretera: aprox. 2–5 €.",
+          "tips": "El mirador más famoso está en el sendero que sale del parking cercano al Hotel Misurina. Señalizado. En junio a las 7:00 h hay muy poca gente.",
+          "gmaps_url": "https://maps.app.goo.gl/CadiniMisurina",
+          "verified_at": null
+        },
+        {
+          "id": "lago-alleghe",
+          "name": "Lago di Alleghe",
+          "coords": {
+            "lat": 46.4025,
+            "lng": 12.0244
+          },
+          "review": "Un lago artificial creado en 1771 por un deslizamiento de tierra del Monte Piz que enterró el antiguo pueblo de Alleghe. El nuevo pueblo sobre la orilla es uno de los más pintorescos del Cadore, con el Monte Civetta (3.220 m) de fondo.",
+          "hours": "Acceso libre.",
+          "price": "Gratuito.",
+          "tips": "Alquiler de kayak y paddle surf disponible en temporada de verano. El paseo circular del lago (3 km) es muy agradable para la tarde.",
+          "gmaps_url": "https://maps.app.goo.gl/LagoAlleghe",
+          "verified_at": null
+        }
+      ],
+      "restaurants": [
+        {
+          "name": "Rifugio Misurina",
+          "meal": "desayuno",
+          "speciality": "Café, Strudel, cruasanes tiroleses",
+          "price_range": "€",
+          "reservation_required": false,
+          "notes": "Junto al Lago di Misurina. Ambiente alpino, buenas vistas al lago.",
+          "gmaps_url": "https://maps.app.goo.gl/RifugioMisurina"
+        },
+        {
+          "name": "Ristorante All'Alpino",
+          "meal": "almuerzo",
+          "speciality": "Pasta fresca véneta, polenta con funghi",
+          "price_range": "€€",
+          "reservation_required": false,
+          "notes": "Alleghe. Cocina local a precios razonables. Buena opción de llegada.",
+          "gmaps_url": "https://maps.app.goo.gl/AllAlpino"
+        },
+        {
+          "name": "Ristorante da Beppe",
+          "meal": "cena",
+          "speciality": "Bigoli con ragù, polenta e funghi, carnes a la brasa",
+          "price_range": "€€",
+          "reservation_required": false,
+          "notes": "Alleghe. Cocina casera véneta, uno de los mejores del pueblo. Precio muy razonable para la zona.",
+          "gmaps_url": "https://maps.app.goo.gl/DaBeppeAlleghe"
+        }
+      ],
+      "alternative_plans": {
+        "more_time": "Si tienes energía de sobra, desde Alleghe puedes acceder al Rifugio Coldai (1h 30 min de subida, desnivel 700 m) para tener las mejores vistas del Monte Civetta (3.220 m). Requiere buenos bastones y botas.",
+        "less_time": "Si el cuerpo pide descanso después de 5 días intensos, el día 6 puede ser de relax total: Lago di Alleghe, café en la terraza, y una cena tranquila. Nada más.",
+        "rainy_day": "Con lluvia, Alleghe es perfecto para descansar. El Museo Civico di Alleghe tiene una interesante colección geológica y el deslizamiento de 1771 está bien documentado."
+      },
+      "logistics": {
+        "driving_km": 105,
+        "driving_time_min": 105,
+        "walking_km": 5,
+        "walking_time_min": 90,
+        "public_transport": "Bus desde Auronzo di Cadore hacia Pieve di Cadore. Conexión a Alleghe por la Val Zoldana (poco frecuente)."
+      },
+      "info": {
+        "travel_tips": [
+          "Alleghe es considerablemente más económica que Cortina en alojamiento y restauración: aprovecha para descansar y comer bien sin mirar tanto el precio.",
+          "El Lago di Alleghe fue creado por un megadeslizamiento de 1771 que enterró el pueblo original bajo 50 millones de m³ de roca. La historia geológica que verás en el museo es fascinante.",
+          "Es la última noche de viaje: organiza el equipaje por la tarde para salir descansado al día siguiente hacia el aeropuerto."
+        ],
+        "access": [
+          "Desde Misurina/Auronzo: SS51 sur → Pieve di Cadore → SS203 → Agordo → Alleghe."
+        ],
+        "facts": [
+          "El Monte Civetta (3.220 m) sobre Alleghe fue denominado 'la muralla de las Dolomitas' por los primeros alpinistas. Su cara noroeste de 1.200 m fue uno de los grandes problemas del alpinismo europeo de los años 20.",
+          "Alleghe fue escenario de algunas pruebas de ski de la Copa del Mundo en los años 80 y 90."
+        ]
+      }
+    },
+    {
+      "day": 7,
+      "date": "2027-06-25",
+      "title": "Regreso a Valencia vía Venecia",
+      "hero_image": "",
+      "timeline": [
+        {
+          "time": "07:00",
+          "icon": "☕",
+          "title": "Desayuno en el hotel y check-out",
+          "description": "Desayuno tranquilo y check-out. Prepara el equipaje la noche anterior.",
+          "type": "checkout",
+          "duration_min": 60
+        },
+        {
+          "time": "08:15",
+          "icon": "🚗",
+          "title": "Ruta Alleghe → Aeropuerto",
+          "description": "Depende del aeropuerto de vuelta: A VCE/TSF (Venecia, RECOMENDADO desde Alleghe): ≈ 2h 30 min por la A27. Peajes aprox. 5–8 €. A BGY (Bérgamo): ≈ 3h 30–4h por la A27 y A4. Solo si el vuelo es por la tarde. Si hiciste open-jaw (ida BGY, vuelta VCE/TSF), la devolución del coche en Venecia es perfecta. Sal con tiempo: deja al menos 2h antes del vuelo para devolver el coche y hacer el check-in.",
+          "type": "transport",
+          "duration_min": 150
+        },
+        {
+          "time": "11:00",
+          "icon": "🚗",
+          "title": "Devolución del coche de alquiler",
+          "description": "Devuelve el coche en la oficina del aeropuerto. Revisa el depósito (lleno), los arañazos y cualquier incidencia con la empresa. Guarda toda la documentación del alquiler.",
+          "type": "checkout",
+          "duration_min": 30
+        },
+        {
+          "time": "12:00",
+          "icon": "✈️",
+          "title": "Vuelo Venecia → Valencia",
+          "description": "Regreso a Valencia. Ryanair o Wizz Air operan varios vuelos directos en temporada de verano. El tiempo de vuelo son aprox. 2 horas.",
+          "type": "transport",
+          "duration_min": 120
+        }
+      ],
+      "places": [],
+      "restaurants": [],
+      "alternative_plans": {
+        "more_time": "Si el vuelo es por la tarde, puedes aprovechar la mañana para una última parada en el Lago di Alleghe o, de camino al aeropuerto, visitar la ciudad de Treviso (a 5 min del aeropuerto TSF): una pequeña Venecia sin turistas, con canales, mercado medieval y la famosa prosecco house.",
+        "less_time": "Si el vuelo es temprano, sal de Alleghe antes de las 7:00 h. La A27 es rápida pero puede tener tráfico a partir de las 8:00 h."
+      },
+      "logistics": {
+        "driving_km": 175,
+        "driving_time_min": 150,
+        "walking_km": 0,
+        "walking_time_min": 0,
+        "public_transport": "No aplicable: necesitas el coche para devolver en el aeropuerto."
+      },
+      "info": {
+        "travel_tips": [
+          "Si el vuelo de vuelta sale de Bérgamo (BGY) y llegas tarde a Alleghe el día 6, considera pernoctar en Feltre o Vittorio Veneto (en ruta) para acortar la distancia del último día. Desde Alleghe a BGY son 3h 30 min: con vuelo a las 14:00 h sales a las 9:00 h sin problemas.",
+          "Guarda todos los tickets de peaje y aparcamientos para el informe de gastos.",
+          "El aeropuerto de Treviso (TSF) es más pequeño que el Marco Polo (VCE): cuenta con solo 1 terminal pero los controles pueden ser rápidos o lentos según el día."
+        ],
+        "access": [
+          "Alleghe → A27 Belluno-Venezia → Aeropuerto Marco Polo (VCE) o desvío TSF.",
+          "TSF (Treviso): salida A27 en Treviso Nord, luego SP51 hasta el aeropuerto."
+        ],
+        "facts": [
+          "El Aeropuerto de Treviso fue renombrado 'Antonio Canova' en honor al escultor neoclásico veneciano nacido cerca de Possagno, a 30 km del aeropuerto."
+        ]
+      }
+    }
+  ],
+  "practical_tips": [
+    {
+      "icon": "🚗",
+      "title": "Transporte y conducción en montaña",
+      "items": [
+        {
+          "subtitle": "Qué aeropuerto elegir: análisis completo",
+          "text": "ALC (Alicante) → BGY (Bérgamo, base Ryanair): la opción más barata. Ryanair vuela diariamente con tarifas desde 15–50 € en junio. Inconveniente: Bérgamo está a 3h 15 min del Lago di Carezza vs 2h 15 min desde Venecia, y si el vuelo de vuelta también sale de BGY, el último día (desde Alleghe) es largo. Solución recomendada: vuelo de ida ALC→BGY y vuelta VCE/TSF→ALC (open-jaw, aeropuertos distintos). VLC (Valencia) → TSF (Venecia Treviso): la opción más equilibrada. Ryanair y Wizz Air con 14 frecuencias semanales, tarifas 33–80 €, solo 2h 15 min al primer destino y cómodo para el regreso desde Alleghe. MJV (Murcia): no hay vuelos directos a ningún aeropuerto del norte de Italia. Descartado. Busca siempre en Ryanair.com, Google Flights y Skyscanner comparando las combinaciones ALC y VLC como origen."
+        },
+        {
+          "subtitle": "Peajes y gastos de combustible",
+          "text": "La A27 Venecia-Belluno tiene peajes (aprox. 5–8 € ida). Las carreteras de montaña son de acceso libre pero hay parkings de pago en todos los puntos de interés. Presupuesta unos 80–100 € en total para peajes, gasolina y parkings de montaña durante los 7 días."
+        },
+        {
+          "subtitle": "Conducción en pasos de montaña",
+          "text": "Los pasos (Pordoi, Giau, Falzarego) tienen curvas cerradas y pendientes fuertes. Conduce despacio y usa las marchas cortas para frenar. En junio puede haber algo de nieve en el arcén: usa solo las marchas bajas en bajadas, no el freno continuamente. Apaga el aire acondicionado en subidas largas para no sobrecargar el motor."
+        },
+        {
+          "subtitle": "Aparcamientos con restricción",
+          "text": "Lago di Braies: cierre 9:30–16:00 h (jun–sep). Alpe di Siusi: acceso en coche restringido 9:00–17:00 h. Tres Cimas: reserva online obligatoria en auronzo.info (40 € coche). Malga Zannes (Val di Funes): 10 € turismo. Lleva siempre monedas de 1 y 2 € para máquinas de parking."
+        }
+      ]
+    },
+    {
+      "icon": "💰",
+      "title": "Trucos de ahorro",
+      "items": [
+        {
+          "subtitle": "Vuelo y aeropuerto",
+          "text": "Valencia (VLC) a Venecia Treviso (TSF) con Ryanair es habitualmente más barato que al Marco Polo (VCE). Busca en los martes/miércoles de junio: suelen ser los días más económicos. Con equipaje de cabina (no facturado) ahorras 20–40 € por persona."
+        },
+        {
+          "subtitle": "Alojamiento",
+          "text": "Cortina d'Ampezzo es cara: hoteles en las afueras o Airbnb reducen el coste. Alternativa: base en Nova Levante (día 1-2) y Cortina solo para los días 3-4. Alleghe (día 6) es la base más económica del itinerario. Reserva con 2–3 meses de antelación para precios más bajos."
+        },
+        {
+          "subtitle": "Comida",
+          "text": "Los rifugio de montaña son más económicos de lo que parecen: 12–18 € un plato principal. Lleva agua y fruta para los trekking (ahorro de 5–10 € por persona al día). En los supermercados de los valles (Despar, Eurospar) puedes comprar picnics excepcionales con productos locales: speck, quesos, pan de centeno."
+        },
+        {
+          "subtitle": "Actividades",
+          "text": "Los Dolomitas son prácticamente gratuitos si vas a pie: todos los trekking son libres. El único coste real son los teleféricos (Alpe di Siusi ≈ 46 € dos) y el peaje de las Tres Cimas (40 €). El resto son parkings. No necesitas guías ni tour organizado."
+        }
+      ]
+    },
+    {
+      "icon": "🏔️",
+      "title": "Senderismo y montaña",
+      "items": [
+        {
+          "subtitle": "Equipamiento imprescindible",
+          "text": "Botas de trekking de media caña con suela Vibram (obligatorias para Sorapis y Sendero Adolf Munkel). Bastones de trekking (plegables, caben en el equipaje de cabina). Chubasquero compacto. Capas técnicas de merino o sintético. Mochila de 20–25 litros. Frontal LED (para salidas al amanecer)."
+        },
+        {
+          "subtitle": "Tormentas de tarde",
+          "text": "En junio en los Dolomitas, las tormentas eléctricas de tarde son muy frecuentes, especialmente entre las 14:00 y las 18:00 h. Regla de oro: empieza los trekking antes de las 9:00 h y planea estar en el rifugio o de bajada antes de las 14:00 h. Si hay tormenta eléctrica, no estés en zonas expuestas ni cerca de agujas de roca."
+        },
+        {
+          "subtitle": "Niveles de dificultad del itinerario",
+          "text": "Fácil (sin dificultad técnica): Lago di Carezza, Lago di Braies, Alpe di Siusi, Lago di Landro, Cadini di Misurina. Medio: Sendero Adolf Munkel (Val di Funes), Tres Cimas circular. Medio-Alto: Lago Sorapis (tramos expuestos). En todos se requiere buen calzado de montaña."
+        },
+        {
+          "subtitle": "Apps de montaña",
+          "text": "Descarga Komoot o AllTrails con las rutas offline antes de salir. La app MeteoTrentino ofrece el pronóstico alpino más fiable para los Dolomitas del Norte. La app D-Flight es obligatoria para volar el dron."
+        }
+      ]
+    },
+    {
+      "icon": "🍺",
+      "title": "Gastronomía tirolesa",
+      "items": [
+        {
+          "subtitle": "Platos que no puedes perderte",
+          "text": "Knödel (bolas de pan con speck, queso o espinacas): el plato estrella del Alto Adigio. Schlutzkrapfen: pasta ladina semicircular rellena de espinacas y ricotta. Gulasch de ternera (estofado húngaro-tirolés). Canederli in brodo (knödel en caldo). Strudel de manzana casero. Speck: jamón curado tirolés, más seco e intenso que el italiano del sur."
+        },
+        {
+          "subtitle": "Bebidas locales",
+          "text": "Vinos blancos del Alto Adigio: Pinot Grigio, Gewürztraminer y Müller-Thurgau son los más característicos. Birra Forst: la cerveza local del Tirol del Sur, muy recomendable. Grappa tirolesa: destilado de orujo que se toma al final de las comidas en los rifugio."
+        },
+        {
+          "subtitle": "Rifugio vs restaurante",
+          "text": "Los rifugio de montaña sirven comida más sencilla pero auténtica: Knödel, sopas, Gulasch. La mayoría solo aceptan efectivo. Los restaurantes de Ortisei y Cortina son más elaborados y más caros. Presupuesta 15–25 € para un almuerzo en rifugio y 30–45 € para una cena en restaurante."
+        }
+      ]
+    },
+    {
+      "icon": "🛡️",
+      "title": "Seguridad y salud",
+      "items": [
+        {
+          "subtitle": "Seguro de viaje",
+          "text": "Lleva la Tarjeta Sanitaria Europea (TSE): es gratuita, cubre urgencias en Italia como español. Complementa con un seguro de viaje privado que incluya evacuación en montaña: algunas rutas requieren helicóptero y el coste sin seguro puede ser de miles de euros. Recomendado: IATI o Chapka para deportes de montaña."
+        },
+        {
+          "subtitle": "Emergencias en montaña",
+          "text": "Si hay accidente en montaña, llama al 112. En el Alto Adigio, el servicio de rescate de montaña (Bergrettung/Soccorso Alpino) es muy eficiente. Antes de cada salida, informa de la ruta y hora de regreso prevista. Nunca salgas solo a rutas de dificultad media sin decirle a alguien adónde vas."
+        },
+        {
+          "subtitle": "Medicación de altitud",
+          "text": "Ninguna ruta del itinerario supera los 2.500 m, por lo que el mal de altura agudo no es un riesgo real. Sin embargo, puedes notar algo de fatiga extra los primeros días por la altitud (1.800–2.300 m). Hidrátate bien (2 litros de agua al día en trekking) y no te fuerces el primer día."
+        }
+      ]
+    },
+    {
+      "icon": "🌤️",
+      "title": "Clima y ropa",
+      "items": [
+        {
+          "subtitle": "Temperaturas en junio",
+          "text": "En los valles (1.200–1.500 m): 15–22°C de día, 8–12°C de noche. En los pasos y el Alpe di Siusi (1.850–2.300 m): 10–18°C de día, 4–8°C de noche. Lleva siempre una capa de abrigo aunque salgas con sol: la temperatura puede bajar rápidamente con nubes."
+        },
+        {
+          "subtitle": "Sistema de capas recomendado",
+          "text": "Capa base de merino o sintético. Forro polar o softshell de media temporada. Cortavientos o chubasquero técnico impermeable y transpirable (Gore-Tex o similar). Este sistema te permite adaptar el abrigo a cualquier condición del día sin cargar demasiado en la mochila."
+        },
+        {
+          "subtitle": "Sol de alta montaña",
+          "text": "La radiación UV es mucho más intensa en altitud que a nivel del mar. Usa crema solar SPF 50+ aunque esté nublado. Gorra o sombrero imprescindibles. Gafas de sol con protección UV400."
+        }
+      ]
+    },
+    {
+      "icon": "🌍",
+      "title": "Cultura local: Alto Adigio y ladinos",
+      "items": [
+        {
+          "subtitle": "Tres idiomas en un mismo lugar",
+          "text": "El Alto Adigio (Südtirol) es oficialmente bilingüe: italiano y alemán. En muchas zonas el alemán es el idioma dominante (especialmente en Val Gardena y Val di Funes). Los pueblos tienen nombres dobles: Ortisei/St. Ulrich, Bressanone/Brixen. Los ladinos (tercer grupo étnico) hablan además ladino. Decir 'Guten Tag' en lugar de 'Buongiorno' será más efectivo en muchos rifugio y hoteles."
+        },
+        {
+          "subtitle": "Tradición artesana de Ortisei",
+          "text": "Ortisei es la capital mundial de la talla en madera: los artesanos ladinos llevan siglos tallando figuras religiosas, animales y escenas de montaña. Las tiendas del Corso son el mejor lugar para comprar souvenirs auténticos (aunque no son baratos: una talla de calidad puede costar 50–200 €)."
+        },
+        {
+          "subtitle": "Respeto al entorno natural",
+          "text": "Los Dolomitas son Patrimonio UNESCO y Parque Natural. No hagas fuego fuera de zonas habilitadas, no recojas flores silvestres (muchas son endémicas y protegidas), no salgas de los senderos marcados y lleva siempre de vuelta toda la basura que generes. Las multas por infracciones ambientales en Italia pueden ser muy elevadas."
+        }
+      ]
+    },
+    {
+      "icon": "🚁",
+      "title": "Vuelo de dron: normativa en Italia",
+      "items": [
+        {
+          "subtitle": "Registro obligatorio en D-Flight",
+          "text": "Para volar un dron con cámara en Italia, aunque seas turista extranjero, debes registrarte en la plataforma D-Flight (d-flight.it) del ENAC. Coste: 90 € pago único. También necesitas tener el certificado A1/A3 de EASA (gratuito online). Sin registro, las multas pueden superar los 5.000 €."
+        },
+        {
+          "subtitle": "Zonas prohibidas: parques naturales",
+          "text": "Los parques naturales (Puez-Odle, Tre Cime, Fanes-Senes-Braies) están prohibidos para el vuelo de dron sin autorización especial del ENAC y del gestor del parque. Las multas son de 516 € a 64.000 € y puede haber confiscación del equipo. Usa la app D-Flight para comprobar las zonas en tiempo real antes de volar."
+        },
+        {
+          "subtitle": "Dónde sí se puede volar",
+          "text": "Las mejores oportunidades son en zonas rurales abiertas fuera de los parques naturales, a más de 5 km de aeropuertos, lejos de aglomeraciones y siempre en zona verde del mapa D-Flight. El Paso de Pordoi y el Paso Giau pueden tener franjas horarias permitidas si están fuera de zonas Natura 2000: comprueba siempre antes."
+        },
+        {
+          "subtitle": "Seguro obligatorio",
+          "text": "Italia exige seguro de responsabilidad civil para TODOS los drones equipados con cámara, con cobertura mínima de 920.000 € por incidente. Muchas pólizas de hogar o de dron europeas cubren Italia: verifica antes de salir."
+        }
+      ]
+    },
+    {
+      "icon": "🎒",
+      "title": "Qué llevar: equipaje de mano optimizado",
+      "items": [
+        {
+          "subtitle": "Límites de equipaje bajo coste",
+          "text": "Ryanair permite una bolsa personal gratuita (40x20x25 cm) y un equipaje de mano en cabina de pago (55x40x20 cm, 10 kg aprox., coste 20–40 € al reservar). No intentes colar el trolley sin pagar: los controles en Valencia y Treviso son estrictos. El equipaje facturado (20 kg) añade unos 30–50 € por trayecto."
+        },
+        {
+          "subtitle": "Distribución recomendada del peso",
+          "text": "En una mochila de 40–50 litros cabe todo para 7 días si usas ropa técnica de trekking (que ocupa menos y seca rápido). Compra o alquila la crema solar y artículos de aseo en destino para no tener problemas con líquidos en el avión."
+        }
+      ]
+    }
+  ],
+  "packing_list": {
+    "summer_clothing": [
+      "Camisetas manga corta técnicas (3)",
+      "Camisetas manga larga de merino (2, para noches y montaña)",
+      "Pantalón largo de trekking (2)",
+      "Pantalón corto de trekking (1)",
+      "Forro polar o softshell (1)",
+      "Chubasquero técnico impermeable Gore-Tex o similar (1)"
+    ],
+    "footwear": [
+      "Botas de trekking de media caña con suela Vibram (IMPRESCINDIBLES)",
+      "Zapatillas deportivas ligeras para paseos de pueblo",
+      "Chanclas para el hotel/ducha"
+    ],
+    "underwear": [
+      "Ropa interior técnica de secado rápido (7 mudas)",
+      "Calcetines de trekking acolchados (4 pares)",
+      "Calcetines finos para pueblos (3 pares)",
+      "Pijama ligero"
+    ],
+    "items": [
+      "Móvil + cargador rápido",
+      "Batería externa (mínimo 10.000 mAh)",
+      "Dron + baterías (3 mínimo) + cargador + control remoto",
+      "Tarjeta ND para el dron (filtros de densidad neutra para vídeo)",
+      "Cámara mirrorless o réflex (opcional además del dron)",
+      "Tarjetas de memoria extra",
+      "Bastones de trekking plegables",
+      "Frontal LED con pilas de repuesto",
+      "Mochila de trekking 25–30 litros para las rutas",
+      "Bolsa estanca pequeña para el móvil en caso de lluvia",
+      "Adaptador de enchufe italiano (tipo L → tipo F: normalmente compatible, pero verificar)",
+      "Paraguas compacto o gorra impermeable",
+      "Candado de equipaje"
+    ],
+    "accessories": [
+      "Gorra de ala ancha o sombrero (sol de alta montaña intenso)",
+      "Gorro ligero de lana (para noches en altitud)",
+      "Guantes finos de forro polar (para madrugadas en pasos)",
+      "Gafas de sol con UV400 y polarizadas (imprescindibles en nieve/roca)",
+      "Buff / braga de cuello"
+    ],
+    "documents": [
+      "DNI (suficiente para Italia)",
+      "Tarjeta Sanitaria Europea (TSE) – gratuita, solicitar antes en el INSS",
+      "Permiso de conducir",
+      "Tarjeta de crédito/débito (Visa o Mastercard)",
+      "Algo de efectivo (mínimo 150 € en billetes pequeños para rifugio y parkings)",
+      "Documentación del seguro de viaje",
+      "Confirmación de reserva del coche de alquiler",
+      "Confirmación de reserva de los hoteles",
+      "Reserva de las Tres Cimas (auronzo.info) con la matrícula del coche",
+      "Certificado operador dron D-Flight (ENAC Italia)",
+      "Bolígrafo"
+    ],
+    "toiletries": [
+      "Crema solar SPF 50+ (o comprar en destino)",
+      "Stick labial con SPF",
+      "Cepillo y pasta de dientes",
+      "Desodorante",
+      "Champú y gel (o comprar en destino)",
+      "Pañuelos de papel",
+      "Toallitas húmedas (útiles en rifugio sin ducha)"
+    ],
+    "health": [
+      "Tiritas y vendas de trekking (ampollas en botas nuevas)",
+      "Analgésicos (ibuprofeno o paracetamol)",
+      "Antihistamínico (para alérgicos al polen de montaña)",
+      "Protector gástrico",
+      "Sales de rehidratación oral",
+      "Crema para ampollas y rozaduras (compeed o similar)"
+    ]
+  },
+  "shopping": {
+    "authentic_products": [
+      "Speck del Alto Adigio DOP: jamón curado tirolés, el mejor souvenir comestible",
+      "Vinos blancos del Alto Adigio: Gewürztraminer, Pinot Grigio, Müller-Thurgau",
+      "Grappa tirolesa artesanal (destilerías de Bressanone o Bolzano)",
+      "Tallas en madera de Ortisei: figuras ladinas, animales alpinos, escenas de montaña",
+      "Queso Graukäse (queso gris del Tirol) y Almkäse (queso de alpaje)",
+      "Mermeladas y mieles de montaña (Honig del Alto Adigio)"
+    ],
+    "avoid": [
+      "Speck o embutidos envasados de marca desconocida en tiendas de souvenirs turísticos: busca el sello DOP",
+      "Tallas en madera de origen no garantizado: en Ortisei pide el sello de artesanía local del Val Gardena",
+      "Licores de hierbas genéricos en envases típicos: prefiere las destilerías artesanales con nombre y denominación"
+    ],
+    "best_places": [
+      "Ortisei (Val Gardena): mejor sitio para tallas en madera artesanales y productos ladinos",
+      "Cortina d'Ampezzo – Corso Italia: tiendas de alimentación local de calidad y vinos del Véneto",
+      "Supermercados Despar o Eurospar de los valles: la mejor relación calidad-precio para speck, quesos y vinos locales",
+      "Mercado de Bolzano (Piazza delle Erbe): si haces escala, uno de los mejores mercados de productos locales del norte de Italia"
+    ]
+  },
+  "emergency": {
+    "local_emergency": "112 (emergencias generales Italia: policía, ambulancia, bomberos)",
+    "medical": "118 (ambulancia en Italia). Hospital más cercano: Ospedale di Cortina d'Ampezzo, Via del Lacedel 68, tel. +39 0436 883111",
+    "police": "113 (Polizia di Stato) / 112 (Carabinieri)",
+    "embassy": "Consulado de España en Milán: Via Palestro 24, +39 02 36519480. Embajada en Roma: +39 06 684 0401",
+    "insurance_reminder": "Lleva la Tarjeta Sanitaria Europea (TSE) y el seguro de viaje con cobertura para deportes de montaña y evacuación en helicóptero. Guarda el número del seguro en el móvil."
+  },
+  "apps_recommended": [
+    {
+      "name": "D-Flight (ENAC Italia)",
+      "purpose": "Mapa oficial de zonas de vuelo de drones en Italia. Obligatorio consultar antes de cada vuelo. Disponible en iOS y Android."
+    },
+    {
+      "name": "Komoot",
+      "purpose": "Las rutas de los 7 días ya están en Komoot con perfiles de altitud y waypoints. Descarga los mapas offline del Trentino-Alto Adigio y Véneto antes de salir."
+    },
+    {
+      "name": "MeteoTrentino",
+      "purpose": "El pronóstico alpino más fiable para los Dolomitas del norte. Muestra la previsión por altitud y las probabilidades de tormenta de tarde."
+    },
+    {
+      "name": "Maps.me",
+      "purpose": "Mapas offline de toda Italia. Útil en los valles y pasos donde Google Maps puede fallar por mala cobertura."
+    },
+    {
+      "name": "Google Maps",
+      "purpose": "Descarga los mapas offline del área del Lago Carezza, Val Gardena, Cortina d'Ampezzo y zona Tre Cime antes de salir. Imprescindible para los desvíos y entradas a los valles."
+    },
+    {
+      "name": "AllTrails",
+      "purpose": "Rutas de trekking con perfiles GPS y reseñas recientes de otros senderistas. Especialmente útil para el Sendero Adolf Munkel y la ruta al Lago Sorapis."
+    },
+    {
+      "name": "Auronzo.info",
+      "purpose": "Web/app para reservar el parking de las Tres Cimas de Lavaredo. Reserva OBLIGATORIA antes del viaje con la matrícula del coche de alquiler."
+    },
+    {
+      "name": "Revolut / Wise",
+      "purpose": "Tarjeta sin comisiones para pagar en rifugio y restaurantes italianos. Muchos rifugio solo aceptan efectivo: usa Revolut para sacar euros sin comisiones en cajeros italianos."
+    }
+  ],
+  "generation_metadata": {
+    "generated_at": "2026-05-24T12:00:00Z",
+    "schema_version": "1.2",
+    "claude_model": "Claude Sonnet 4.6",
+    "web_search_count": 12,
+    "verification_note": "Datos verificados: clima de junio en Dolomitas, restricciones de acceso Lago di Braies y Tres Cimas (2025), reserva obligatoria Tres Cimas en auronzo.info, precio peaje Tres Cimas aprox. 40€ (2025), teleférico Ortisei aprox. 46€ dos adultos (junio 2025), normativa drones Italia ENAC/D-Flight, Rifugio Odle NO permite pernoctar. Datos NO verificados para 2027 (precios de vuelos, alquiler de coche, hoteles, tarifas de parkings): todos son estimaciones basadas en precios 2025. Verificar en plataformas de reserva antes del viaje. ACTUALIZACIÓN: análisis comparativo aeropuertos ALC/VLC/MJV vs BGY/VCE/TSF. Recomendación: ALC→BGY (más barato, Ryanair diario desde 15€) o VLC→TSF (más equilibrado, 33-80€). MJV descartado por falta de vuelos directos al norte de Italia. Open-jaw ALC→BGY / VCE→ALC es la combinación óptima precio+logística."
+  }
+}
+</script>
+
+<body>
+
+<!-- Header -->
+<header class="app-header">
+  <span class="app-header__title" id="header-title">Dolomitas 2027</span>
+  <div class="app-header__actions">
+    <button class="icon-btn" id="btn-search" aria-label="Buscar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </button>
+    <button class="icon-btn theme-btn" id="btn-theme" aria-label="Modo oscuro">🌙</button>
+  </div>
+</header>
+
+<!-- Páginas -->
+<main>
+  <div class="page is-active" id="page-home"></div>
+  <div class="page" id="page-days"></div>
+  <div class="page" id="page-day"></div>
+  <div class="page" id="page-map"></div>
+  <div class="page" id="page-tips"></div>
+  <div class="page" id="page-me"></div>
+</main>
+
+<!-- Tabbar -->
+<nav class="tabbar">
+  <button class="tabbar__item is-active" data-tab="home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Inicio
+  </button>
+  <button class="tabbar__item" data-tab="days">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Días
+  </button>
+  <button class="tabbar__item" data-tab="map">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+    Mapa
+  </button>
+  <button class="tabbar__item" data-tab="tips">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Consejos
+  </button>
+  <button class="tabbar__item" data-tab="me">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Mi viaje
+  </button>
+</nav>
+
+<!-- Buscador overlay -->
+<div class="search-overlay" id="search-overlay">
+  <div class="search-bar">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="search-input" type="search" placeholder="Buscar en la guía…" autocomplete="off">
+    <button id="search-close" style="font-size:18px;color:var(--text-muted)">✕</button>
+  </div>
+  <div id="search-results"></div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ------------------------------------------------------
+  // 0. DATOS
+  // ------------------------------------------------------
+  const DATA = JSON.parse(document.getElementById('guide-data').textContent);
+
+  // ------------------------------------------------------
+  // 1. UTILIDADES
+  // ------------------------------------------------------
+  function el(sel) { return document.querySelector(sel); }
+  function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function fmt(iso) {
+    if (!iso) return '';
+    const d = new Date(iso + 'T12:00:00');
+    return d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+
+  // ------------------------------------------------------
+  // 2. PERSISTENCIA
+  // ------------------------------------------------------
+  const STORE_KEY = 'guide_store_' + (DATA.meta.title || 'default').replace(/\s/g,'_').slice(0,20);
+  let store = { checklist: {}, timeline: {}, notes: {} };
+  try { const s = localStorage.getItem(STORE_KEY); if (s) store = { ...store, ...JSON.parse(s) }; } catch(e) {}
+  function saveStore() { try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch(e) {} }
+
+  // ------------------------------------------------------
+  // 3. TEMA
+  // ------------------------------------------------------
+  const root = document.documentElement;
+  let dark = localStorage.getItem('theme') === 'dark';
+  function applyTheme() {
+    root.setAttribute('data-theme', dark ? 'dark' : '');
+    el('#btn-theme').textContent = dark ? '☀️' : '🌙';
+    if (DATA.meta.theme_color) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#2A251D' : DATA.meta.theme_color);
+    }
+  }
+  applyTheme();
+  el('#btn-theme').addEventListener('click', () => { dark = !dark; localStorage.setItem('theme', dark ? 'dark' : 'light'); applyTheme(); });
+
+  // ------------------------------------------------------
+  // 4. RENDERS
+  // ------------------------------------------------------
+
+  // HOME
+  function renderHome() {
+    el('#header-title').textContent = DATA.meta.title || 'Guía de Viaje';
+    const cover = DATA.meta.cover_image;
+    const hasImg = cover && cover.trim().length > 0;
+    const today = new Date().toISOString().split('T')[0];
+    const todayData = DATA.summary && DATA.summary.find(s => s.date === today);
+
+    const heroClass = hasImg ? 'hero hero--with-image' : 'hero';
+    const heroBg = hasImg ? `<div class="hero__bg" style="background-image:url('${esc(cover)}')"></div>` : '';
+
+    const startDate = DATA.meta.dates && DATA.meta.dates.start ? new Date(DATA.meta.dates.start + 'T12:00:00') : null;
+    const endDate = DATA.meta.dates && DATA.meta.dates.end ? new Date(DATA.meta.dates.end + 'T12:00:00') : null;
+    const dateStr = startDate && endDate
+      ? startDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) + ' – ' + endDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+      : '';
+
+    const travelers = DATA.meta.travelers
+      ? (DATA.meta.travelers.adults || 0) + ' adultos' + (DATA.meta.travelers.children > 0 ? ', ' + DATA.meta.travelers.children + ' niños' : '')
+      : '';
+
+    let todayHTML = '';
+    if (todayData) {
+      todayHTML = `<div class="today-card">
+        <div class="today-card__label">Hoy · ${esc(fmt(todayData.date))}</div>
+        <div class="today-card__title">${esc(todayData.title)}</div>
+        <p class="today-card__summary">${esc(todayData.summary)}</p>
+        <button class="today-card__link" onclick="window.__nav.goDay(${todayData.day})">Ver itinerario del día →</button>
+      </div>`;
+    }
+
+    const valueProps = (DATA.intro && DATA.intro.value_props || []).map(p => `
+      <div class="prop-card">
+        <div class="prop-card__icon">${esc(p.icon)}</div>
+        <div>
+          <div class="prop-card__title">${esc(p.title)}</div>
+          <div class="prop-card__text">${esc(p.text)}</div>
+        </div>
+      </div>`).join('');
+
+    const hist = DATA.history;
+    let histHTML = '';
+    if (hist) {
+      const periods = (hist.periods || []).map(p => `
+        <div class="history__period">
+          ${p.range ? `<div class="history__period-range">${esc(p.range)}</div>` : ''}
+          <div class="history__period-title">${esc(p.title)}</div>
+          <div class="history__period-text">${esc(p.text)}</div>
+        </div>`).join('');
+      histHTML = `
+        <h2 class="section-title">${esc(hist.title || 'Historia')}</h2>
+        <div class="history" id="hist-block">
+          <div class="history__summary">${esc(hist.summary || '')}</div>
+          <button class="history__toggle" onclick="document.getElementById('hist-block').classList.toggle('is-open')">
+            Ampliar <span class="chev">▾</span>
+          </button>
+          <div class="history__detail">${periods}</div>
+        </div>`;
+    }
+
+    el('#page-home').innerHTML = `
+      <div class="${heroClass}">
+        ${heroBg}
+        <div class="hero__eyebrow">${esc(DATA.meta.origin ? DATA.meta.origin.city + ' → ' + DATA.meta.destination.name : DATA.meta.destination.name)}</div>
+        <h1 class="hero__title">${esc(DATA.meta.title)}</h1>
+        <p class="hero__subtitle">${esc(DATA.meta.subtitle || '')}</p>
+        <div class="hero__meta">
+          ${dateStr ? `<div class="hero__meta-item">📅 ${esc(dateStr)}</div>` : ''}
+          ${DATA.meta.dates && DATA.meta.dates.days ? `<div class="hero__meta-item">🗓️ ${DATA.meta.dates.days} días</div>` : ''}
+          ${travelers ? `<div class="hero__meta-item">👥 ${esc(travelers)}</div>` : ''}
+        </div>
+      </div>
+      ${todayHTML}
+      ${DATA.intro && DATA.intro.narrative ? `<p style="font-size:15px;line-height:1.65;color:var(--text-soft);margin-bottom:20px">${esc(DATA.intro.narrative)}</p>` : ''}
+      ${valueProps ? `<h2 class="section-title">¿Qué te espera?</h2><div class="props-grid">${valueProps}</div>` : ''}
+      ${histHTML}
+      <div style="margin-top:28px;text-align:center">
+        <button class="btn btn--primary" onclick="window.__nav.go('days')">Ver itinerario completo →</button>
+      </div>
+    `;
+  }
+
+  // LISTA DE DÍAS
+  function renderDaysList() {
+    const items = (DATA.summary || []).map(s => {
+      const done = Object.keys(store.timeline).filter(k => k.startsWith('d' + s.day + '_') && store.timeline[k]).length;
+      const total = (DATA.days.find(d => d.day === s.day) || {}).timeline ? DATA.days.find(d => d.day === s.day).timeline.length : 0;
+      const pct = total ? Math.round(done / total * 100) : 0;
+      return `
+        <button class="day-card" onclick="window.__nav.goDay(${s.day})">
+          <div class="day-card__num">
+            <div class="day-card__num-label">Día</div>
+            <div class="day-card__num-value">${s.day}</div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="day-card__date">${esc(fmt(s.date))}</div>
+            <div class="day-card__title">${esc(s.title)}</div>
+            <div class="day-card__summary">${esc(s.summary)}</div>
+            ${total > 0 ? `<div class="day-card__progress"><div class="progress-bar"><div class="progress-bar__fill" style="width:${pct}%"></div></div>${done}/${total}</div>` : ''}
+          </div>
+        </button>`;
+    }).join('');
+    el('#page-days').innerHTML = `<div class="days-list">${items}</div>`;
+  }
+
+  // DETALLE DÍA
+  function renderDay(n) {
+    const d = DATA.days.find(x => x.day === n);
+    if (!d) return;
+    const sum = (DATA.summary || []).find(s => s.day === n) || {};
+
+    const timeline = (d.timeline || []).map((t, i) => {
+      const key = 'd' + n + '_tl' + i;
+      const done = store.timeline[key];
+      return `
+        <div class="tl-item${done ? ' is-done' : ''}" data-icon="${esc(t.icon)}" id="tl-${key}">
+          <div class="tl-item__head">
+            <span class="tl-item__time">${esc(t.time)}</span>
+            <div class="tl-item__check" onclick="window.__actions.toggleTimeline('${key}')"></div>
+          </div>
+          <div class="tl-item__title">${esc(t.title)}</div>
+          <div class="tl-item__description">${esc(t.description)}</div>
+          ${t.duration_min ? `<small style="color:var(--text-muted);font-size:12px;margin-top:4px;display:block">⏱ ${t.duration_min} min</small>` : ''}
+        </div>`;
+    }).join('');
+
+    const places = (d.places || []).map(p => `
+      <div class="place-card">
+        <div class="place-card__name">📍 ${esc(p.name)}</div>
+        <div class="place-card__review">${esc(p.review || '')}</div>
+        <div class="place-card__meta">
+          ${p.hours ? `<div class="place-card__meta-item"><span class="place-card__meta-label">🕐 Horario</span>${esc(p.hours)}</div>` : ''}
+          ${p.price ? `<div class="place-card__meta-item"><span class="place-card__meta-label">💶 Precio</span>${esc(p.price)}</div>` : ''}
+          ${p.tips ? `<div class="place-card__meta-item"><span class="place-card__meta-label">💡 Consejo</span>${esc(p.tips)}</div>` : ''}
+          ${p.verified_at ? `<div class="place-card__meta-item"><span class="place-card__meta-label">✅ Verificado</span>${esc(p.verified_at)}</div>` : `<div class="place-card__meta-item"><span class="place-card__meta-label">⚠️ Datos</span>Verificar in situ</div>`}
+        </div>
+        <div class="place-card__actions">
+          ${p.gmaps_url ? `<a class="btn btn--primary btn--sm" href="${esc(p.gmaps_url)}" target="_blank">📍 Google Maps</a>` : ''}
+          ${p.coords ? `<a class="btn btn--ghost btn--sm" href="https://maps.apple.com/?q=${p.coords.lat},${p.coords.lng}" target="_blank">🗺 Apple Maps</a>` : ''}
+        </div>
+      </div>`).join('');
+
+    const rests = (d.restaurants || []).map(r => `
+      <div class="rest-card">
+        <div class="rest-card__head">
+          <div class="rest-card__name">${esc(r.name)}</div>
+          <div class="rest-card__price">${esc(r.price_range || '')}</div>
+        </div>
+        <div class="rest-card__spec">${esc(r.speciality || '')}</div>
+        ${r.notes ? `<div style="font-size:12px;color:var(--text-muted);margin-top:4px">${esc(r.notes)}</div>` : ''}
+        ${r.reservation_required ? `<div style="font-size:12px;color:var(--c-danger);margin-top:4px;font-weight:700">⚠️ Reserva recomendada</div>` : ''}
+        <div class="rest-card__meal">${esc(r.meal)}</div>
+        ${r.gmaps_url ? `<div style="margin-top:8px"><a class="btn btn--ghost btn--sm" href="${esc(r.gmaps_url)}" target="_blank">Ver en Maps</a></div>` : ''}
+      </div>`).join('');
+
+    const alt = d.alternative_plans || {};
+    const altItems = [
+      alt.more_time ? `<div class="alt-plan"><div class="alt-plan__label">⏰ Si sobra tiempo</div><div class="alt-plan__text">${esc(alt.more_time)}</div></div>` : '',
+      alt.less_time ? `<div class="alt-plan"><div class="alt-plan__label">⚡ Si hay prisa</div><div class="alt-plan__text">${esc(alt.less_time)}</div></div>` : '',
+      alt.rainy_day ? `<div class="alt-plan"><div class="alt-plan__label">🌧️ Si llueve</div><div class="alt-plan__text">${esc(alt.rainy_day)}</div></div>` : '',
+      alt.with_kids ? `<div class="alt-plan"><div class="alt-plan__label">👨‍👩‍👧 Con niños</div><div class="alt-plan__text">${esc(alt.with_kids)}</div></div>` : '',
+    ].filter(Boolean).join('');
+
+    const log = d.logistics || {};
+    const info = d.info || {};
+
+    const noteKey = 'note_d' + n;
+    const savedNote = store.notes[noteKey] || '';
+
+    el('#page-day').innerHTML = `
+      <div class="day-detail__head">
+        <button class="back-btn" onclick="window.__nav.go('days')">← Itinerario</button>
+        <div class="day-detail__eyebrow">Día ${d.day} · ${esc(fmt(d.date))}</div>
+        <h1 class="day-detail__title">${esc(d.title)}</h1>
+        <div class="day-detail__logistics">
+          ${log.driving_km ? `<div class="day-detail__logistics-item">🚗 ${log.driving_km} km (${log.driving_time_min} min)</div>` : ''}
+          ${log.walking_km ? `<div class="day-detail__logistics-item">🚶 ${log.walking_km} km a pie</div>` : ''}
+        </div>
+      </div>
+
+      <h3 class="section-title--small">Programa del día</h3>
+      <div class="timeline">${timeline}</div>
+
+      ${places ? `<h3 class="section-title--small">Lugares</h3>${places}` : ''}
+      ${rests ? `<div class="restaurants"><h3 class="section-title--small">Restaurantes</h3>${rests}</div>` : ''}
+
+      ${altItems ? `<h3 class="section-title--small">Planes alternativos</h3><div class="alt-plans">${altItems}</div>` : ''}
+
+      ${info.travel_tips && info.travel_tips.length ? `
+        <div class="info-block">
+          <div class="info-block__title">💡 Consejos del día</div>
+          <ul class="info-block__list">${info.travel_tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+        </div>` : ''}
+
+      ${info.facts && info.facts.length ? `
+        <div class="info-block">
+          <div class="info-block__title">📚 Datos curiosos</div>
+          <ul class="info-block__list">${info.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
+        </div>` : ''}
+
+      <div class="day-notes">
+        <div class="day-notes__label">📝 Mis notas</div>
+        <textarea class="day-notes__textarea" placeholder="Escribe tus notas aquí…" id="note-${noteKey}">${esc(savedNote)}</textarea>
+      </div>
+    `;
+
+    const noteTA = document.getElementById('note-' + noteKey);
+    if (noteTA) noteTA.addEventListener('input', e => { store.notes[noteKey] = e.target.value; saveStore(); });
+    el('#header-title').textContent = 'Día ' + d.day + ': ' + d.title;
+  }
+
+  // MAPA
+  let mapInst = null;
+  function renderMap() {
+    el('#page-map').innerHTML = `
+      <h2 class="section-title" style="margin-top:0">Mapa del viaje</h2>
+      <div id="map"></div>
+      <div class="map-legend" id="map-legend"></div>
+    `;
+
+    setTimeout(() => {
+      if (!window.L) return;
+      if (mapInst) { mapInst.remove(); mapInst = null; }
+      const om = DATA.overview_map || {};
+      const center = om.center || { lat: 46.55, lng: 11.85 };
+      mapInst = L.map('map').setView([center.lat, center.lng], om.zoom || 9);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors', maxZoom: 18
+      }).addTo(mapInst);
+
+      const colors = ['#C65D3A','#4A7C59','#0F4C5C','#E6A23C','#8B5A3C','#5A6EA8','#A34A2C'];
+      const legend = el('#map-legend');
+
+      (om.markers || []).forEach((m, i) => {
+        const color = colors[i % colors.length];
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="width:28px;height:28px;border-radius:50%;background:${color};color:white;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.3)">${m.day}</div>`,
+          iconSize: [28, 28], iconAnchor: [14, 14]
+        });
+        const marker = L.marker([m.coords.lat, m.coords.lng], { icon }).addTo(mapInst);
+        const daySum = (DATA.summary || []).find(s => s.day === m.day);
+        marker.bindPopup(`<b>Día ${m.day}</b><br>${m.name}${daySum ? '<br><small>' + daySum.title + '</small>' : ''}`);
+
+        const li = document.createElement('button');
+        li.className = 'map-legend__item';
+        li.innerHTML = `<div class="map-legend__dot" style="background:${color}"></div>Día ${m.day}: ${m.name}`;
+        li.addEventListener('click', () => { marker.openPopup(); mapInst.setView([m.coords.lat, m.coords.lng], 11); });
+        legend.appendChild(li);
+      });
+    }, 100);
+  }
+
+  // CONSEJOS
+  function renderTips() {
+    const groups = [...(DATA.practical_tips || [])];
+    const apps = DATA.apps_recommended || [];
+    if (apps.length) {
+      groups.push({
+        icon: '📱',
+        title: 'Apps recomendadas',
+        items: apps.map(a => ({ subtitle: a.name, text: a.purpose }))
+      });
+    }
+    const html = groups.map((g, gi) => `
+      <div class="tips-group" id="tg-${gi}">
+        <div class="tips-group__header" onclick="document.getElementById('tg-${gi}').classList.toggle('is-open')">
+          <div class="tips-group__header-left">
+            <span class="tips-group__icon">${esc(g.icon)}</span>
+            <span class="tips-group__title">${esc(g.title)}</span>
+          </div>
+          <span class="tips-group__chev">▾</span>
+        </div>
+        <div class="tips-group__body">
+          ${(g.items || []).map(it => `
+            <div class="tip-item">
+              <div class="tip-item__subtitle">${esc(it.subtitle)}</div>
+              <div class="tip-item__text">${esc(it.text)}</div>
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+    el('#page-tips').innerHTML = `<h2 class="section-title" style="margin-top:0">Consejos y apps</h2>${html}`;
+  }
+
+  // MI VIAJE
+  function renderMe() {
+    const b = DATA.meta.budget || {};
+    const br = b.breakdown || {};
+    const labelMap = { flights: '✈️ Vuelos', accommodation: '🏨 Alojamiento', transport: '🚗 Transporte', food: '🍽️ Comida', activities: '🎟️ Actividades', shopping: '🛍️ Compras', other: '🔧 Otros' };
+    const budgetGrid = Object.entries(br).filter(([,v]) => v).map(([k, v]) => `
+      <div class="budget-item">
+        <div class="budget-item__label">${esc(labelMap[k] || k)}</div>
+        <div class="budget-item__amount">${Number(v).toLocaleString('es-ES')} €</div>
+      </div>`).join('');
+
+    const packing = DATA.packing_list || {};
+    const catLabels = { summer_clothing: '👕 Ropa de verano/montaña', winter_clothing: '🧥 Ropa de abrigo', footwear: '👟 Calzado', underwear: '🩱 Ropa interior', items: '🎒 Objetos y electrónica', accessories: '🕶️ Accesorios', documents: '📄 Documentos', toiletries: '🧴 Aseo', health: '💊 Salud y botiquín', other: '📦 Otros' };
+    const packHTML = Object.entries(packing).filter(([,v]) => v && v.length).map(([cat, items]) => `
+      <div class="checklist-category">
+        <div class="checklist-category__title">${esc(catLabels[cat] || cat)}</div>
+        ${items.map((item, i) => {
+          const key = 'pack_' + cat + '_' + i;
+          const done = store.checklist[key];
+          return `<div class="checklist-item${done ? ' is-done' : ''}" data-key="${key}" onclick="window.__actions.toggleChecklist('${key}')">
+            <div class="ci-check"></div>
+            <div class="ci-label">${esc(item)}</div>
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+
+    const emerg = DATA.emergency || {};
+    const emergHTML = Object.entries(emerg).filter(([,v]) => v).map(([k, v]) => {
+      const labs = { local_emergency: '🆘 Emergencias', medical: '🏥 Médico', police: '👮 Policía', embassy: '🏛️ Embajada', insurance_reminder: '📋 Seguro' };
+      return `<div class="emergency-card__item"><div class="emergency-card__label">${esc(labs[k] || k)}</div><div>${esc(v)}</div></div>`;
+    }).join('');
+
+    const destCurr = DATA.meta.local_currency;
+    let converterHTML = '';
+    if (destCurr) {
+      converterHTML = `<div class="tool-card">
+        <div class="tool-card__title">💱 Conversor de divisa</div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em">EUR → ${esc(destCurr)}</div>
+        <div class="tool-card__row" style="margin-bottom:4px">
+          <input id="conv-eur" type="number" placeholder="Euros" value="100">
+          <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">EUR</div>
+        </div>
+        <div class="tool-card__result" id="conv-result-fwd">—</div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:0.06em">${esc(destCurr)} → EUR</div>
+        <div class="tool-card__row" style="margin-bottom:4px">
+          <input id="conv-local" type="number" placeholder="${esc(destCurr)}" value="">
+          <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">${esc(destCurr)}</div>
+        </div>
+        <div class="tool-card__result" id="conv-result-rev">—</div>
+        <small id="conv-rate" style="display:block;margin-top:8px;color:var(--text-muted);font-size:11px"></small>
+      </div>`;
+    }
+
+    el('#page-me').innerHTML = `
+      <div class="me-section">
+        <div class="me-section__title">💶 Presupuesto</div>
+        <div class="budget-total">
+          <div>
+            <div class="budget-total__label">Total estimado (2 personas)</div>
+            <div class="budget-total__amount">${Number(b.total_estimated || 0).toLocaleString('es-ES')} €</div>
+          </div>
+          <div style="font-size:28px;opacity:0.5">💰</div>
+        </div>
+        <div class="budget-grid">${budgetGrid}</div>
+      </div>
+
+      ${converterHTML}
+
+      <div class="me-section">
+        <div class="me-section__title">🎒 Equipaje</div>
+        ${packHTML}
+      </div>
+
+      <div class="me-section">
+        <div class="me-section__title">🚨 Emergencias</div>
+        <div class="emergency-card">${emergHTML}</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-card__title">📤 Compartir esta guía</div>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Comparte el enlace de tu guía por WhatsApp, email o redes sociales.</p>
+        <button class="btn btn--primary" onclick="navigator.share ? navigator.share({title: document.title, text: 'Mira mi guía de viaje', url: location.href}).catch(()=>{}) : alert('Copia la URL del navegador y compártela')">Compartir</button>
+      </div>
+    `;
+
+    if (destCurr) {
+      const eurInput = document.getElementById('conv-eur');
+      const localInput = document.getElementById('conv-local');
+      const resFwd = document.getElementById('conv-result-fwd');
+      const resRev = document.getElementById('conv-result-rev');
+      const rateEl = document.getElementById('conv-rate');
+      let cachedRate = null;
+
+      async function fetchRate() {
+        if (cachedRate) return cachedRate;
+        try {
+          const r = await fetch('https://open.er-api.com/v6/latest/EUR');
+          const j = await r.json();
+          if (j.result === 'success' && j.rates && j.rates[destCurr]) {
+            cachedRate = j.rates[destCurr];
+            rateEl.textContent = '1 EUR = ' + cachedRate.toFixed(4) + ' ' + destCurr;
+            return cachedRate;
+          }
+        } catch(e) {}
+        return null;
+      }
+
+      async function convertFwd() {
+        const a = parseFloat(eurInput.value) || 0;
+        const rate = await fetchRate();
+        if (rate) resFwd.textContent = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(a * rate) + ' ' + destCurr;
+      }
+      async function convertRev() {
+        const a = parseFloat(localInput.value) || 0;
+        const rate = await fetchRate();
+        if (rate) resRev.textContent = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(a / rate);
+      }
+
+      eurInput.addEventListener('input', convertFwd);
+      localInput.addEventListener('input', convertRev);
+      convertFwd();
+    }
+  }
+
+  // ------------------------------------------------------
+  // 5. ACCIONES GLOBALES
+  // ------------------------------------------------------
+  window.__actions = {
+    toggleChecklist(key) {
+      store.checklist[key] = !store.checklist[key];
+      saveStore();
+      const item = document.querySelector(`[data-key="${key}"]`);
+      if (item) item.classList.toggle('is-done');
+    },
+    toggleTimeline(key) {
+      store.timeline[key] = !store.timeline[key];
+      saveStore();
+      const item = document.getElementById('tl-' + key);
+      if (item) item.classList.toggle('is-done');
+    }
+  };
+
+  // ------------------------------------------------------
+  // 6. NAVEGACIÓN
+  // ------------------------------------------------------
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('is-active'));
+    el('#page-' + id).classList.add('is-active');
+    window.scrollTo(0, 0);
+
+    document.querySelectorAll('.tabbar__item').forEach(b => {
+      b.classList.toggle('is-active', b.dataset.tab === id || (id === 'day' && b.dataset.tab === 'days'));
+    });
+
+    switch (id) {
+      case 'home': renderHome(); break;
+      case 'days': renderDaysList(); el('#header-title').textContent = 'Itinerario'; break;
+      case 'map':  renderMap(); el('#header-title').textContent = 'Mapa'; break;
+      case 'tips': renderTips(); el('#header-title').textContent = 'Consejos'; break;
+      case 'me':   renderMe(); el('#header-title').textContent = 'Mi viaje'; break;
+    }
+  }
+
+  window.__nav = {
+    go(id) { showPage(id); },
+    goDay(n) { renderDay(n); showPage('day'); }
+  };
+
+  document.querySelectorAll('.tabbar__item').forEach(btn => {
+    btn.addEventListener('click', () => showPage(btn.dataset.tab));
+  });
+
+  // ------------------------------------------------------
+  // 7. BUSCADOR GLOBAL
+  // ------------------------------------------------------
+  function buildSearchIndex() {
+    const idx = [];
+    DATA.days.forEach(d => {
+      idx.push({ type: 'Día', title: `Día ${d.day}: ${d.title}`, snippet: DATA.summary.find(s => s.day === d.day)?.summary || '', action: () => window.__nav.goDay(d.day) });
+      (d.timeline || []).forEach(t => idx.push({ type: `Día ${d.day}`, title: `${t.time} · ${t.title}`, snippet: t.description, action: () => window.__nav.goDay(d.day) }));
+      (d.places || []).forEach(p => idx.push({ type: `Día ${d.day} · Lugar`, title: p.name, snippet: p.review || '', action: () => window.__nav.goDay(d.day) }));
+      (d.restaurants || []).forEach(r => idx.push({ type: `Día ${d.day} · Restaurante`, title: r.name, snippet: r.speciality || '', action: () => window.__nav.goDay(d.day) }));
+    });
+    (DATA.practical_tips || []).forEach(g => {
+      (g.items || []).forEach(i => idx.push({ type: `Consejo · ${g.title}`, title: i.subtitle, snippet: i.text, action: () => window.__nav.go('tips') }));
+    });
+    return idx;
+  }
+
+  const searchIndex = buildSearchIndex();
+  const searchOverlay = el('#search-overlay');
+  const searchInput = el('#search-input');
+  const searchResults = el('#search-results');
+
+  el('#btn-search').addEventListener('click', () => {
+    searchOverlay.classList.add('is-open');
+    searchInput.value = '';
+    searchResults.innerHTML = '';
+    setTimeout(() => searchInput.focus(), 60);
+  });
+  el('#search-close').addEventListener('click', () => searchOverlay.classList.remove('is-open'));
+
+  function normalize(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+
+  searchInput.addEventListener('input', () => {
+    const q = normalize(searchInput.value.trim());
+    if (q.length < 2) { searchResults.innerHTML = ''; return; }
+    const matches = searchIndex
+      .map(it => ({ it, score: (normalize(it.title).includes(q) ? 2 : 0) + (normalize(it.snippet).includes(q) ? 1 : 0) }))
+      .filter(x => x.score > 0)
+      .sort((a,b) => b.score - a.score)
+      .slice(0, 30);
+    searchResults.innerHTML = matches.length
+      ? matches.map((m, i) => `
+          <div class="search-result" data-sr="${i}">
+            <div class="search-result__type">${esc(m.it.type)}</div>
+            <div class="search-result__title">${esc(m.it.title)}</div>
+            <div class="search-result__snippet">${esc(m.it.snippet)}</div>
+          </div>`).join('')
+      : '<div class="empty-state">Sin resultados.</div>';
+    searchResults.querySelectorAll('[data-sr]').forEach(n => {
+      n.addEventListener('click', () => {
+        const m = matches[Number(n.dataset.sr)];
+        searchOverlay.classList.remove('is-open');
+        m.it.action();
+      });
+    });
+  });
+
+  // ------------------------------------------------------
+  // 8. ARRANQUE
+  // ------------------------------------------------------
+  showPage('home');
+
+})();
+</script>
+
+</body>
+</html>
