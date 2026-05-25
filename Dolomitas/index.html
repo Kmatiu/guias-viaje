@@ -2149,26 +2149,6 @@ hr.divider{height:1px;background:var(--line);margin:16px 0;border:none;}
 
       ${todayHTML}
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-card__value">${prog}%</div>
-          <div class="stat-card__label">Itinerario</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card__value">${packProg}%</div>
-          <div class="stat-card__label">Equipaje</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card__value">${fmtMoney(totalExp, meta.currency||'EUR')}</div>
-          <div class="stat-card__label">Gastado</div>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-card__title">☁️ Clima en destino</div>
-        <div id="weather-content" class="empty-state" style="padding:12px 0">Cargando…</div>
-      </div>
-
       <h2 class="section-title">Qué te espera</h2>
       <div class="props-grid">${valueProps}</div>
 
@@ -2180,7 +2160,6 @@ hr.divider{height:1px;background:var(--line);margin:16px 0;border:none;}
     `;
 
     el('#header-title').textContent = meta.title;
-    loadWeather();
   }
 
   /* ── WEATHER ── */
@@ -2565,10 +2544,10 @@ hr.divider{height:1px;background:var(--line);margin:16px 0;border:none;}
       const r=await fetch(`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&start_date=${lyS}&end_date=${lyE}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`);
       const j=await r.json();
       if(!j.daily?.time?.length)throw new Error();
-      grid(j.daily.time.map((t,i)=>({date:t.replace(/^(\d{4})/,y=>String(+y+1)),icon:codes[j.daily.weather_code[i]]||'🌡',max:Math.round(j.daily.temperature_2m_max[i]),min:Math.round(j.daily.temperature_2m_min[i])})),`📅 Previsión disponible el ${availStr} · Datos año anterior`);
+      grid(j.daily.time.map((t,i)=>({date:t.replace(/^(\d{4})/,y=>String(+y+1)),icon:codes[j.daily.weather_code[i]]||'🌡',max:Math.round(j.daily.temperature_2m_max[i]),min:Math.round(j.daily.temperature_2m_min[i])})),`📅 Datos del año anterior · Previsión real disponible el ${availStr}`);
     }catch(e){
       const p=document.getElementById(elId);
-      if(p) p.innerHTML=`<span style="font-size:12px;color:var(--text-muted)">Previsión disponible aprox. el <strong>${availStr}</strong> (${daysUntil} días).</span>`;
+      if(p) p.innerHTML=`<span style="font-size:12px;color:var(--text-muted)">No se pudo cargar el histórico climático. Previsión real disponible el <strong>${availStr}</strong>.</span>`;
     }
   }
 
