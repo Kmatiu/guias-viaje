@@ -2354,7 +2354,8 @@ hr.divider{height:1px;background:var(--line);margin:16px 0;border:none;}
     const prog = overallProgress();
     const packProg = packingProgress();
     const totalExp = totalExpenses();
-    const budgetTotal = DATA.meta.budget?.total_estimated || 0;
+    const _bdh = store.budget_edit?.breakdown || DATA.meta.budget?.breakdown || {};
+    const budgetTotal = ['flights','accommodation','transport','food','activities','shopping','other'].reduce((s,k)=>s+(Number(_bdh[k])||0),0);
 
     const valueProps = (intro?.value_props||[]).map(v=>`
       <div class="prop-card">
@@ -2734,7 +2735,8 @@ hr.divider{height:1px;background:var(--line);margin:16px 0;border:none;}
     if (!pane) return;
     const cur = DATA.meta.currency || 'EUR';
     const prog = overallProgress(), packProg = packingProgress(), totalExp = totalExpenses();
-    const budgetTotal = DATA.meta.budget?.total_estimated || 0;
+    const _bd = store.budget_edit?.breakdown || DATA.meta.budget?.breakdown || {};
+    const budgetTotal = ['flights','accommodation','transport','food','activities','shopping','other'].reduce((s,k)=>s+(Number(_bd[k])||0),0);
     pane.innerHTML = `
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-card__value">${prog}%</div><div class="stat-card__label">Itinerario</div></div>
@@ -2812,7 +2814,7 @@ hr.divider{height:1px;background:var(--line);margin:16px 0;border:none;}
     const be = store.budget_edit;
     const bdKeys = ['flights','accommodation','transport','food','activities','shopping','other'];
     const bdLabels = {flights:'✈️ Vuelos',accommodation:'🏨 Alojamiento',transport:'🚗 Transporte',food:'🍽️ Comida',activities:'🎟️ Actividades',shopping:'🛍️ Compras',other:'🔧 Otros'};
-    const budgetTotal = DATA.meta.budget?.total_estimated || 0;
+    const budgetTotal = bdKeys.reduce((s,k)=>s+(be.breakdown[k]||0),0);
     const totalExp = totalExpenses();
     const cats = ['Transporte','Alojamiento','Comida','Actividades','Compras','Otros'];
 
