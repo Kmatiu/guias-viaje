@@ -602,6 +602,19 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .place-photo img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; }
 .place-photo__del { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%;
   background: rgba(0,0,0,0.62); color: #fff; font-size: 16px; line-height: 22px; text-align: center; cursor: pointer; }
+/* ── Fotos compartidas del repositorio ───────────────────── */
+.place-photo__badge { position: absolute; bottom: 4px; left: 4px; font-size: 10px; line-height: 1;
+  background: rgba(0,0,0,0.58); color: #fff; border-radius: 6px; padding: 3px 5px; pointer-events: none; }
+.place-photo--empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  border: 1.5px dashed var(--line); background: transparent; padding: 6px 4px; text-align: center; cursor: pointer; }
+.place-photo--empty__icon { font-size: 15px; opacity: 0.55; }
+.place-photo--empty__name { font-size: 9px; line-height: 1.25; color: var(--text-muted); word-break: break-all; font-weight: 600; }
+.place-photo--empty__hint { font-size: 8.5px; color: var(--text-muted); opacity: 0.75; }
+.photo-list { margin-top: 10px; border-top: 1px solid var(--line); }
+.photo-list__row { display: flex; align-items: baseline; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+.photo-list__day { flex-shrink: 0; font-weight: 700; font-size: 10.5px; color: var(--accent); min-width: 22px; }
+.photo-list__row code { font-size: 11.5px; word-break: break-all; }
+.photo-list__name { margin-left: auto; color: var(--text-muted); font-size: 11px; text-align: right; flex-shrink: 1; }
 .photo-lightbox { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.93); display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 14px; padding: 16px; }
 .photo-lightbox img { max-width: 100%; max-height: 76vh; border-radius: 10px; }
@@ -3625,7 +3638,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           </div>
           <div class="place-photos" data-place="${esc(p.id)}">
             <div class="place-photos__head">
-              <span class="place-photos__label">📷 Tus fotos</span>
+              <span class="place-photos__label">📷 Fotos</span>
               <span class="place-photos__status"></span>
               <label class="btn btn--ghost btn--sm place-photos__add">+ Añadir
                 <input type="file" accept="image/*" multiple hidden>
@@ -3813,7 +3826,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     const bar = document.createElement('div'); bar.className = 'photo-lightbox__bar';
     const bClose = document.createElement('button'); bClose.type = 'button'; bClose.className = 'photo-lightbox__btn'; bClose.textContent = 'Cerrar';
     const bDel = document.createElement('button'); bDel.type = 'button'; bDel.className = 'photo-lightbox__btn'; bDel.textContent = 'Eliminar';
-    bar.appendChild(bClose); bar.appendChild(bDel);
+    bar.appendChild(bClose); if (onDelete) bar.appendChild(bDel);
     ov.appendChild(img); ov.appendChild(bar);
     function close() { ov.remove(); }
     bClose.addEventListener('click', close);
@@ -3826,12 +3839,17 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   }
 
   function paintPhotoGrid(placeId, grid) {
-    return photosOf(placeId).then(function (list) {
+    return Promise.all([
+      repoPhotosOf(placeId).catch(function () { return []; }),
+      photosOf(placeId).catch(function () { return []; })
+    ]).then(function (both) {
+      const repo = both[0] || [], list = both[1] || [];
       grid.innerHTML = '';
-      if (!list.length) {
-        grid.innerHTML = '<div class="place-photos__empty">Todavía no has añadido fotos. Se guardan en este dispositivo.</div>';
-        return;
-      }
+      // 1) Fotos del repositorio: las ve todo el mundo
+      repo.forEach(function (url) { grid.appendChild(makeRepoTile(url)); });
+      // 2) Si no hay ninguna, hueco con el nombre de archivo que debe subirse
+      if (!repo.length) grid.appendChild(makeEmptyTile(placeId));
+      // 3) Fotos locales de este dispositivo
       list.forEach(function (rec) {
         const url = URL.createObjectURL(rec.blob);
         __photoURLs.add(url);
@@ -3847,10 +3865,12 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           if (!confirm('¿Eliminar esta foto?')) return;
           photoDel(rec.id).then(function () { paintPhotoGrid(placeId, grid); });
         });
-        fig.appendChild(img); fig.appendChild(del); grid.appendChild(fig);
+        const bdg = document.createElement('span');
+        bdg.className = 'place-photo__badge'; bdg.textContent = '📱';
+        fig.appendChild(img); fig.appendChild(bdg); fig.appendChild(del); grid.appendChild(fig);
       });
     }).catch(function () {
-      grid.innerHTML = '<div class="place-photos__empty">Este navegador no permite guardar fotos. Prueba a abrir la guía desde su enlace web en lugar de como archivo local.</div>';
+      grid.innerHTML = '<div class="place-photos__empty">No se han podido cargar las fotos en este navegador.</div>';
     });
   }
 
@@ -3886,6 +3906,127 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           return paintPhotoGrid(placeId, grid);
         });
       });
+    });
+  }
+
+
+  // --- FOTOS COMPARTIDAS DEL REPOSITORIO ---------------------
+  // Cualquiera que abra el enlace las ve. Se buscan por convencion de
+  // nombre en la carpeta fotos/ del mismo directorio que este index.html:
+  //   fotos/<place.id>.jpg   y extras  fotos/<place.id>-2.jpg, -3.jpg...
+  const REPO_DIR = 'fotos/';
+  const REPO_EXT = ['jpg', 'jpeg', 'png', 'webp'];
+  const REPO_MAX_EXTRA = 8;
+  const __repoCache = {};
+
+  function tryImage(url) {
+    return new Promise(function (res) {
+      const i = new Image();
+      i.onload = function () { res(i.naturalWidth > 0 ? url : null); };
+      i.onerror = function () { res(null); };
+      i.src = url;
+    });
+  }
+  function findRepoFile(base) {
+    let chain = Promise.resolve(null);
+    REPO_EXT.forEach(function (ext) {
+      chain = chain.then(function (found) { return found || tryImage(REPO_DIR + base + '.' + ext); });
+    });
+    return chain;
+  }
+  function repoPhotosOf(placeId) {
+    if (__repoCache[placeId]) return Promise.resolve(__repoCache[placeId]);
+    const out = [];
+    return findRepoFile(placeId).then(function (first) {
+      if (!first) return null;
+      out.push(first);
+      function next(n) {
+        if (n > REPO_MAX_EXTRA + 1) return Promise.resolve();
+        return findRepoFile(placeId + '-' + n).then(function (u) {
+          if (!u) return;               // primer hueco: paramos
+          out.push(u);
+          return next(n + 1);
+        });
+      }
+      return next(2);
+    }).then(function () { __repoCache[placeId] = out; return out; });
+  }
+
+  function copyToClipboard(text, hintEl) {
+    function ok() {
+      if (!hintEl) return;
+      const prev = hintEl.textContent;
+      hintEl.textContent = '¡Copiado!';
+      setTimeout(function () { hintEl.textContent = prev; }, 1500);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(ok).catch(function () {});
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); ok(); } catch (e) {}
+      ta.remove();
+    }
+  }
+
+  function makeRepoTile(url) {
+    const fig = document.createElement('div'); fig.className = 'place-photo';
+    const img = document.createElement('img'); img.src = url; img.alt = 'Foto compartida'; img.loading = 'lazy';
+    img.addEventListener('click', function () { openPhotoLightbox(url, null); });
+    const b = document.createElement('span'); b.className = 'place-photo__badge'; b.textContent = '🌐';
+    fig.appendChild(img); fig.appendChild(b);
+    return fig;
+  }
+  function makeEmptyTile(placeId) {
+    const fig = document.createElement('div');
+    fig.className = 'place-photo place-photo--empty';
+    const file = REPO_DIR + placeId + '.jpg';
+    const ic = document.createElement('span'); ic.className = 'place-photo--empty__icon'; ic.textContent = '🌐';
+    const nm = document.createElement('span'); nm.className = 'place-photo--empty__name'; nm.textContent = file;
+    const hi = document.createElement('span'); hi.className = 'place-photo--empty__hint'; hi.textContent = 'Tocar para copiar';
+    fig.appendChild(ic); fig.appendChild(nm); fig.appendChild(hi);
+    fig.title = 'Sube este archivo al repositorio para que la foto se vea en todos los dispositivos';
+    fig.addEventListener('click', function () { copyToClipboard(file, hi); });
+    return fig;
+  }
+
+  // Listado completo de nombres de archivo, para la pestana Herramientas
+  function repoPhotoListHTML() {
+    const rows = [];
+    (DATA.days || []).forEach(function (d) {
+      (d.places || []).forEach(function (p) { rows.push({ day: d.day, id: p.id, name: p.name }); });
+    });
+    if (!rows.length) return '';
+    return `
+      <div class="tool-card">
+        <div class="tool-card__title">🌐 Fotos compartidas (repositorio)</div>
+        <p style="font-size:13px;color:var(--text-soft);line-height:1.55;margin-bottom:10px">
+          Crea una carpeta <code>fotos/</code> junto a este <code>index.html</code> en GitHub y sube las imágenes con
+          estos nombres exactos. Aparecerán en su lugar correspondiente <strong>para todo el que abra el enlace</strong>.
+          Para varias fotos del mismo sitio añade <code>-2</code>, <code>-3</code>… antes de la extensión.
+          Valen jpg, jpeg, png y webp. Ojo con el HEIC del iPhone: conviértelo a jpg antes de subirlo.
+        </p>
+        <button class="btn btn--ghost btn--sm" id="copy-photo-list">Copiar la lista completa</button>
+        <span id="copy-photo-list-hint" style="font-size:11.5px;color:var(--text-muted);margin-left:8px"></span>
+        <div class="photo-list">
+          ${rows.map(function (r) {
+            return `<div class="photo-list__row"><span class="photo-list__day">D${r.day}</span>` +
+                   `<code>${REPO_DIR}${esc(r.id)}.jpg</code>` +
+                   `<span class="photo-list__name">${esc(r.name)}</span></div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+  function wireRepoPhotoList() {
+    const btn = document.getElementById('copy-photo-list');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      const lines = [];
+      (DATA.days || []).forEach(function (d) {
+        (d.places || []).forEach(function (p) { lines.push(REPO_DIR + p.id + '.jpg   → ' + p.name + ' (día ' + d.day + ')'); });
+      });
+      copyToClipboard(lines.join('\n'), document.getElementById('copy-photo-list-hint'));
     });
   }
 
@@ -4283,7 +4424,10 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     }
 
     const be = store.budget_edit;
-    const bdLabels = { flights: 'Vuelos', accommodation: 'Alojamiento', transport: 'Transporte local', food: 'Comida', activities: 'Parkings/Peajes', shopping: 'Compras', other: 'Otros' };
+    const bdLabels = Object.assign(
+      { flights: 'Vuelos', accommodation: 'Alojamiento', transport: 'Transporte local', food: 'Comida', activities: 'Actividades', shopping: 'Compras', other: 'Otros' },
+      DATA.meta.budget?.labels || {}   // permite renombrar partidas desde el JSON
+    );
     const bdKeys = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
     // Total = suma de partidas (no editable directamente)
     const budgetTotal = bdKeys.reduce((sum, k) => sum + (be.breakdown[k] || 0), 0);
@@ -4769,12 +4913,16 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     paneEl.innerHTML = `
       ${converterHTML}
 
+      ${repoPhotoListHTML()}
+
       <div class="tool-card">
         <div class="tool-card__title">📤 Compartir esta guía</div>
         <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Comparte el enlace de tu guía por WhatsApp, email o redes sociales.</p>
         <button class="btn btn--primary" onclick="navigator.share ? navigator.share({title: document.title, text: 'Mira mi guía de viaje', url: location.href}).catch(()=>{}) : alert('Copia la URL del navegador y compártela')">Compartir</button>
       </div>
     `;
+
+    wireRepoPhotoList();
 
     if (destCurr) {
       const eurInput = document.getElementById('conv-eur');
