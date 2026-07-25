@@ -589,6 +589,25 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .info-block__list li:last-child { border-bottom: none; }
 
 /* Notas del día */
+/* ── Fotos del usuario por lugar ─────────────────────────── */
+.place-photos { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.place-photos__head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.place-photos__label { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.place-photos__status { font-size: 11.5px; color: var(--text-muted); margin-left: auto; }
+.place-photos__add { cursor: pointer; margin-left: auto; }
+.place-photos__status:not(:empty) + .place-photos__add { margin-left: 8px; }
+.place-photos__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.place-photos__empty { grid-column: 1 / -1; font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+.place-photo { position: relative; aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden; background: rgba(127,127,127,0.12); }
+.place-photo img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; }
+.place-photo__del { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%;
+  background: rgba(0,0,0,0.62); color: #fff; font-size: 16px; line-height: 22px; text-align: center; cursor: pointer; }
+.photo-lightbox { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.93); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px; padding: 16px; }
+.photo-lightbox img { max-width: 100%; max-height: 76vh; border-radius: 10px; }
+.photo-lightbox__bar { display: flex; gap: 10px; }
+.photo-lightbox__btn { padding: 9px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.32);
+  background: rgba(255,255,255,0.14); color: #fff; font-size: 13.5px; font-weight: 600; cursor: pointer; }
 .day-notes { margin-top: 24px; background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
 .day-notes__label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; }
 .day-notes__textarea {
@@ -3604,6 +3623,16 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
               WhatsApp
             </a>
           </div>
+          <div class="place-photos" data-place="${esc(p.id)}">
+            <div class="place-photos__head">
+              <span class="place-photos__label">📷 Tus fotos</span>
+              <span class="place-photos__status"></span>
+              <label class="btn btn--ghost btn--sm place-photos__add">+ Añadir
+                <input type="file" accept="image/*" multiple hidden>
+              </label>
+            </div>
+            <div class="place-photos__grid"></div>
+          </div>
         </div>`;
     }).join('');
 
@@ -3685,7 +3714,179 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
       saveStore();
     });
 
+    initPlacePhotos(el('#page-day'));
+
     el('#header-title').textContent = `Día ${d.day} · ${d.title}`;
+  }
+
+
+  // --- FOTOS DE LUGARES (IndexedDB) -------------------------
+  // Las fotos no caben en localStorage (5 MB), asi que van a IndexedDB
+  // como Blob comprimido. Se guardan solo en este dispositivo/navegador.
+  const PHOTO_DB = 'guia_' + SLUG + '_photos';
+  const PHOTO_MAX_EDGE = 1600;
+  const PHOTO_QUALITY = 0.72;
+  let __photoDB = null;
+  const __photoURLs = new Set();
+
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persisted().then(function (p) { if (!p) navigator.storage.persist(); }).catch(function () {});
+  }
+
+  function photoDB() {
+    if (__photoDB) return Promise.resolve(__photoDB);
+    return new Promise(function (res, rej) {
+      if (!window.indexedDB) { rej(new Error('sin IndexedDB')); return; }
+      const rq = indexedDB.open(PHOTO_DB, 1);
+      rq.onupgradeneeded = function () {
+        const db = rq.result;
+        if (!db.objectStoreNames.contains('photos')) {
+          const os = db.createObjectStore('photos', { keyPath: 'id' });
+          os.createIndex('byPlace', 'placeId', { unique: false });
+        }
+      };
+      rq.onsuccess = function () { __photoDB = rq.result; res(__photoDB); };
+      rq.onerror = function () { rej(rq.error); };
+    });
+  }
+  function photoStore(mode) {
+    return photoDB().then(function (db) { return db.transaction('photos', mode).objectStore('photos'); });
+  }
+  function photosOf(placeId) {
+    return photoStore('readonly').then(function (os) {
+      return new Promise(function (res, rej) {
+        const rq = os.index('byPlace').getAll(placeId);
+        rq.onsuccess = function () { res((rq.result || []).sort(function (a, b) { return a.ts - b.ts; })); };
+        rq.onerror = function () { rej(rq.error); };
+      });
+    });
+  }
+  function photoPut(rec) {
+    return photoStore('readwrite').then(function (os) {
+      return new Promise(function (res, rej) {
+        const rq = os.put(rec); rq.onsuccess = function () { res(); }; rq.onerror = function () { rej(rq.error); };
+      });
+    });
+  }
+  function photoDel(id) {
+    return photoStore('readwrite').then(function (os) {
+      return new Promise(function (res, rej) {
+        const rq = os.delete(id); rq.onsuccess = function () { res(); }; rq.onerror = function () { rej(rq.error); };
+      });
+    });
+  }
+
+  // Reduce a 1600 px de lado mayor y recomprime a JPEG: una foto de movil
+  // de 4 MB baja a 200-400 KB sin perder calidad visible en pantalla.
+  function shrinkImage(file) {
+    function fromBitmap(bmp) {
+      const iw = bmp.width, ih = bmp.height;
+      const k = Math.min(1, PHOTO_MAX_EDGE / Math.max(iw, ih));
+      const w = Math.max(1, Math.round(iw * k)), h = Math.max(1, Math.round(ih * k));
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(bmp, 0, 0, w, h);
+      if (bmp.close) bmp.close();
+      return new Promise(function (res, rej) {
+        c.toBlob(function (b) { b ? res(b) : rej(new Error('no se pudo comprimir')); }, 'image/jpeg', PHOTO_QUALITY);
+      });
+    }
+    if (window.createImageBitmap) {
+      return createImageBitmap(file, { imageOrientation: 'from-image' }).then(fromBitmap).catch(function () {
+        return legacyLoad(file).then(fromBitmap);
+      });
+    }
+    return legacyLoad(file).then(fromBitmap);
+  }
+  function legacyLoad(file) {
+    return new Promise(function (res, rej) {
+      const u = URL.createObjectURL(file), i = new Image();
+      i.onload = function () { URL.revokeObjectURL(u); res(i); };
+      i.onerror = function () { URL.revokeObjectURL(u); rej(new Error('no se pudo leer la imagen')); };
+      i.src = u;
+    });
+  }
+
+  function openPhotoLightbox(url, onDelete) {
+    const ov = document.createElement('div');
+    ov.className = 'photo-lightbox';
+    const img = document.createElement('img'); img.src = url; img.alt = 'Foto del lugar';
+    const bar = document.createElement('div'); bar.className = 'photo-lightbox__bar';
+    const bClose = document.createElement('button'); bClose.type = 'button'; bClose.className = 'photo-lightbox__btn'; bClose.textContent = 'Cerrar';
+    const bDel = document.createElement('button'); bDel.type = 'button'; bDel.className = 'photo-lightbox__btn'; bDel.textContent = 'Eliminar';
+    bar.appendChild(bClose); bar.appendChild(bDel);
+    ov.appendChild(img); ov.appendChild(bar);
+    function close() { ov.remove(); }
+    bClose.addEventListener('click', close);
+    ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+    bDel.addEventListener('click', function () {
+      if (!confirm('¿Eliminar esta foto?')) return;
+      onDelete(); close();
+    });
+    document.body.appendChild(ov);
+  }
+
+  function paintPhotoGrid(placeId, grid) {
+    return photosOf(placeId).then(function (list) {
+      grid.innerHTML = '';
+      if (!list.length) {
+        grid.innerHTML = '<div class="place-photos__empty">Todavía no has añadido fotos. Se guardan en este dispositivo.</div>';
+        return;
+      }
+      list.forEach(function (rec) {
+        const url = URL.createObjectURL(rec.blob);
+        __photoURLs.add(url);
+        const fig = document.createElement('div'); fig.className = 'place-photo';
+        const img = document.createElement('img'); img.src = url; img.alt = 'Foto del lugar'; img.loading = 'lazy';
+        img.addEventListener('click', function () {
+          openPhotoLightbox(url, function () { photoDel(rec.id).then(function () { paintPhotoGrid(placeId, grid); }); });
+        });
+        const del = document.createElement('button');
+        del.type = 'button'; del.className = 'place-photo__del'; del.setAttribute('aria-label', 'Eliminar foto'); del.textContent = '×';
+        del.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          if (!confirm('¿Eliminar esta foto?')) return;
+          photoDel(rec.id).then(function () { paintPhotoGrid(placeId, grid); });
+        });
+        fig.appendChild(img); fig.appendChild(del); grid.appendChild(fig);
+      });
+    }).catch(function () {
+      grid.innerHTML = '<div class="place-photos__empty">Este navegador no permite guardar fotos. Prueba a abrir la guía desde su enlace web en lugar de como archivo local.</div>';
+    });
+  }
+
+  function initPlacePhotos(scope) {
+    __photoURLs.forEach(function (u) { URL.revokeObjectURL(u); });
+    __photoURLs.clear();
+    (scope || document).querySelectorAll('.place-photos').forEach(function (box) {
+      const placeId = box.getAttribute('data-place');
+      const grid = box.querySelector('.place-photos__grid');
+      const input = box.querySelector('input[type="file"]');
+      const status = box.querySelector('.place-photos__status');
+      paintPhotoGrid(placeId, grid);
+      input.addEventListener('change', function (e) {
+        const files = Array.prototype.slice.call(e.target.files || []);
+        e.target.value = '';
+        if (!files.length) return;
+        status.textContent = files.length > 1 ? 'Guardando ' + files.length + ' fotos…' : 'Guardando…';
+        let chain = Promise.resolve(), errors = 0;
+        files.forEach(function (f) {
+          if (!/^image\//.test(f.type)) return;
+          chain = chain.then(function () {
+            return shrinkImage(f).then(function (blob) {
+              return photoPut({
+                id: placeId + '::' + Date.now() + '::' + Math.random().toString(36).slice(2, 7),
+                placeId: placeId, blob: blob, ts: Date.now()
+              });
+            }).catch(function () { errors++; });
+          });
+        });
+        chain.then(function () {
+          status.textContent = errors ? 'No se pudieron guardar ' + errors + ' foto(s)' : '';
+          if (errors) setTimeout(function () { status.textContent = ''; }, 4000);
+          return paintPhotoGrid(placeId, grid);
+        });
+      });
+    });
   }
 
   // --- MAP ------------------------------------------------
