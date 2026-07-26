@@ -590,6 +590,21 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 
 /* Notas del día */
 /* ── Fotos del usuario por lugar ─────────────────────────── */
+/* ── Sin conexión, horas de luz y cuenta atrás ───────────── */
+.offline-chip { display: none; align-items: center; gap: 5px; font-size: 11px; font-weight: 700;
+  background: #8A6D3B; color: #fff; border-radius: 999px; padding: 3px 9px; margin-right: 6px; white-space: nowrap; }
+body.is-offline .offline-chip { display: inline-flex; }
+.sun-strip { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.sun-strip__item { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600;
+  background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.22); color: inherit;
+  border-radius: 999px; padding: 4px 10px; }
+.sun-strip--plain .sun-strip__item { background: var(--bg-soft, rgba(127,127,127,0.1)); border-color: var(--line); }
+.countdown-chip { font-weight: 700; }
+.backup-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.backup-note { font-size: 12px; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
+.prep-bar { height: 6px; border-radius: 999px; background: rgba(127,127,127,0.18); overflow: hidden; margin-top: 10px; display: none; }
+.prep-bar.on { display: block; }
+.prep-bar__fill { height: 100%; width: 0%; background: var(--accent); transition: width .25s ease; }
 .place-photos { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
 .place-photos__head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .place-photos__label { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
@@ -971,6 +986,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
      ========================================================= -->
 <header class="app-header">
   <div class="app-header__title" id="header-title">Guía de viaje</div>
+  <span class="offline-chip">⚡ Sin conexión</span>
   <div class="app-header__actions">
     <button class="icon-btn" id="btn-search" aria-label="Buscar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
@@ -1106,7 +1122,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     "language": "es",
     "currency": "EUR",
     "cover_image": "cover.jpg",
-    "theme_color": "#4A7C59"
+    "theme_color": "#4A7C59",
+    "timezone": "Europe/Rome"
   },
   "intro": {
     "narrative": "Siete días para atravesar el norte de Italia en coche de alquiler desde Milán-Bérgamo: el Lago di Garda con sus cipreses, el santuario incrustado en la pared del Monte Baldo, las aguas esmeralda del Carezza y, después, el corazón dolomítico. Dos bases muy distintas: Bolzano las dos primeras noches, capital tirolesa de mercado y vino; y el B&B Il Sogno, en el Valle del Comelico entre San Pietro y Santo Stefano di Cadore, las cuatro siguientes: un valle tranquilo, barato y sin turismo de masas desde el que salir cada mañana antes de que lleguen los autobuses. El itinerario está construido alrededor de dos ejes: trekkings ganados a pie (Seceda desde Cristauta, Sorapis, Piz Boè, el giro de las Tre Cime) y una lista muy concreta de dónde sí y dónde no se puede volar el dron.",
@@ -3029,6 +3046,40 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   ],
   "practical_tips": [
     {
+      "icon": "📅",
+      "title": "Antes de salir: qué reservar y cuándo",
+      "items": [
+        {
+          "subtitle": "En cuanto tengáis el coche confirmado",
+          "text": "Apuntad la MATRÍCULA en el móvil: la piden las dos reservas críticas del viaje y no la vais a tener a mano cuando la necesitéis. Si la empresa de alquiler no os la da hasta el mostrador, tendréis que hacer ambas reservas el día 1 desde el aeropuerto: contad con ello."
+        },
+        {
+          "subtitle": "Dos o tres meses antes · coche y vuelos",
+          "text": "El alquiler en Bérgamo sube mucho según se acerca junio. Reservad con antelación y con cancelación gratuita, que suele costar lo mismo. Comprobad que el seguro premium cubre cristales y bajos, porque en las carreteras de los pasos la grava salta."
+        },
+        {
+          "subtitle": "Un mes antes · dron",
+          "text": "Registro en D-Flight (d-flight.it), unos 90 € de pago único, más el certificado A1/A3 de EASA, que es gratuito y online. Y revisad que el seguro de responsabilidad civil del dron cubre Italia con el mínimo de 920.000 € exigido. Es el trámite que más tarda y sin él no se puede volar en ninguna de las once paradas donde sí está permitido."
+        },
+        {
+          "subtitle": "Exactamente 6 días antes · parking del Alpe di Siusi",
+          "text": "FECHA LÍMITE DURA. La reserva del parking P2 de Compatsch (día 2) se abre solo 6 días antes en seiseralm.it, cuesta 30 € y exige matrícula. Poned una alarma en el móvil: si se agota, ese día se queda sin la mejor toma de dron del viaje, porque al altiplano no se sube en coche entre las 9:00 y las 17:00."
+        },
+        {
+          "subtitle": "En cuanto se abra el cupo · peaje de las Tre Cime",
+          "text": "La reserva del día 6 se hace en pass.auronzo.info con matrícula y franja horaria, y cuesta unos 40 €. Escoged la franja de primera hora, porque el ticket vale 12 h desde la hora reservada y el parking del Rifugio Auronzo se llena antes de las 9:00. Sin reserva la barrera no abre: no hay plan B."
+        },
+        {
+          "subtitle": "La semana antes · nieve y ramponcini",
+          "text": "Mirad el parte de MeteoTrentino y las reseñas recientes en AllTrails y atlasdolomiti.com de dos rutas concretas: el sendero 215 del Sorapis (día 4) y el 627 hacia Forcella Pordoi (día 5). Son las que guardan neveros a finales de junio. Si hay nieve, los ramponcini se compran el día 1 en el Decathlon de Bolzano; si no, os ahorráis unos 30 €."
+        },
+        {
+          "subtitle": "La víspera · guía sin conexión y copia de seguridad",
+          "text": "Con wifi, abrid la guía y pulsad «Preparar para usar sin conexión» en Yo → Herramientas: descarga la guía y las fotos compartidas para que funcione en modo avión, que es como la vais a usar en el Comelico y en los pasos. Descargad también los mapas offline de Google Maps y de Komoot para las zonas del Garda, Val Gardena, Val di Funes y Cortina-Comelico-Misurina."
+        }
+      ]
+    },
+    {
       "icon": "🅿️",
       "title": "Parkings, peajes y reservas obligatorias",
       "items": [
@@ -3566,6 +3617,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
           <span class="hero__meta-item">📅 ${fmtDate(meta.dates.start)} – ${fmtDate(meta.dates.end, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
           <span class="hero__meta-item">🧭 ${meta.dates.days} días</span>
           <span class="hero__meta-item">👥 ${meta.travelers.adults}${meta.travelers.children ? ' + ' + meta.travelers.children + ' 👶' : ''}</span>
+          ${countdownHTML()}
         </div>
       </section>
 
@@ -3578,6 +3630,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     `;
 
     el('#header-title').textContent = meta.title;
+    refreshOnline();
   }
 
   // --- DAYS LIST ------------------------------------------
@@ -3733,6 +3786,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         <div class="day-detail__eyebrow">Día ${d.day} — ${fmtDate(d.date, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
         <h1 class="day-detail__title">${esc(d.title)}</h1>
         ${logisticsHTML}
+        ${sunStripHTML(d)}
       </div>
 
       <div class="timeline">${timelineHTML}</div>
@@ -4013,12 +4067,12 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   function makeEmptyTile(placeId) {
     const fig = document.createElement('div');
     fig.className = 'place-photo place-photo--empty';
-    const file = REPO_DIR + placeId + '.jpg';
+    const file = placeId + '.jpg';   // solo el nombre: es lo que se copia para pegarlo al renombrar
     const ic = document.createElement('span'); ic.className = 'place-photo--empty__icon'; ic.textContent = '🌐';
     const nm = document.createElement('span'); nm.className = 'place-photo--empty__name'; nm.textContent = file;
     const hi = document.createElement('span'); hi.className = 'place-photo--empty__hint'; hi.textContent = 'Tocar para copiar';
     fig.appendChild(ic); fig.appendChild(nm); fig.appendChild(hi);
-    fig.title = 'Sube este archivo al repositorio para que la foto se vea en todos los dispositivos';
+    fig.title = 'Nombra así tu foto y súbela a la carpeta fotos/ del repositorio para que la vea todo el mundo';
     fig.addEventListener('click', function () { copyToClipboard(file, hi); });
     return fig;
   }
@@ -4034,8 +4088,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
       <div class="tool-card">
         <div class="tool-card__title">🌐 Fotos compartidas (repositorio)</div>
         <p style="font-size:13px;color:var(--text-soft);line-height:1.55;margin-bottom:10px">
-          Crea una carpeta <code>fotos/</code> junto a este <code>index.html</code> en GitHub y sube las imágenes con
-          estos nombres exactos. Aparecerán en su lugar correspondiente <strong>para todo el que abra el enlace</strong>.
+          Crea una carpeta <code>fotos/</code> junto a este <code>index.html</code> en GitHub y sube ahí las imágenes con
+          estos nombres exactos. El nombre se copia sin la carpeta, para que puedas pegarlo tal cual al renombrar el archivo. Aparecerán en su lugar correspondiente <strong>para todo el que abra el enlace</strong>.
           Para varias fotos del mismo sitio añade <code>-2</code>, <code>-3</code>… antes de la extensión.
           Valen jpg, jpeg, png y webp. Ojo con el HEIC del iPhone: conviértelo a jpg antes de subirlo.
         </p>
@@ -4044,7 +4098,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
         <div class="photo-list">
           ${rows.map(function (r) {
             return `<div class="photo-list__row"><span class="photo-list__day">D${r.day}</span>` +
-                   `<code>${REPO_DIR}${esc(r.id)}.jpg</code>` +
+                   `<code>${esc(r.id)}.jpg</code>` +
                    `<span class="photo-list__name">${esc(r.name)}</span></div>`;
           }).join('')}
         </div>
@@ -4056,10 +4110,312 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     btn.addEventListener('click', function () {
       const lines = [];
       (DATA.days || []).forEach(function (d) {
-        (d.places || []).forEach(function (p) { lines.push(REPO_DIR + p.id + '.jpg   → ' + p.name + ' (día ' + d.day + ')'); });
+        (d.places || []).forEach(function (p) { lines.push(p.id + '.jpg   → ' + p.name + ' (día ' + d.day + ')'); });
       });
       copyToClipboard(lines.join('\n'), document.getElementById('copy-photo-list-hint'));
     });
+  }
+
+
+  // --- HORAS DE LUZ ------------------------------------------
+  // Algoritmo estandar de la ecuacion del amanecer (NOAA). Verificado
+  // contra la biblioteca astral con un minuto de margen.
+  var RAD = Math.PI / 180;
+  function jFromMs(ms) { return ms / 86400000 + 2440587.5; }
+  function msFromJ(j) { return (j - 2440587.5) * 86400000; }
+
+  function sunEvent(lat, lng, dateISO, altDeg) {
+    var p = dateISO.split('-');
+    var noonUTC = Date.UTC(+p[0], +p[1] - 1, +p[2], 12, 0, 0);
+    var days = jFromMs(noonUTC) - 2451545.0;
+    var lw = -lng;
+    var n = Math.round(days - 0.0009 - lw / 360);
+    var Js = n + 0.0009 + lw / 360;
+    var M = (357.5291 + 0.98560028 * Js) % 360;
+    var C = 1.9148 * Math.sin(M * RAD) + 0.0200 * Math.sin(2 * M * RAD) + 0.0003 * Math.sin(3 * M * RAD);
+    var lam = (M + C + 180 + 102.9372) % 360;
+    var Jt = 2451545.0 + Js + 0.0053 * Math.sin(M * RAD) - 0.0069 * Math.sin(2 * lam * RAD);
+    var dec = Math.asin(Math.sin(lam * RAD) * Math.sin(23.4397 * RAD));
+    var cosw = (Math.sin(altDeg * RAD) - Math.sin(lat * RAD) * Math.sin(dec)) /
+               (Math.cos(lat * RAD) * Math.cos(dec));
+    if (cosw > 1 || cosw < -1) return null;          // sol de medianoche o noche polar
+    var w = Math.acos(cosw) / RAD;
+    return { rise: new Date(msFromJ(Jt - w / 360)), set: new Date(msFromJ(Jt + w / 360)) };
+  }
+
+  var TZ = (DATA.meta && DATA.meta.timezone) || null;
+  function hhmm(d) {
+    try {
+      return new Intl.DateTimeFormat('es-ES', {
+        hour: '2-digit', minute: '2-digit', hour12: false,
+        timeZone: TZ || undefined
+      }).format(d);
+    } catch (e) {
+      return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    }
+  }
+
+  // Coordenadas representativas del dia: media de sus lugares.
+  function dayCoords(d) {
+    var pts = (d.places || []).filter(function (p) { return p.coords && typeof p.coords.lat === 'number'; });
+    if (!pts.length) {
+      var mk = ((DATA.overview_map || {}).markers || []).filter(function (m) { return m.day === d.day; });
+      if (mk.length) {
+        return { lat: mk.reduce(function (s, m) { return s + m.coords.lat; }, 0) / mk.length,
+                 lng: mk.reduce(function (s, m) { return s + m.coords.lng; }, 0) / mk.length };
+      }
+      var c = (DATA.overview_map || {}).center;
+      return c && typeof c.lat === 'number' ? c : null;
+    }
+    return { lat: pts.reduce(function (s, p) { return s + p.coords.lat; }, 0) / pts.length,
+             lng: pts.reduce(function (s, p) { return s + p.coords.lng; }, 0) / pts.length };
+  }
+
+  function sunStripHTML(d, plain) {
+    var c = dayCoords(d);
+    if (!c || !d.date) return '';
+    var sr = sunEvent(c.lat, c.lng, d.date, -0.833);
+    var gh = sunEvent(c.lat, c.lng, d.date, 6);
+    if (!sr) return '';
+    var items = [
+      '<span class="sun-strip__item">🌅 Amanece ' + hhmm(sr.rise) + '</span>',
+      '<span class="sun-strip__item">🌇 Anochece ' + hhmm(sr.set) + '</span>'
+    ];
+    if (gh) {
+      items.push('<span class="sun-strip__item">✨ Hora dorada ' + hhmm(sr.rise) + '–' + hhmm(gh.rise) +
+                 ' y ' + hhmm(gh.set) + '–' + hhmm(sr.set) + '</span>');
+    }
+    var mins = Math.round((sr.set - sr.rise) / 60000);
+    items.push('<span class="sun-strip__item">☀️ ' + Math.floor(mins / 60) + ' h ' + (mins % 60) + ' min de luz</span>');
+    return '<div class="sun-strip' + (plain ? ' sun-strip--plain' : '') + '">' + items.join('') + '</div>';
+  }
+
+  // --- SIN CONEXIÓN ------------------------------------------
+  function refreshOnline() {
+    document.body.classList.toggle('is-offline', navigator.onLine === false);
+  }
+  window.addEventListener('online', refreshOnline);
+  window.addEventListener('offline', refreshOnline);
+
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    });
+  }
+
+  function precacheForOffline(btn, bar) {
+    if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
+      alert('La preparación sin conexión necesita que la guía esté abierta desde su enlace web (https), no como archivo descargado. Si acabas de abrirla, recárgala una vez y vuelve a intentarlo.');
+      return;
+    }
+    var urls = ['./', './index.html'];
+    if (DATA.meta && DATA.meta.cover_image && DATA.meta.cover_image.indexOf('data:') !== 0) urls.push(DATA.meta.cover_image);
+    (DATA.days || []).forEach(function (d) {
+      (d.places || []).forEach(function (p) {
+        ['', '-2', '-3'].forEach(function (sfx) {
+          ['jpg', 'jpeg', 'png', 'webp'].forEach(function (ext) {
+            urls.push(REPO_DIR + p.id + sfx + '.' + ext);
+          });
+        });
+      });
+    });
+    var ch = new MessageChannel();
+    bar.classList.add('on');
+    btn.disabled = true;
+    btn.textContent = 'Preparando…';
+    ch.port1.onmessage = function (ev) {
+      var m = ev.data || {};
+      if (m.total) bar.firstChild.style.width = (m.done / m.total * 100) + '%';
+      if (m.finished) {
+        btn.textContent = 'Listo para usar sin cobertura';
+        setTimeout(function () {
+          btn.disabled = false;
+          btn.textContent = 'Preparar para usar sin conexión';
+          bar.classList.remove('on');
+          bar.firstChild.style.width = '0%';
+        }, 2600);
+      }
+    };
+    navigator.serviceWorker.controller.postMessage({ type: 'PRECACHE', urls: urls }, [ch.port2]);
+  }
+
+  // --- COPIA DE SEGURIDAD ------------------------------------
+  function exportData() {
+    var payload = {
+      formato: 'guia-viaje-backup',
+      version: 1,
+      guia: SLUG,
+      destino: (DATA.meta.destination || {}).name || '',
+      exportado: new Date().toISOString(),
+      datos: store
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var name = 'guia-' + SLUG + '-' + new Date().toISOString().slice(0, 10) + '.json';
+    triggerDownload(blob, name);
+  }
+
+  function importData(file, statusEl) {
+    var r = new FileReader();
+    r.onload = function () {
+      var p;
+      try { p = JSON.parse(String(r.result)); } catch (e) {
+        statusEl.textContent = 'Ese archivo no es una copia de seguridad válida.'; return;
+      }
+      if (!p || p.formato !== 'guia-viaje-backup' || !p.datos) {
+        statusEl.textContent = 'Ese archivo no es una copia de seguridad de una guía.'; return;
+      }
+      if (p.guia !== SLUG && !confirm('Esa copia es de la guía «' + (p.destino || p.guia) + '», no de esta. ¿Restaurarla igualmente?')) return;
+      if (!confirm('Se van a sustituir tus notas, gastos y equipaje actuales por los de la copia. ¿Continuar?')) return;
+      Object.keys(p.datos).forEach(function (k) { store[k] = p.datos[k]; });
+      saveStore();
+      statusEl.textContent = 'Restaurado. Recargando…';
+      setTimeout(function () { location.reload(); }, 700);
+    };
+    r.readAsText(file);
+  }
+
+  function triggerDownload(blob, name) {
+    var u = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = u; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(u); }, 5000);
+  }
+
+  // ZIP sin compresión, para exportar las fotos locales ya renombradas
+  var CRCT = (function () {
+    var t = new Uint32Array(256), n, c, k;
+    for (n = 0; n < 256; n++) { c = n; for (k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[n] = c >>> 0; }
+    return t;
+  })();
+  function crc32b(u8) {
+    var c = 0xFFFFFFFF;
+    for (var i = 0; i < u8.length; i++) c = CRCT[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+  function zipStore(entries) {
+    var parts = [], central = [], offset = 0, now = new Date();
+    var tt = (now.getHours() << 11) | (now.getMinutes() << 5) | ((now.getSeconds() / 2) | 0);
+    var dd = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+    var enc = new TextEncoder();
+    entries.forEach(function (e) {
+      var nb = enc.encode(e.name), crc = crc32b(e.u8), size = e.u8.length;
+      var lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true);
+      lh.setUint16(8, 0, true); lh.setUint16(10, tt, true); lh.setUint16(12, dd, true);
+      lh.setUint32(14, crc, true); lh.setUint32(18, size, true); lh.setUint32(22, size, true);
+      lh.setUint16(26, nb.length, true); lh.setUint16(28, 0, true);
+      parts.push(new Uint8Array(lh.buffer), nb, e.u8);
+      var cd = new DataView(new ArrayBuffer(46));
+      cd.setUint32(0, 0x02014b50, true); cd.setUint16(4, 20, true); cd.setUint16(6, 20, true);
+      cd.setUint16(8, 0x0800, true); cd.setUint16(10, 0, true); cd.setUint16(12, tt, true);
+      cd.setUint16(14, dd, true); cd.setUint32(16, crc, true); cd.setUint32(20, size, true);
+      cd.setUint32(24, size, true); cd.setUint16(28, nb.length, true); cd.setUint16(30, 0, true);
+      cd.setUint16(32, 0, true); cd.setUint16(34, 0, true); cd.setUint16(36, 0, true);
+      cd.setUint32(38, 0, true); cd.setUint32(42, offset, true);
+      central.push(new Uint8Array(cd.buffer), nb);
+      offset += 30 + nb.length + size;
+    });
+    var cdSize = central.reduce(function (s, a) { return s + a.length; }, 0);
+    var eo = new DataView(new ArrayBuffer(22));
+    eo.setUint32(0, 0x06054b50, true); eo.setUint16(4, 0, true); eo.setUint16(6, 0, true);
+    eo.setUint16(8, entries.length, true); eo.setUint16(10, entries.length, true);
+    eo.setUint32(12, cdSize, true); eo.setUint32(16, offset, true); eo.setUint16(20, 0, true);
+    return new Blob(parts.concat(central, [new Uint8Array(eo.buffer)]), { type: 'application/zip' });
+  }
+
+  function exportLocalPhotos(btn) {
+    var ids = [];
+    (DATA.days || []).forEach(function (d) { (d.places || []).forEach(function (p) { ids.push(p.id); }); });
+    btn.disabled = true; btn.textContent = 'Reuniendo fotos…';
+    var entries = [], chain = Promise.resolve();
+    ids.forEach(function (id) {
+      chain = chain.then(function () {
+        return photosOf(id).then(function (list) {
+          list.forEach(function (rec, i) {
+            entries.push({ id: id, i: i, blob: rec.blob });
+          });
+        }).catch(function () {});
+      });
+    });
+    chain.then(function () {
+      if (!entries.length) {
+        btn.disabled = false; btn.textContent = 'Exportar mis fotos (.zip)';
+        alert('Todavía no has añadido ninguna foto desde este dispositivo.');
+        return;
+      }
+      var out = [], c2 = Promise.resolve();
+      entries.forEach(function (e) {
+        c2 = c2.then(function () {
+          return e.blob.arrayBuffer().then(function (buf) {
+            out.push({ name: 'fotos/' + (e.i === 0 ? e.id + '.jpg' : e.id + '-' + (e.i + 1) + '.jpg'),
+                       u8: new Uint8Array(buf) });
+          });
+        });
+      });
+      return c2.then(function () {
+        triggerDownload(zipStore(out), 'fotos.zip');
+        btn.disabled = false; btn.textContent = 'Exportar mis fotos (.zip)';
+      });
+    });
+  }
+
+  function backupCardHTML() {
+    return `
+      <div class="tool-card">
+        <div class="tool-card__title">💾 Copia de seguridad y sin conexión</div>
+        <p style="font-size:13px;color:var(--text-soft);line-height:1.55;margin-bottom:4px">
+          Tus notas, gastos y equipaje viven solo en este navegador. Si cambias de móvil o borras los datos de navegación, se pierden.
+          Descarga la copia de vez en cuando durante el viaje.
+        </p>
+        <div class="backup-row">
+          <button class="btn btn--ghost btn--sm" id="bk-export">Descargar copia</button>
+          <button class="btn btn--ghost btn--sm" id="bk-import">Restaurar copia</button>
+          <input type="file" id="bk-file" accept="application/json,.json" style="display:none">
+        </div>
+        <div class="backup-note" id="bk-status"></div>
+        <div class="backup-row" style="margin-top:14px">
+          <button class="btn btn--ghost btn--sm" id="bk-photos">Exportar mis fotos (.zip)</button>
+          <button class="btn btn--primary btn--sm" id="bk-offline">Preparar para usar sin conexión</button>
+        </div>
+        <div class="prep-bar" id="prep-bar"><div class="prep-bar__fill"></div></div>
+        <p class="backup-note">
+          El zip de fotos sale con los nombres correctos: descomprímelo y súbelo al repositorio para que las vea todo el mundo.
+          «Preparar para usar sin conexión» descarga la guía y las fotos compartidas para que se abra en modo avión; el mapa
+          guardará además los tiles que hayas mirado. Hazlo con wifi antes de salir.
+        </p>
+      </div>`;
+  }
+  function wireBackupCard() {
+    var ex = document.getElementById('bk-export');
+    if (!ex) return;
+    var st = document.getElementById('bk-status');
+    ex.addEventListener('click', exportData);
+    document.getElementById('bk-import').addEventListener('click', function () { document.getElementById('bk-file').click(); });
+    document.getElementById('bk-file').addEventListener('change', function (e) {
+      if (e.target.files[0]) importData(e.target.files[0], st);
+      e.target.value = '';
+    });
+    document.getElementById('bk-photos').addEventListener('click', function () { exportLocalPhotos(this); });
+    document.getElementById('bk-offline').addEventListener('click', function () {
+      precacheForOffline(this, document.getElementById('prep-bar'));
+    });
+  }
+
+  // --- CUENTA ATRÁS ------------------------------------------
+  function countdownHTML() {
+    var s = DATA.meta && DATA.meta.dates && DATA.meta.dates.start;
+    if (!s) return '';
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var p = s.split('-'), start = new Date(+p[0], +p[1] - 1, +p[2]);
+    var e = DATA.meta.dates.end ? DATA.meta.dates.end.split('-') : null;
+    var end = e ? new Date(+e[0], +e[1] - 1, +e[2]) : start;
+    var diff = Math.round((start - today) / 86400000);
+    if (diff > 0) return '<span class="hero__meta-item countdown-chip">⏳ Faltan ' + diff + (diff === 1 ? ' día' : ' días') + '</span>';
+    if (today <= end) {
+      var n = Math.round((today - start) / 86400000) + 1;
+      return '<span class="hero__meta-item countdown-chip">📍 Día ' + n + ' del viaje</span>';
+    }
+    return '<span class="hero__meta-item countdown-chip">✓ Viaje completado</span>';
   }
 
   // --- MAP ------------------------------------------------
@@ -4945,6 +5301,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
     paneEl.innerHTML = `
       ${converterHTML}
 
+      ${backupCardHTML()}
+
       ${repoPhotoListHTML()}
 
       <div class="tool-card">
@@ -4954,6 +5312,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
       </div>
     `;
 
+    wireBackupCard();
     wireRepoPhotoList();
 
     if (destCurr) {
