@@ -591,6 +591,54 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 /* Notas del día */
 /* ── Fotos del usuario por lugar ─────────────────────────── */
 /* ── Sin conexión, horas de luz y cuenta atrás ───────────── */
+/* ── Exportación a PDF / impresión ───────────────────────── */
+#print-root { display: none; }
+.pdf-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center; }
+.pdf-overlay__box { background: var(--card); color: var(--text); border-radius: 14px;
+  padding: 22px 26px; max-width: 300px; text-align: center; font-size: 14px; line-height: 1.5; }
+@media print {
+  @page { size: A4; margin: 15mm 14mm; }
+  body { background: #fff !important; color: #000 !important; }
+  body > *:not(#print-root) { display: none !important; }
+  #print-root { display: block !important; font-family: Georgia, 'Times New Roman', serif;
+    font-size: 10.5pt; line-height: 1.45; color: #000; }
+  #print-root * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pr-cover { text-align: center; padding: 40mm 0 20mm; break-after: page; }
+  .pr-cover h1 { font-size: 26pt; margin: 0 0 8px; line-height: 1.15; }
+  .pr-cover .pr-sub { font-size: 12pt; color: #444; margin-bottom: 18px; }
+  .pr-cover .pr-facts { font-size: 10.5pt; color: #222; }
+  .pr-cover img { max-width: 100%; max-height: 90mm; object-fit: cover; margin-bottom: 16px; }
+  .pr-h2 { font-size: 15pt; margin: 0 0 8px; padding-bottom: 4px; border-bottom: 1.5pt solid #000; break-after: avoid; }
+  .pr-h3 { font-size: 12pt; margin: 12px 0 4px; break-after: avoid; }
+  .pr-h4 { font-size: 10.5pt; font-weight: 700; margin: 8px 0 2px; break-after: avoid; }
+  .pr-sec { break-before: page; }
+  .pr-day { break-before: page; }
+  .pr-block { break-inside: avoid; margin-bottom: 8px; }
+  .pr-meta { font-size: 9pt; color: #444; margin-bottom: 8px; }
+  .pr-tl { margin: 0 0 4px; padding-left: 0; list-style: none; }
+  .pr-tl li { margin-bottom: 5px; padding-left: 16mm; text-indent: -16mm; break-inside: avoid; }
+  .pr-tl .pr-time { display: inline-block; width: 14mm; font-weight: 700; }
+  .pr-place { border-left: 2pt solid #000; padding-left: 8px; margin-bottom: 10px; break-inside: avoid; }
+  .pr-kv { font-size: 9.5pt; color: #222; margin: 1px 0; }
+  .pr-notes { border: 1pt dashed #000; padding: 8px 10px; margin-top: 8px; break-inside: avoid; }
+  .pr-notes .pr-h4 { margin-top: 0; }
+  .pr-notes p { white-space: pre-wrap; margin: 0; }
+  .pr-photos { display: flex; flex-wrap: wrap; gap: 4mm; margin: 6px 0; break-inside: avoid; }
+  .pr-photos img { width: 52mm; height: 39mm; object-fit: cover; border: 0.5pt solid #999; }
+  .pr-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-bottom: 8px; }
+  .pr-table th, .pr-table td { border-bottom: 0.5pt solid #bbb; padding: 3px 4px; text-align: left; vertical-align: top; }
+  .pr-table th { border-bottom: 1pt solid #000; font-weight: 700; }
+  .pr-table td.num { text-align: right; white-space: nowrap; }
+  .pr-ul { margin: 2px 0 8px; padding-left: 16px; }
+  .pr-ul li { margin-bottom: 3px; }
+  .pr-cols { column-count: 2; column-gap: 8mm; }
+  .pr-foot { margin-top: 14px; padding-top: 6px; border-top: 0.5pt solid #999; font-size: 8.5pt; color: #555; }
+}
+.bd-label-input { flex: 1; min-width: 0; font: inherit; font-size: 13px; color: var(--text);
+  background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; }
+.bd-label-input:hover { border-color: var(--line); }
+.bd-label-input:focus { border-color: var(--accent); background: var(--bg); outline: none; }
 .offline-chip { display: none; align-items: center; gap: 5px; font-size: 11px; font-weight: 700;
   background: #8A6D3B; color: #fff; border-radius: 999px; padding: 3px 9px; margin-right: 6px; white-space: nowrap; }
 body.is-offline .offline-chip { display: inline-flex; }
@@ -984,6 +1032,7 @@ body.is-offline .offline-chip { display: inline-flex; }
 <!-- =========================================================
      HEADER
      ========================================================= -->
+<div id="print-root"></div>
 <header class="app-header">
   <div class="app-header__title" id="header-title">Guía de viaje</div>
   <span class="offline-chip">⚡ Sin conexión</span>
@@ -1103,6 +1152,9 @@ body.is-offline .offline-chip { display: inline-flex; }
         "food": 200,
         "shopping": 80,
         "other": 0
+      },
+      "labels": {
+        "activities": "Parkings/Peajes"
       }
     },
     "interests": [
@@ -4418,6 +4470,307 @@ body.is-offline .offline-chip { display: inline-flex; }
     return '<span class="hero__meta-item countdown-chip">✓ Viaje completado</span>';
   }
 
+  // Etiquetas de las partidas: valores por defecto, luego lo que traiga el
+  // JSON de la guía, y por encima de todo lo que el viajero haya renombrado.
+  const BD_KEYS = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
+  const BD_DEFAULTS = { flights: 'Vuelos', accommodation: 'Alojamiento', transport: 'Transporte local',
+                        food: 'Comida', activities: 'Actividades', shopping: 'Compras', other: 'Otros' };
+  function budgetLabels() {
+    return Object.assign({}, BD_DEFAULTS,
+      (DATA.meta.budget && DATA.meta.budget.labels) || {},
+      (store.budget_edit && store.budget_edit.labels) || {});
+  }
+
+
+  // --- EXPORTAR A PDF ----------------------------------------
+  // Se construye un documento lineal con TODO, incluido lo que el viajero
+  // haya editado, y se abre el diálogo de impresión del navegador, que en
+  // móvil y escritorio permite "Guardar como PDF". Sin librerías externas,
+  // así que también funciona sin conexión.
+  function pe(s) { return esc(s == null ? '' : String(s)); }
+
+  function prPhotosHTML(placeId, localMap) {
+    var out = [];
+    (localMap[placeId] || []).forEach(function (u) { out.push('<img src="' + u + '" alt="">'); });
+    ((__repoCache[placeId]) || []).forEach(function (u) { out.push('<img src="' + u + '" alt="">'); });
+    return out.length ? '<div class="pr-photos">' + out.join('') + '</div>' : '';
+  }
+
+  function prDayHTML(d, localMap) {
+    var parts = [];
+    parts.push('<div class="pr-day"><h2 class="pr-h2">Día ' + d.day + ' · ' +
+      pe(fmtDate(d.date, { weekday: 'long', day: 'numeric', month: 'long' })) + '</h2>');
+    parts.push('<div class="pr-h3">' + pe(d.title) + '</div>');
+
+    var log = d.logistics || {};
+    var lg = [];
+    if (log.driving_km) lg.push(log.driving_km + ' km en coche');
+    if (log.driving_time_min) lg.push(Math.round(log.driving_time_min / 60 * 10) / 10 + ' h conduciendo');
+    if (log.walking_km) lg.push(log.walking_km + ' km a pie');
+    var sun = sunStripText(d);
+    if (sun) lg.push(sun);
+    if (lg.length) parts.push('<div class="pr-meta">' + pe(lg.join(' · ')) + '</div>');
+
+    if ((d.timeline || []).length) {
+      parts.push('<div class="pr-h4">Itinerario</div><ul class="pr-tl">');
+      d.timeline.forEach(function (t, i) {
+        var done = store.checklist['day' + d.day + '_tl' + i] ? '☑' : '☐';
+        parts.push('<li><span class="pr-time">' + pe(t.time) + '</span>' + done + ' <strong>' +
+          pe(t.title) + '</strong>. ' + pe(t.description) + '</li>');
+      });
+      parts.push('</ul>');
+    }
+
+    (d.places || []).forEach(function (p) {
+      var b = ['<div class="pr-place"><div class="pr-h4">' + pe(p.name) + '</div>'];
+      if (p.review) b.push('<div>' + pe(p.review) + '</div>');
+      if (p.hours) b.push('<div class="pr-kv"><strong>Horario:</strong> ' + pe(p.hours) + '</div>');
+      if (p.price) b.push('<div class="pr-kv"><strong>Precio:</strong> ' + pe(p.price) + '</div>');
+      if (p.tips) b.push('<div class="pr-kv"><strong>Consejo:</strong> ' + pe(p.tips) + '</div>');
+      if (p.coords) b.push('<div class="pr-kv"><strong>Coordenadas:</strong> ' + p.coords.lat + ', ' + p.coords.lng + '</div>');
+      b.push(prPhotosHTML(p.id, localMap));
+      b.push('</div>');
+      parts.push(b.join(''));
+    });
+
+    if ((d.restaurants || []).length) {
+      parts.push('<div class="pr-h4">Dónde comer</div><ul class="pr-ul">');
+      d.restaurants.forEach(function (r) {
+        parts.push('<li><strong>' + pe(r.name) + '</strong> (' + pe(r.meal) + ', ' + pe(r.price_range) + ')' +
+          (r.speciality ? ' — ' + pe(r.speciality) : '') +
+          (r.reservation_required ? ' · Requiere reserva' : '') +
+          (r.notes ? '<br>' + pe(r.notes) : '') + '</li>');
+      });
+      parts.push('</ul>');
+    }
+
+    var alt = d.alternative_plans || {};
+    var altRows = [['more_time', 'Si sobra tiempo'], ['less_time', 'Si falta tiempo'],
+                   ['rainy_day', 'Si llueve'], ['with_kids', 'Con niños']]
+      .filter(function (x) { return alt[x[0]]; });
+    if (altRows.length) {
+      parts.push('<div class="pr-h4">Planes alternativos</div><ul class="pr-ul">');
+      altRows.forEach(function (x) { parts.push('<li><strong>' + x[1] + ':</strong> ' + pe(alt[x[0]]) + '</li>'); });
+      parts.push('</ul>');
+    }
+
+    var info = d.info || {};
+    [['travel_tips', 'Consejos'], ['access', 'Acceso'], ['facts', 'Datos de interés']].forEach(function (x) {
+      if ((info[x[0]] || []).length) {
+        parts.push('<div class="pr-h4">' + x[1] + '</div><ul class="pr-ul">' +
+          info[x[0]].map(function (i) { return '<li>' + pe(i) + '</li>'; }).join('') + '</ul>');
+      }
+    });
+
+    var note = store.notes['d' + d.day];
+    if (note && note.trim()) {
+      parts.push('<div class="pr-notes"><div class="pr-h4">Mis notas</div><p>' + pe(note) + '</p></div>');
+    }
+    parts.push('</div>');
+    return parts.join('');
+  }
+
+  function sunStripText(d) {
+    var c = dayCoords(d);
+    if (!c || !d.date) return '';
+    var sr = sunEvent(c.lat, c.lng, d.date, -0.833);
+    if (!sr) return '';
+    return 'amanece ' + hhmm(sr.rise) + ', anochece ' + hhmm(sr.set);
+  }
+
+  function prBudgetHTML() {
+    var L = budgetLabels();
+    // Si el viajero no ha abierto aún la pestaña de Presupuesto, tiramos del JSON original
+    var be = store.budget_edit || { breakdown: (DATA.meta.budget && DATA.meta.budget.breakdown) || {} };
+    var cur = DATA.meta.currency || 'EUR';
+    var total = BD_KEYS.reduce(function (s, k) { return s + (be.breakdown[k] || 0); }, 0);
+    var gast = totalExpenses();
+    var rows = BD_KEYS.map(function (k) {
+      return '<tr><td>' + pe(L[k]) + '</td><td class="num">' + pe(fmtMoney(be.breakdown[k] || 0, cur)) + '</td></tr>';
+    }).join('');
+    var exp = (store.expenses || []).map(function (e) {
+      return '<tr><td>' + pe(e.desc) + '</td><td>' + pe(L[e.category] || e.category) + '</td>' +
+             '<td class="num">' + pe(fmtMoney(e.amount, cur)) + '</td></tr>';
+    }).join('');
+    return '<div class="pr-sec"><h2 class="pr-h2">Presupuesto</h2>' +
+      '<table class="pr-table"><tr><th>Partida</th><th class="num">Importe</th></tr>' + rows +
+      '<tr><th>Total presupuestado</th><th class="num">' + pe(fmtMoney(total, cur)) + '</th></tr></table>' +
+      (exp ? '<div class="pr-h4">Gastos anotados</div><table class="pr-table">' +
+             '<tr><th>Concepto</th><th>Partida</th><th class="num">Importe</th></tr>' + exp +
+             '<tr><th>Total gastado</th><th></th><th class="num">' + pe(fmtMoney(gast, cur)) + '</th></tr>' +
+             '<tr><th>Restante</th><th></th><th class="num">' + pe(fmtMoney(total - gast, cur)) + '</th></tr></table>'
+           : '<div class="pr-meta">Sin gastos anotados.</div>') + '</div>';
+  }
+
+  function prPackingHTML() {
+    var pl = getPackingData(), lab = {
+      summer_clothing: 'Ropa de verano', winter_clothing: 'Ropa de invierno', footwear: 'Calzado',
+      underwear: 'Ropa interior', items: 'Objetos', accessories: 'Complementos',
+      documents: 'Documentación', toiletries: 'Bolsa de aseo', health: 'Salud',
+      other: 'Otros', clothing: 'Ropa', tech: 'Tecnología'
+    };
+    var out = Object.keys(pl).filter(function (k) { return (pl[k] || []).length; }).map(function (cat) {
+      return '<div class="pr-block"><div class="pr-h4">' + pe(lab[cat] || cat) + '</div><ul class="pr-ul">' +
+        pl[cat].map(function (item, idx) {
+          return '<li>' + (store.packing[cat + '_' + idx] ? '☑' : '☐') + ' ' + pe(item) + '</li>';
+        }).join('') + '</ul></div>';
+    }).join('');
+    return '<div class="pr-sec"><h2 class="pr-h2">Equipaje</h2><div class="pr-cols">' + out + '</div></div>';
+  }
+
+  function buildPrintDoc(localMap) {
+    var m = DATA.meta, p = [];
+    p.push('<div class="pr-cover">');
+    if (m.cover_image) p.push('<img src="' + pe(m.cover_image) + '" alt="">');
+    p.push('<h1>' + pe(m.title) + '</h1>');
+    if (m.subtitle) p.push('<div class="pr-sub">' + pe(m.subtitle) + '</div>');
+    p.push('<div class="pr-facts">' + pe(m.destination.name) + ' · ' + pe(m.destination.country) + '<br>' +
+      pe(fmtDate(m.dates.start)) + ' – ' + pe(fmtDate(m.dates.end, { day: 'numeric', month: 'long', year: 'numeric' })) +
+      ' · ' + m.dates.days + ' días<br>' + m.travelers.adults + ' adultos' +
+      (m.travelers.children ? ' y ' + m.travelers.children + ' niños' : '') + '</div>');
+    p.push('</div>');
+
+    if (DATA.intro) {
+      p.push('<div><h2 class="pr-h2">El viaje</h2><p>' + pe(DATA.intro.narrative) + '</p>');
+      (DATA.intro.value_props || []).forEach(function (v) {
+        p.push('<div class="pr-block"><div class="pr-h4">' + pe(v.title) + '</div><div>' + pe(v.text) + '</div></div>');
+      });
+      p.push('</div>');
+    }
+
+    if (DATA.history) {
+      p.push('<div class="pr-sec"><h2 class="pr-h2">' + pe(DATA.history.title) + '</h2><p>' + pe(DATA.history.summary) + '</p>');
+      (DATA.history.periods || []).forEach(function (x) {
+        p.push('<div class="pr-block"><div class="pr-h4">' + pe(x.title) + ' <span style="font-weight:400">(' +
+          pe(x.range) + ')</span></div><div>' + pe(x.text) + '</div></div>');
+      });
+      p.push('</div>');
+    }
+
+    if ((DATA.summary || []).length) {
+      p.push('<div class="pr-sec"><h2 class="pr-h2">Resumen día a día</h2><table class="pr-table">' +
+        '<tr><th>Día</th><th>Fecha</th><th>Recorrido</th></tr>' +
+        DATA.summary.map(function (s) {
+          return '<tr><td>' + s.day + '</td><td>' + pe(fmtDate(s.date, { day: 'numeric', month: 'short' })) +
+                 '</td><td><strong>' + pe(s.title) + '</strong><br>' + pe(s.summary) + '</td></tr>';
+        }).join('') + '</table></div>');
+    }
+
+    (DATA.days || []).forEach(function (d) { p.push(prDayHTML(d, localMap)); });
+
+    if ((DATA.practical_tips || []).length) {
+      p.push('<div class="pr-sec"><h2 class="pr-h2">Consejos prácticos</h2>');
+      DATA.practical_tips.forEach(function (g) {
+        p.push('<div class="pr-block"><div class="pr-h3">' + pe(g.title) + '</div>');
+        (g.items || []).forEach(function (i) {
+          p.push('<div class="pr-block"><div class="pr-h4">' + pe(i.subtitle) + '</div><div>' + pe(i.text) + '</div></div>');
+        });
+        p.push('</div>');
+      });
+      p.push('</div>');
+    }
+
+    p.push(prPackingHTML());
+    p.push(prBudgetHTML());
+
+    if (DATA.shopping) {
+      p.push('<div class="pr-sec"><h2 class="pr-h2">Compras</h2>');
+      [['authentic_products', 'Productos auténticos'], ['avoid', 'Qué evitar'], ['best_places', 'Dónde comprar']]
+        .forEach(function (x) {
+          if ((DATA.shopping[x[0]] || []).length) {
+            p.push('<div class="pr-h4">' + x[1] + '</div><ul class="pr-ul">' +
+              DATA.shopping[x[0]].map(function (i) { return '<li>' + pe(i) + '</li>'; }).join('') + '</ul>');
+          }
+        });
+      p.push('</div>');
+    }
+
+    if (DATA.emergency) {
+      p.push('<div><h2 class="pr-h2">Emergencias</h2><ul class="pr-ul">' +
+        Object.keys(DATA.emergency).map(function (k) { return '<li>' + pe(DATA.emergency[k]) + '</li>'; }).join('') +
+        '</ul></div>');
+    }
+
+    if ((DATA.apps_recommended || []).length) {
+      p.push('<div><h2 class="pr-h2">Aplicaciones útiles</h2><ul class="pr-ul">' +
+        DATA.apps_recommended.map(function (a) {
+          return '<li><strong>' + pe(a.name) + '</strong>: ' + pe(a.purpose) + '</li>';
+        }).join('') + '</ul></div>');
+    }
+
+    var mk = (DATA.overview_map || {}).markers || [];
+    if (mk.length) {
+      p.push('<div class="pr-sec"><h2 class="pr-h2">Coordenadas de todos los puntos</h2><table class="pr-table">' +
+        '<tr><th>Día</th><th>Lugar</th><th>Coordenadas</th></tr>' +
+        mk.map(function (x) {
+          return '<tr><td>' + x.day + '</td><td>' + pe(x.name) + '</td><td>' + x.coords.lat + ', ' + x.coords.lng + '</td></tr>';
+        }).join('') + '</table></div>');
+    }
+
+    p.push('<div class="pr-foot">Documento generado desde la guía interactiva el ' +
+      pe(new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })) +
+      '. Incluye tus notas, gastos y equipaje tal como estaban en ese momento.</div>');
+    return p.join('');
+  }
+
+  function exportPDF() {
+    var ov = document.createElement('div');
+    ov.className = 'pdf-overlay';
+    ov.innerHTML = '<div class="pdf-overlay__box">Preparando el documento…<br><small>Puede tardar unos segundos si hay muchas fotos.</small></div>';
+    document.body.appendChild(ov);
+
+    // 1) Reunir las fotos locales de todos los lugares
+    var ids = [], localMap = {}, urls = [];
+    (DATA.days || []).forEach(function (d) { (d.places || []).forEach(function (p) { ids.push(p.id); }); });
+    var chain = Promise.resolve();
+    ids.forEach(function (id) {
+      chain = chain.then(function () {
+        return photosOf(id).then(function (list) {
+          if (list.length) {
+            localMap[id] = list.map(function (r) { var u = URL.createObjectURL(r.blob); urls.push(u); return u; });
+          }
+        }).catch(function () {});
+      });
+    });
+    // 2) Asegurar que las fotos del repositorio están localizadas
+    ids.forEach(function (id) {
+      chain = chain.then(function () { return repoPhotosOf(id).catch(function () { return []; }); });
+    });
+
+    chain.then(function () {
+      var root = document.getElementById('print-root');
+      if (!root) { root = document.createElement('div'); root.id = 'print-root'; document.body.appendChild(root); }
+      root.innerHTML = buildPrintDoc(localMap);
+
+      // 3) Esperar a que carguen las imágenes (con tope de 12 s)
+      var imgs = Array.prototype.slice.call(root.querySelectorAll('img'));
+      var pending = imgs.filter(function (i) { return !i.complete; });
+      var waited = new Promise(function (res) {
+        if (!pending.length) return res();
+        var left = pending.length;
+        pending.forEach(function (i) {
+          var done = function () { if (--left <= 0) res(); };
+          i.addEventListener('load', done); i.addEventListener('error', done);
+        });
+      });
+      var timeout = new Promise(function (res) { setTimeout(res, 12000); });
+
+      Promise.race([waited, timeout]).then(function () {
+        ov.remove();
+        var cleanup = function () {
+          setTimeout(function () {
+            root.innerHTML = '';
+            urls.forEach(function (u) { URL.revokeObjectURL(u); });
+            window.removeEventListener('afterprint', cleanup);
+          }, 800);
+        };
+        window.addEventListener('afterprint', cleanup);
+        window.print();
+        setTimeout(cleanup, 60000);
+      });
+    });
+  }
+
   // --- MAP ------------------------------------------------
   let mapInstance = null;
   let mapLoadAttempts = 0;
@@ -4812,22 +5165,19 @@ body.is-offline .offline-chip { display: inline-flex; }
     }
 
     const be = store.budget_edit;
-    const bdLabels = Object.assign(
-      { flights: 'Vuelos', accommodation: 'Alojamiento', transport: 'Transporte local', food: 'Comida', activities: 'Actividades', shopping: 'Compras', other: 'Otros' },
-      DATA.meta.budget?.labels || {}   // permite renombrar partidas desde el JSON
-    );
     const bdKeys = ['flights', 'accommodation', 'transport', 'food', 'activities', 'shopping', 'other'];
+    const bdLabels = budgetLabels();
     // Total = suma de partidas (no editable directamente)
     const budgetTotal = bdKeys.reduce((sum, k) => sum + (be.breakdown[k] || 0), 0);
     const totalExp = totalExpenses();
-    const categories = ['Transporte', 'Alojamiento', 'Comida', 'Actividades', 'Compras', 'Otros'];
+
 
     const budgetHTML = `
       <div class="budget-summary">
         <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:0 0 10px">Presupuesto estimado</div>
         ${bdKeys.map(k => `
           <div class="budget-row" style="margin-bottom:4px">
-            <span class="budget-row__label" style="font-size:13px">${bdLabels[k]}</span>
+            <input type="text" class="bd-label-input" data-bd-label="${k}" value="${esc(bdLabels[k])}" aria-label="Nombre de la partida">
             <div style="display:flex;align-items:center;gap:4px">
               <input type="number" data-bd-key="${k}" value="${be.breakdown[k] || 0}" style="width:75px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;text-align:right">
               <span style="font-size:11px;color:var(--text-muted)">€</span>
@@ -4856,7 +5206,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       <div class="expense-form">
         <input id="exp-desc" placeholder="Concepto">
         <input id="exp-amount" type="number" step="0.01" placeholder="€">
-        <select id="exp-cat">${categories.map(c => `<option>${c}</option>`).join('')}</select>
+        <select id="exp-cat">${bdKeys.map(k => `<option value="${k}">${esc(bdLabels[k])}</option>`).join('')}</select>
         <button id="exp-add">+</button>
       </div>
       <ul class="expense-list" id="exp-list">
@@ -4865,7 +5215,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           <li class="expense-item">
             <div>
               <div class="expense-item__desc">${esc(e.desc)}</div>
-              <div class="expense-item__cat">${esc(e.category)}</div>
+              <div class="expense-item__cat">${esc(bdLabels[e.category] || e.category)}</div>
             </div>
             <span class="expense-item__amount">${fmtMoney(e.amount, curr)}</span>
             <button class="expense-item__del" data-del="${e.id}">✕</button>
@@ -5038,6 +5388,18 @@ body.is-offline .offline-chip { display: inline-flex; }
     paneEl.innerHTML = budgetHTML + splitHTML;
 
     // --- Listeners para partidas del presupuesto ---
+    document.querySelectorAll('[data-bd-label]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const k = inp.dataset.bdLabel;
+        const v = inp.value.trim();
+        if (!store.budget_edit.labels) store.budget_edit.labels = {};
+        if (!v) delete store.budget_edit.labels[k];
+        else store.budget_edit.labels[k] = v;
+        saveStore();
+        renderMeBudget();      // el desplegable de gastos usa estos mismos nombres
+      });
+    });
+
     document.querySelectorAll('[data-bd-key]').forEach(inp => {
       inp.addEventListener('change', () => {
         store.budget_edit.breakdown[inp.dataset.bdKey] = parseFloat(inp.value) || 0;
@@ -5309,9 +5671,12 @@ body.is-offline .offline-chip { display: inline-flex; }
         <div class="tool-card__title">📤 Compartir esta guía</div>
         <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Comparte el enlace de tu guía por WhatsApp, email o redes sociales.</p>
         <button class="btn btn--primary" onclick="navigator.share ? navigator.share({title: document.title, text: 'Mira mi guía de viaje', url: location.href}).catch(()=>{}) : alert('Copia la URL del navegador y compártela')">Compartir</button>
+        <button class="btn btn--ghost" id="pdf-btn" style="margin-left:8px">Exportar a PDF</button>
       </div>
     `;
 
+    var pdfBtn = document.getElementById('pdf-btn');
+    if (pdfBtn) pdfBtn.addEventListener('click', exportPDF);
     wireBackupCard();
     wireRepoPhotoList();
 
