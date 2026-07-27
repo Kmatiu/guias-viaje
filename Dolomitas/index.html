@@ -3984,9 +3984,11 @@ body.is-offline .offline-chip { display: inline-flex; }
       const repo = both[0] || [], list = both[1] || [];
       grid.innerHTML = '';
       // 1) Fotos del repositorio: las ve todo el mundo
+      var box = grid.closest ? grid.closest('.place-photos') : null;
+      if (box) box.style.display = (!repo.length && !list.length && !AUTHOR_MODE) ? 'none' : '';
       repo.forEach(function (url) { grid.appendChild(makeRepoTile(url)); });
-      // 2) Si no hay ninguna, hueco con el nombre de archivo que debe subirse
-      if (!repo.length) grid.appendChild(makeEmptyTile(placeId));
+      // 2) Solo en modo autor: hueco con el nombre de archivo que debe subirse
+      if (!repo.length && AUTHOR_MODE) grid.appendChild(makeEmptyTile(placeId));
       // 3) Fotos locales de este dispositivo
       list.forEach(function (rec) {
         const url = URL.createObjectURL(rec.blob);
@@ -4053,6 +4055,11 @@ body.is-offline .offline-chip { display: inline-flex; }
   // nombre en la carpeta fotos/ del mismo directorio que este index.html:
   //   fotos/<place.id>.jpg   y extras  fotos/<place.id>-2.jpg, -3.jpg...
   const REPO_DIR = 'fotos/';
+  // Modo autor: añade ?autor al final de la URL para ver, en los lugares que
+  // aún no tienen foto, un hueco con el nombre exacto que debe llevar el
+  // archivo. Es información de mantenimiento: el viajero no la necesita, así
+  // que por defecto esos lugares no muestran nada.
+  const AUTHOR_MODE = /[?&]autor\b/.test(location.search);
   const REPO_EXT = ['jpg', 'jpeg', 'png', 'webp'];
   const REPO_MAX_EXTRA = 8;
   const __repoCache = {};
@@ -4128,46 +4135,6 @@ body.is-offline .offline-chip { display: inline-flex; }
     fig.addEventListener('click', function () { copyToClipboard(file, hi); });
     return fig;
   }
-
-  // Listado completo de nombres de archivo, para la pestana Herramientas
-  function repoPhotoListHTML() {
-    const rows = [];
-    (DATA.days || []).forEach(function (d) {
-      (d.places || []).forEach(function (p) { rows.push({ day: d.day, id: p.id, name: p.name }); });
-    });
-    if (!rows.length) return '';
-    return `
-      <div class="tool-card">
-        <div class="tool-card__title">🌐 Fotos compartidas (repositorio)</div>
-        <p style="font-size:13px;color:var(--text-soft);line-height:1.55;margin-bottom:10px">
-          Crea una carpeta <code>fotos/</code> junto a este <code>index.html</code> en GitHub y sube ahí las imágenes con
-          estos nombres exactos. El nombre se copia sin la carpeta, para que puedas pegarlo tal cual al renombrar el archivo. Aparecerán en su lugar correspondiente <strong>para todo el que abra el enlace</strong>.
-          Para varias fotos del mismo sitio añade <code>-2</code>, <code>-3</code>… antes de la extensión.
-          Valen jpg, jpeg, png y webp. Ojo con el HEIC del iPhone: conviértelo a jpg antes de subirlo.
-        </p>
-        <button class="btn btn--ghost btn--sm" id="copy-photo-list">Copiar la lista completa</button>
-        <span id="copy-photo-list-hint" style="font-size:11.5px;color:var(--text-muted);margin-left:8px"></span>
-        <div class="photo-list">
-          ${rows.map(function (r) {
-            return `<div class="photo-list__row"><span class="photo-list__day">D${r.day}</span>` +
-                   `<code>${esc(r.id)}.jpg</code>` +
-                   `<span class="photo-list__name">${esc(r.name)}</span></div>`;
-          }).join('')}
-        </div>
-      </div>`;
-  }
-  function wireRepoPhotoList() {
-    const btn = document.getElementById('copy-photo-list');
-    if (!btn) return;
-    btn.addEventListener('click', function () {
-      const lines = [];
-      (DATA.days || []).forEach(function (d) {
-        (d.places || []).forEach(function (p) { lines.push(p.id + '.jpg   → ' + p.name + ' (día ' + d.day + ')'); });
-      });
-      copyToClipboard(lines.join('\n'), document.getElementById('copy-photo-list-hint'));
-    });
-  }
-
 
   // --- HORAS DE LUZ ------------------------------------------
   // Algoritmo estandar de la ecuacion del amanecer (NOAA). Verificado
@@ -5665,8 +5632,6 @@ body.is-offline .offline-chip { display: inline-flex; }
 
       ${backupCardHTML()}
 
-      ${repoPhotoListHTML()}
-
       <div class="tool-card">
         <div class="tool-card__title">📤 Compartir esta guía</div>
         <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Comparte el enlace de tu guía por WhatsApp, email o redes sociales.</p>
@@ -5678,7 +5643,6 @@ body.is-offline .offline-chip { display: inline-flex; }
     var pdfBtn = document.getElementById('pdf-btn');
     if (pdfBtn) pdfBtn.addEventListener('click', exportPDF);
     wireBackupCard();
-    wireRepoPhotoList();
 
     if (destCurr) {
       const eurInput = document.getElementById('conv-eur');
