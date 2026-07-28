@@ -635,6 +635,35 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   .pr-cols { column-count: 2; column-gap: 8mm; }
   .pr-foot { margin-top: 14px; padding-top: 6px; border-top: 0.5pt solid #999; font-size: 8.5pt; color: #555; }
 }
+.tip-remind { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--accent);
+  background: transparent; border: 1px solid var(--accent); border-radius: 999px;
+  padding: 5px 12px; cursor: pointer; }
+.tip-remind:hover { background: var(--accent); color: #fff; }
+.ics-sheet { position: fixed; inset: 0; z-index: 9000; background: rgba(0,0,0,0.55);
+  display: flex; align-items: flex-end; justify-content: center; }
+.ics-sheet__box { background: var(--card); color: var(--text); width: 100%; max-width: 460px;
+  border-radius: 16px 16px 0 0; padding: 20px 20px 26px; }
+.ics-sheet__title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.ics-sheet__sub { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; }
+.ics-sheet label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-muted); margin: 10px 0 4px; }
+.ics-sheet input { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--bg); color: var(--text); font: inherit; font-size: 14px; }
+.ics-sheet__row { display: flex; gap: 8px; margin-top: 16px; }
+.ics-sheet__row .btn { flex: 1; }
+.map-toggle { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex;
+  background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 3px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+.map-toggle button { border: 0; background: transparent; color: var(--text-muted); font-size: 12px;
+  font-weight: 700; padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+.map-toggle button.is-on { background: var(--accent); color: #fff; }
+.marker-photo { width: 46px; height: 46px; border-radius: 10px; overflow: hidden; border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35); background: var(--card); }
+.marker-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.marker-photo__day { position: absolute; bottom: -4px; right: -4px; min-width: 17px; height: 17px;
+  border-radius: 999px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700;
+  display: grid; place-items: center; border: 1.5px solid #fff; padding: 0 3px; }
+.map-pop__img { width: 100%; max-width: 210px; height: 118px; object-fit: cover; border-radius: 8px; margin-bottom: 6px; display: block; }
 .bd-label-input { flex: 1; min-width: 0; font: inherit; font-size: 13px; color: var(--text);
   background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; }
 .bd-label-input:hover { border-color: var(--line); }
@@ -4738,6 +4767,49 @@ body.is-offline .offline-chip { display: inline-flex; }
     });
   }
 
+  // Los marcadores del mapa no llevan el id del lugar, así que se emparejan
+  // por coordenadas (con tolerancia, por si hay redondeos) y, si eso falla,
+  // por nombre.
+  var __markerIds = null;
+  function placeIdForMarker(m) {
+    if (!__markerIds) {
+      __markerIds = [];
+      (DATA.days || []).forEach(function (d) {
+        (d.places || []).forEach(function (p) {
+          if (p.coords) __markerIds.push({ id: p.id, name: p.name, lat: p.coords.lat, lng: p.coords.lng });
+        });
+      });
+    }
+    var best = null, bestD = Infinity;
+    __markerIds.forEach(function (p) {
+      var dd = Math.abs(p.lat - m.coords.lat) + Math.abs(p.lng - m.coords.lng);
+      if (dd < bestD) { bestD = dd; best = p; }
+    });
+    if (best && bestD < 0.0006) return best.id;          // ~50 m
+    var byName = __markerIds.filter(function (p) { return p.name === m.name; });
+    return byName.length ? byName[0].id : null;
+  }
+
+  // Primera foto disponible de un lugar: primero la del repositorio (la ve
+  // todo el mundo), y si no hay, la local del dispositivo.
+  var __firstPhotoCache = {};
+  function firstPhotoFor(pid) {
+    if (__firstPhotoCache[pid] !== undefined) return Promise.resolve(__firstPhotoCache[pid]);
+    return repoPhotosOf(pid).catch(function () { return []; }).then(function (repo) {
+      if (repo && repo.length) { __firstPhotoCache[pid] = repo[0]; return repo[0]; }
+      return photosOf(pid).catch(function () { return []; }).then(function (loc) {
+        var u = loc && loc.length ? URL.createObjectURL(loc[0].blob) : null;
+        __firstPhotoCache[pid] = u;
+        return u;
+      });
+    });
+  }
+
+  var mapPhotoMode = (function () {
+    try { return localStorage.getItem(STORE_KEY + '_mapmode') === 'photo' ? 'photo' : 'day'; }
+    catch (e) { return 'day'; }
+  })();
+
   // --- MAP ------------------------------------------------
   let mapInstance = null;
   let mapLoadAttempts = 0;
@@ -4761,6 +4833,24 @@ body.is-offline .offline-chip { display: inline-flex; }
     try {
       if (mapInstance) { mapInstance.remove(); mapInstance = null; }
 
+      var mapEl = el('#map');
+      if (mapEl && !mapEl.parentNode.querySelector('.map-toggle')) {
+        if (getComputedStyle(mapEl.parentNode).position === 'static') mapEl.parentNode.style.position = 'relative';
+        var tg = document.createElement('div');
+        tg.className = 'map-toggle';
+        tg.innerHTML = '<button data-mapmode="day">Días</button><button data-mapmode="photo">Fotos</button>';
+        tg.querySelectorAll('button').forEach(function (b) {
+          b.classList.toggle('is-on', b.dataset.mapmode === mapPhotoMode);
+          b.addEventListener('click', function () {
+            if (b.dataset.mapmode === mapPhotoMode) return;
+            mapPhotoMode = b.dataset.mapmode;
+            try { localStorage.setItem(STORE_KEY + '_mapmode', mapPhotoMode); } catch (e) {}
+            renderMap();
+          });
+        });
+        mapEl.parentNode.appendChild(tg);
+      }
+
       mapInstance = L.map('map', { zoomControl: true, attributionControl: true })
         .setView([om.center.lat, om.center.lng], om.zoom || 8);
 
@@ -4772,15 +4862,29 @@ body.is-offline .offline-chip { display: inline-flex; }
       const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
 
       (om.markers || []).forEach(m => {
-        const icon = L.divIcon({
+        const pid = placeIdForMarker(m);
+        const numIcon = () => L.divIcon({
           className: 'custom-marker',
           html: `<div style="width:30px;height:30px;background:${accent};color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff">${m.day}</div>`,
-          iconSize: [30, 30],
-          iconAnchor: [15, 15]
+          iconSize: [30, 30], iconAnchor: [15, 15]
         });
-        L.marker([m.coords.lat, m.coords.lng], { icon })
-          .addTo(mapInstance)
-          .bindPopup(`<strong>${esc(m.name)}</strong><br><small>Día ${m.day}</small><br><a href="#" onclick="window.__nav.goDay(${m.day});return false;">Ver día →</a>`);
+        const mk = L.marker([m.coords.lat, m.coords.lng], { icon: numIcon() }).addTo(mapInstance);
+        mk.bindPopup(`<strong>${esc(m.name)}</strong><br><small>Día ${m.day}</small><br><a href="#" onclick="window.__nav.goDay(${m.day});return false;">Ver día →</a>`);
+
+        if (!pid) return;
+        // La foto (repositorio o dispositivo) se resuelve en segundo plano:
+        // el mapa se dibuja al instante y los marcadores se enriquecen después.
+        firstPhotoFor(pid).then(function (url) {
+          if (!url) return;
+          mk.bindPopup(`<img class="map-pop__img" src="${url}" alt=""><strong>${esc(m.name)}</strong><br><small>Día ${m.day}</small><br><a href="#" onclick="window.__nav.goDay(${m.day});return false;">Ver día →</a>`);
+          if (mapPhotoMode === 'photo') {
+            mk.setIcon(L.divIcon({
+              className: 'custom-marker',
+              html: `<div class="marker-photo" style="position:relative"><img src="${url}" alt=""><span class="marker-photo__day">${m.day}</span></div>`,
+              iconSize: [46, 46], iconAnchor: [23, 23]
+            }));
+          }
+        });
       });
     } catch (err) {
       console.error('Error al inicializar el mapa:', err);
@@ -4789,6 +4893,136 @@ body.is-offline .offline-chip { display: inline-flex; }
         <small>${esc(err.message || 'Desconocido')}</small>
       </div>`;
     }
+  }
+
+  // --- RECORDATORIOS EN EL CALENDARIO ------------------------
+  // Se genera un archivo .ics, que es el formato estándar de calendario:
+  // iOS lo abre en Calendario y Android en Google Calendar.
+  function isDeadlineGroup(g) {
+    return /antes de salir|reservar|qué llevar y cuándo/i.test(g.title || '');
+  }
+
+  function icsDate(d) {
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getUTCFullYear() + p(d.getUTCMonth() + 1) + p(d.getUTCDate()) +
+           'T' + p(d.getUTCHours()) + p(d.getUTCMinutes()) + '00Z';
+  }
+  function icsLocal(d) {
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) +
+           'T' + p(d.getHours()) + p(d.getMinutes()) + '00';
+  }
+  function icsEscape(s) {
+    return String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;')
+      .replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+  }
+  function icsFold(line) {
+    if (line.length <= 74) return line;
+    var out = [line.slice(0, 74)], rest = line.slice(74);
+    while (rest.length > 73) { out.push(' ' + rest.slice(0, 73)); rest = rest.slice(73); }
+    if (rest) out.push(' ' + rest);
+    return out.join('\r\n');
+  }
+
+  function buildICS(title, description, dateStr, hourStr) {
+    var parts = dateStr.split('-'), hp = (hourStr || '09:00').split(':');
+    var startLocal = new Date(+parts[0], +parts[1] - 1, +parts[2], +hp[0], +hp[1], 0);
+    var endLocal = new Date(startLocal.getTime() + 30 * 60000);
+    var uid = 'guia-' + SLUG + '-' + Date.now() + '@guiaviaje';
+    var lines = [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Guia de viaje//ES', 'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      'UID:' + uid,
+      'DTSTAMP:' + icsDate(new Date()),
+      // Hora local "flotante" (sin Z): el recordatorio salta a las 9:00 del
+      // móvil, esté donde esté, que es lo que espera el usuario.
+      'DTSTART:' + icsLocal(startLocal),
+      'DTEND:' + icsLocal(endLocal),
+      icsFold('SUMMARY:' + icsEscape(title)),
+      icsFold('DESCRIPTION:' + icsEscape(description)),
+      'BEGIN:VALARM', 'TRIGGER:-PT1H', 'ACTION:DISPLAY',
+      icsFold('DESCRIPTION:' + icsEscape(title)), 'END:VALARM',
+      'END:VEVENT', 'END:VCALENDAR'
+    ];
+    return lines.join('\r\n');
+  }
+
+  function slugFile(s) {
+    return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'recordatorio';
+  }
+
+  // Fecha sugerida: si el texto dice "6 días antes", "un mes antes" o "la
+  // víspera", se calcula desde el inicio del viaje.
+  function suggestDate(text) {
+    var start = DATA.meta && DATA.meta.dates && DATA.meta.dates.start;
+    if (!start) return new Date().toISOString().slice(0, 10);
+    var p = start.split('-'), d0 = new Date(+p[0], +p[1] - 1, +p[2]);
+    var t = (text || '').toLowerCase(), off = null;
+    var m = t.match(/(\d+)\s*d[ií]as?\s+antes/);
+    if (m) off = +m[1];
+    else if (/v[ií]spera/.test(t)) off = 1;
+    else if (/semana\s+antes/.test(t)) off = 7;
+    else if (/(un|1)\s*mes\s+antes/.test(t)) off = 30;
+    else if (/(dos|2)\s*(o tres\s*)?meses?\s+antes/.test(t)) off = 60;
+    else if (/(dos o tres|tres|3)\s*meses/.test(t)) off = 75;
+    if (off === null) {
+      var today0 = new Date(); today0.setHours(0, 0, 0, 0);
+      // Sin pista temporal: si el viaje aún no ha empezado, proponemos hoy;
+      // si ya empezó, el primer día del viaje.
+      var base = d0 > today0 ? today0 : d0;
+      return base.getFullYear() + '-' + ('0' + (base.getMonth() + 1)).slice(-2) + '-' + ('0' + base.getDate()).slice(-2);
+    }
+    var d = new Date(d0.getTime() - off * 86400000);
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    if (d < today) d = today;
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+
+  function openReminderSheet(title, text, hint) {
+    var sheet = document.createElement('div');
+    sheet.className = 'ics-sheet';
+    var dest = (DATA.meta.destination || {}).name || '';
+    sheet.innerHTML =
+      '<div class="ics-sheet__box">' +
+        '<div class="ics-sheet__title">Añadir al calendario</div>' +
+        '<div class="ics-sheet__sub">' + esc(title) + '</div>' +
+        '<label for="ics-d">Fecha</label><input type="date" id="ics-d" value="' + suggestDate(hint || text) + '">' +
+        '<label for="ics-h">Hora</label><input type="time" id="ics-h" value="09:00">' +
+        '<div class="ics-sheet__row">' +
+          '<button class="btn btn--ghost" id="ics-cancel">Cancelar</button>' +
+          '<button class="btn btn--primary" id="ics-ok">Añadir</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(sheet);
+    var close = function () { sheet.remove(); };
+    sheet.addEventListener('click', function (e) { if (e.target === sheet) close(); });
+    sheet.querySelector('#ics-cancel').addEventListener('click', close);
+    sheet.querySelector('#ics-ok').addEventListener('click', function () {
+      var d = sheet.querySelector('#ics-d').value;
+      var t = sheet.querySelector('#ics-h').value || '09:00';
+      if (!d) return;
+      var desc = text + (dest ? '\n\nViaje: ' + dest : '') + '\n' + location.href;
+      var blob = new Blob([buildICS(title, desc, d, t)], { type: 'text/calendar;charset=utf-8' });
+      triggerDownload(blob, slugFile(title) + '.ics');
+      close();
+    });
+  }
+
+  function wireReminders() {
+    document.querySelectorAll('[data-remind-g]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var gi = +b.dataset.remindG, ii = +b.dataset.remindI;
+        var groups = (DATA.practical_tips || []).filter(function (g) {
+          return !['app', 'apps', 'aplicacion', 'aplicaciones'].some(function (k) {
+            return (g.title || '').toLowerCase().includes(k);
+          });
+        });
+        var g = groups[gi];
+        if (!g || !g.items || !g.items[ii]) return;
+        openReminderSheet(g.items[ii].subtitle, g.items[ii].text, g.items[ii].subtitle + ' ' + g.items[ii].text);
+      });
+    });
   }
 
   // --- TIPS -----------------------------------------------
@@ -4827,10 +5061,11 @@ body.is-offline .offline-chip { display: inline-flex; }
           <span class="chev">▾</span>
         </button>
         <div class="tip-group__body">
-          ${(g.items || []).map(i => `
+          ${(g.items || []).map((i, ii) => `
             <div class="tip-item">
               <div class="tip-item__subtitle">${esc(i.subtitle)}</div>
               <div class="tip-item__text">${esc(i.text)}</div>
+              ${isDeadlineGroup(g) ? `<button class="tip-remind" data-remind-g="${id}" data-remind-i="${ii}">📅 Añadir recordatorio</button>` : ''}
             </div>`).join('')}
         </div>
       </div>`;
@@ -4897,6 +5132,8 @@ body.is-offline .offline-chip { display: inline-flex; }
       ${emergencyHTML}
       ${appsHTML}
     `;
+
+    wireReminders();
   }
 
   // --- ME (checklist, presupuesto, packing, herramientas) --
