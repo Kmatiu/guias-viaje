@@ -1,8 +1,16 @@
 {
   "documentos": [
     {
+      "enlace": "https://auronzo.info/en/parking-tre-cime-di-lavaredo/",
+      "titulo": "Web reserva parking Auronzo",
+      "tipo": "reserva",
+      "dia": 6,
+      "imprescindible": true
+    },
+    {
       "archivo": "wikiloc-ruta-ruta-clasica-circular-tre-cime-di-lav.pdf",
       "titulo": "Wikiloc _ Ruta Ruta clásica circular Tre Cime di Lavaredo, Dolomitas, Italia",
+      "tipo": "mapa",
       "dia": 6
     }
   ]
