@@ -595,7 +595,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 #print-root { display: none; }
 .pdf-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.75);
   display: flex; align-items: center; justify-content: center; }
-.pdf-overlay__box { background: var(--card); color: var(--text); border-radius: 14px;
+.pdf-overlay__box { background: var(--bg-card); color: var(--text); border-radius: 14px;
   padding: 22px 26px; max-width: 300px; text-align: center; font-size: 14px; line-height: 1.5; }
 @media print {
   @page { size: A4; margin: 15mm 14mm; }
@@ -640,7 +640,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .doc-group { margin-bottom: 18px; }
 .doc-group__head { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
   color: var(--text-muted); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid var(--line); }
-.doc-card { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--line);
+.doc-card { display: flex; align-items: center; gap: 12px; background: var(--bg-card); border: 1px solid var(--line);
   border-radius: 12px; padding: 11px 13px; margin-bottom: 8px; }
 .doc-card--key { border-left: 3px solid var(--accent); }
 .doc-card__icon { font-size: 22px; flex-shrink: 0; }
@@ -674,7 +674,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .doc-viewer__body img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
 .doc-viewer__body iframe { width: 100%; height: 100%; border: 0; border-radius: 8px; background: #fff; }
 .doc-viewer__fallback { color: #fff; text-align: center; font-size: 14px; line-height: 1.6; padding: 24px; }
-.doc-form { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+.doc-form { background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
 .doc-form label { display: block; font-size: 11.5px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.06em; color: var(--text-muted); margin: 10px 0 4px; }
 .doc-form label:first-child { margin-top: 0; }
@@ -687,26 +687,33 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   background: transparent; border: 1px solid var(--accent); border-radius: 999px;
   padding: 5px 12px; cursor: pointer; }
 .tip-remind:hover { background: var(--accent); color: #fff; }
-.ics-sheet { position: fixed; inset: 0; z-index: 9000; background: rgba(0,0,0,0.55);
-  display: flex; align-items: flex-end; justify-content: center; }
-.ics-sheet__box { background: var(--card); color: var(--text); width: 100%; max-width: 460px;
-  border-radius: 16px 16px 0 0; padding: 20px 20px 26px; }
-.ics-sheet__title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
-.ics-sheet__sub { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; }
+.ics-sheet { position: fixed; inset: 0; z-index: 9000; background: rgba(0,0,0,0.6);
+  display: flex; align-items: flex-end; justify-content: center;
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.ics-sheet__box { background: var(--bg-card); color: var(--text); width: 100%; max-width: 460px;
+  border-radius: 18px 18px 0 0; padding: 22px 20px calc(26px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line); box-shadow: 0 -8px 32px rgba(0,0,0,0.45);
+  max-height: 88vh; overflow-y: auto; }
+.ics-sheet__box::before { content: ''; display: block; width: 38px; height: 4px; border-radius: 999px;
+  background: var(--line); margin: -6px auto 16px; }
+.ics-sheet__title { font-weight: 700; font-size: 16px; margin-bottom: 5px; }
+.ics-sheet__sub { font-size: 13.5px; color: var(--text-soft); line-height: 1.5; margin-bottom: 16px;
+  padding-bottom: 14px; border-bottom: 1px solid var(--line); }
 .ics-sheet label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.06em; color: var(--text-muted); margin: 10px 0 4px; }
-.ics-sheet input { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px;
-  background: var(--bg); color: var(--text); font: inherit; font-size: 14px; }
+.ics-sheet input { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--bg-elev); color: var(--text); font: inherit; font-size: 15px; }
+.ics-sheet input:focus { border-color: var(--accent); outline: none; }
 .ics-sheet__row { display: flex; gap: 8px; margin-top: 16px; }
 .ics-sheet__row .btn { flex: 1; }
 .map-toggle { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex;
-  background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 3px;
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: 999px; padding: 3px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
 .map-toggle button { border: 0; background: transparent; color: var(--text-muted); font-size: 12px;
   font-weight: 700; padding: 5px 12px; border-radius: 999px; cursor: pointer; }
 .map-toggle button.is-on { background: var(--accent); color: #fff; }
 .marker-photo { width: 46px; height: 46px; border-radius: 10px; overflow: hidden; border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35); background: var(--card); }
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35); background: var(--bg-card); }
 .marker-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .marker-photo__day { position: absolute; bottom: -4px; right: -4px; min-width: 17px; height: 17px;
   border-radius: 999px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700;
@@ -1620,7 +1627,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "11:00",
           "icon": "🛬",
           "title": "Aterrizaje en Milán-Bérgamo (BGY)",
-          "description": "Llegada prevista a las 11:00. BGY es un aeropuerto pequeño y ágil: los mostradores de alquiler están en la propia terminal de llegadas, saliendo y a la izquierda. Contad 45–60 min entre desembarque, equipaje y papeleo del coche.",
+          "description": "Llegada prevista a las 11:00. BGY es un aeropuerto pequeño y ágil: los mostradores de alquiler están en la propia terminal de llegadas, saliendo y a la izquierda. Conviene contar 45–60 min entre desembarque, equipaje y papeleo del coche.",
           "type": "transport",
           "duration_min": 60
         },
@@ -1628,7 +1635,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "12:00",
           "icon": "🚗",
           "title": "Recogida del coche y salida",
-          "description": "Objetivo: estar en carretera a las 12:00. Revisad el coche con el móvil antes de salir (fotos de los cuatro laterales, techo y llantas) y comprobad que el depósito coincide con el contrato. Poned rumbo este por la A4 hacia Brescia y Verona.",
+          "description": "Objetivo: estar en carretera a las 12:00. Mejor revisar el coche con el móvil antes de salir (fotos de los cuatro laterales, techo y llantas) y conviene comprobar que el depósito coincide con el contrato. Lo mejor es poner rumbo este por la A4 hacia Brescia y Verona.",
           "type": "checkin",
           "duration_min": 30
         },
@@ -1644,7 +1651,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "13:30",
           "icon": "🚁",
           "title": "Punta San Vigilio — primer vuelo del viaje",
-          "description": "Península de cipreses con villa renacentista del siglo XVI y el porticciolo más bonito del Garda. Se puede volar el dron. Aparcad en el parking de pago junto a la Gardesana SR249 y bajad los cinco minutos a pie hasta la punta. A esta hora el lago está en su azul más intenso. Es la única parada del día con tiempo de sobra: aprovechad para comer aquí sin prisa, porque a partir de ahora el reloj manda.",
+          "description": "Península de cipreses con villa renacentista del siglo XVI y el porticciolo más bonito del Garda. Se puede volar el dron. Merece la pena aparcar en el parking de pago junto a la Gardesana SR249 y mejor bajar los cinco minutos a pie hasta la punta. A esta hora el lago está en su azul más intenso. Es la única parada del día con tiempo de sobra: merece la pena aprovechar para comer aquí sin prisa, porque a partir de ahora el reloj manda.",
           "type": "activity",
           "duration_min": 70,
           "place_id": "punta-san-vigilio"
@@ -1661,7 +1668,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "15:15",
           "icon": "🚁",
           "title": "Madonna della Corona — parada rápida solo para el dron",
-          "description": "Parada corta y quirúrgica: aparcar, sacar el dron, hacer la toma y seguir. Nada de bajar los 318 escalones ni recorrer el santuario, que se come hora y media. El santuario está encajado en la pared vertical del Monte Baldo con el valle del Adige 600 m más abajo, así que el plano aéreo es justo el que compensa: se despega desde el borde del pueblo y se baja siguiendo la pared. Llevad localizado en vista satélite el punto exacto de despegue antes de llegar, porque los 30 minutos no dan para buscarlo sobre la marcha.",
+          "description": "Parada corta y quirúrgica: aparcar, sacar el dron, hacer la toma y seguir. Nada de bajar los 318 escalones ni recorrer el santuario, que se come hora y media. El santuario está encajado en la pared vertical del Monte Baldo con el valle del Adige 600 m más abajo, así que el plano aéreo es justo el que compensa: se despega desde el borde del pueblo y se baja siguiendo la pared. Compensa llevar localizado en vista satélite el punto exacto de despegue antes de llegar, porque los 30 minutos no dan para buscarlo sobre la marcha.",
           "type": "activity",
           "duration_min": 30,
           "place_id": "madonna-corona"
@@ -1670,7 +1677,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "15:45",
           "icon": "🛣️",
           "title": "Spiazzi → Lago di Carezza (2 h 18 min, con peaje)",
-          "description": "El tramo largo del día. Bajada del Monte Baldo hasta la A22 (Autostrada del Brennero), norte hasta Bolzano y luego la SS241 hacia Nova Levante. Peaje aproximado de 10–12 €. Repostad de camino: en los valles altos la gasolina es más cara.",
+          "description": "El tramo largo del día. Bajada del Monte Baldo hasta la A22 (Autostrada del Brennero), norte hasta Bolzano y luego la SS241 hacia Nova Levante. Peaje aproximado de 10–12 €. Interesa repostar de camino: en los valles altos la gasolina es más cara.",
           "type": "transport",
           "duration_min": 138
         },
@@ -1678,7 +1685,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "18:05",
           "icon": "🏞️",
           "title": "Lago di Carezza — dron SOLO desde el parking",
-          "description": "Aguas verdeesmeralda con el macizo del Latemar detrás. IMPORTANTE: se puede volar el dron desde el parking, pero NO una vez estáis en el lago. Aparcad en el gratuito de 2 h y haced los 20 min a pie por el puente colgante. A esta hora los autobuses ya se han ido y la luz de tarde sobre el Latemar es mucho mejor que la del mediodía. Cuarenta minutos justos y en marcha.",
+          "description": "Aguas verdeesmeralda con el macizo del Latemar detrás. IMPORTANTE: se puede volar el dron desde el parking, pero NO una vez estáis en el lago. Conviene aparcar en el gratuito de 2 h y lo mejor es hacer los 20 min a pie por el puente colgante. A esta hora los autobuses ya se han ido y la luz de tarde sobre el Latemar es mucho mejor que la del mediodía. Cuarenta minutos justos y en marcha.",
           "type": "visit",
           "duration_min": 40,
           "place_id": "lago-carezza"
@@ -1687,7 +1694,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "18:45",
           "icon": "🛣️",
           "title": "Lago di Carezza → Decathlon Bolzano (40 min)",
-          "description": "SS241 de bajada hacia el valle y luego cruzáis la ciudad hasta la zona de Via Galilei. Contad algo más si pilláis tráfico de tarde en la entrada de Bolzano.",
+          "description": "SS241 de bajada hacia el valle y luego cruzáis la ciudad hasta la zona de Via Galilei. Mejor contar algo más si pilláis tráfico de tarde en la entrada de Bolzano.",
           "type": "transport",
           "duration_min": 40
         },
@@ -1695,7 +1702,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "19:25",
           "icon": "🥾",
           "title": "Decathlon Bolzano — bastones y, si procede, ramponcini",
-          "description": "Cierra a las 20:00, así que tenéis media hora larga: id directos a la sección de montaña. Los bastones plegables son compra segura y os van a hacer falta desde el día 2 (900 m de bajada desde Seceda). Los ramponcini o microspikes son la compra condicionada: decididla según el parte de nieve de esos días para el sendero 215 del Sorapis y para el 627 del Pordoi, que es donde aguantan los neveros. Rondan los 25–35 €, así que como seguro barato compensan. El centro tiene aparcamiento subterráneo con las dos primeras horas gratis.",
+          "description": "Cierra a las 20:00, así que tenéis media hora larga: conviene ir directos a la sección de montaña. Los bastones plegables son compra segura y os van a hacer falta desde el día 2 (900 m de bajada desde Seceda). Los ramponcini o microspikes son la compra condicionada: conviene decidirla según el parte de nieve de esos días para el sendero 215 del Sorapis y para el 627 del Pordoi, que es donde aguantan los neveros. Rondan los 25–35 €, así que como seguro barato compensan. El centro tiene aparcamiento subterráneo con las dos primeras horas gratis.",
           "type": "activity",
           "duration_min": 35,
           "place_id": "decathlon-bolzano"
@@ -1704,7 +1711,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "20:05",
           "icon": "🏨",
           "title": "Check-in en el apartamento de Bolzano",
-          "description": "Dejad el equipaje y organizad la mochila del día siguiente: mañana salís a las 6:15 y el trekking de Seceda son cinco horas. OJO con la compra: los supermercados de Bolzano cierran también sobre las 19:30–20:00, así que hoy no vais a llegar. Mirad si el centro comercial del Decathlon tiene supermercado y resolvedlo ahí; si no, comprad algo para el desayuno en el propio Decathlon (barritas, frutos secos) y dejad la compra grande para la parada de Castelrotto de mañana por la tarde.",
+          "description": "Lo mejor es dejar el equipaje y conviene organizar la mochila del día siguiente: mañana salís a las 6:15 y el trekking de Seceda son cinco horas. OJO con la compra: los supermercados de Bolzano cierran también sobre las 19:30–20:00, así que hoy no vais a llegar. Merece la pena mirar si el centro comercial del Decathlon tiene supermercado y resolverlo ahí; si no, comprar algo para el desayuno en el propio Decathlon (barritas, frutos secos) y merece la pena dejar la compra grande para la parada de Castelrotto de mañana por la tarde.",
           "type": "checkin",
           "duration_min": 55
         },
@@ -1712,7 +1719,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "21:00",
           "icon": "🍽️",
           "title": "Cena en Bolzano",
-          "description": "Primera cena tirolesa. Después de más de cinco horas de coche, algo contundente y cerca del apartamento. Reservad por la mañana si podéis, porque a las 21:00 en junio los buenos están llenos.",
+          "description": "Primera cena tirolesa. Después de más de cinco horas de coche, algo contundente y cerca del apartamento. Compensa reservar por la mañana si podéis, porque a las 21:00 en junio los buenos están llenos.",
           "type": "meal",
           "duration_min": 90
         }
@@ -1728,7 +1735,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "Pequeña península de cipreses y piedra en la orilla veronesa del Garda, con villa del siglo XVI y un puerto diminuto. Churchill pintó aquí sus acuarelas. Es una parada de 45 min que vale cada minuto y arranca el viaje por todo lo alto.",
           "hours": "Acceso libre todo el día. La Baia delle Sirene (playa de pago) abre de mayo a octubre.",
           "price": "Acceso libre a la punta. Parking de pago junto a la SR249.",
-          "tips": "SE PUEDE VOLAR EL DRON. La villa es propiedad privada: mantened el vuelo sobre la zona pública y el agua. A las 13:30 el sol está alto y el agua sale en su turquesa máximo; si podéis, sacad también una toma baja rasante sobre el porticciolo.",
+          "tips": "SE PUEDE VOLAR EL DRON. La villa es propiedad privada: interesa mantener el vuelo sobre la zona pública y el agua. A las 13:30 el sol está alto y el agua sale en su turquesa máximo; si podéis, compensa sacar también una toma baja rasante sobre el porticciolo.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=45.5735,10.6731",
           "verified_at": null
         },
@@ -1742,7 +1749,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "Una basílica encajada en la pared vertical del Monte Baldo, a 774 m sobre el valle del Adige. La imagen del edificio asomando del acantilado es de las más impactantes del norte de Italia. Excelente valoración de los visitantes (4,8 sobre casi 15.000 reseñas).",
           "hours": "7:00–19:00 todos los días.",
           "price": "Entrada gratuita. Naveta desde Spiazzi: aprox. 1,80 € por trayecto / 3,50 € ida y vuelta.",
-          "tips": "SE PUEDE VOLAR EL DRON, y hoy es lo único que vais a hacer aquí: parada de 30 minutos para despegar, sacar el plano aéreo del santuario contra la pared y seguir. La mejor perspectiva es desde el vacío del valle, con el edificio de perfil. Localizad el punto de despegue en vista satélite ANTES de llegar. Si algún día volvéis con tiempo, la bajada por los 318 escalones de la Vía Crucis merece mucho la pena, pero son 40 minutos de subida de vuelta que hoy no tenéis.",
+          "tips": "SE PUEDE VOLAR EL DRON, y hoy es lo único que vais a hacer aquí: parada de 30 minutos para despegar, sacar el plano aéreo del santuario contra la pared y seguir. La mejor perspectiva es desde el vacío del valle, con el edificio de perfil. Compensa localizar el punto de despegue en vista satélite ANTES de llegar. Si algún día volvéis con tiempo, la bajada por los 318 escalones de la Vía Crucis merece mucho la pena, pero son 40 minutos de subida de vuelta que hoy no tenéis.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=45.6495,10.8562",
           "verified_at": "2027-06-01"
         },
@@ -1756,7 +1763,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "El lago esmeralda del Latemar, con un circuito perimetral de 20 min y varios miradores señalizados. Muy concurrido, pero a las 18:45 el grueso de autobuses ya se ha ido y la luz de tarde sobre el Latemar es mucho mejor que la del mediodía.",
           "hours": "Acceso libre. Parkings operativos durante el día.",
           "price": "Acceso gratuito. Parking gratuito 2 h (20 min a pie) o parking de pago cercano: ~5 € la 1.ª hora, ~8 € las 2 h.",
-          "tips": "DRON SOLO DESDE EL PARKING, no en el lago. Usad el parking gratuito que tenéis guardado y haced los 20 min andando por el puente colgante: como la parada es corta, no compensa pagar. No está permitido bañarse. El mejor ángulo desde tierra es el extremo sur.",
+          "tips": "DRON SOLO DESDE EL PARKING, no en el lago. Interesa usar el parking gratuito que tenéis guardado y conviene hacer los 20 min andando por el puente colgante: como la parada es corta, no compensa pagar. No está permitido bañarse. El mejor ángulo desde tierra es el extremo sur.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.4092,11.5751",
           "verified_at": null
         },
@@ -1770,7 +1777,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "Tienda grande en dos plantas en Via Galilei, con 4,3 de valoración y buena sección de montaña. Es la solución limpia al problema de calendario del material: compráis bastones y, si hace falta, ramponcini el primer día, mucho antes del Sorapis del día 4. Los precios de sus marcas propias son imbatibles y el personal de la sección de montaña tiene buena fama.",
           "hours": "Lunes a sábado 9:00–20:00 · Domingos 10:00–20:00.",
           "price": "Bastones plegables desde unos 20–30 € el par. Ramponcini/microspikes, entre 25 y 35 €.",
-          "tips": "Llegáis a las 19:25 y cierran a las 20:00: id directamente a la planta de montaña sin dar vueltas. El centro comercial tiene aparcamiento subterráneo con las dos primeras horas gratuitas. Comprobad si el mismo centro tiene supermercado, porque hoy no os va a dar tiempo a otro.",
+          "tips": "Llegáis a las 19:25 y cierran a las 20:00: mejor ir directamente a la planta de montaña sin dar vueltas. El centro comercial tiene aparcamiento subterráneo con las dos primeras horas gratuitas. Conviene comprobar si el mismo centro tiene supermercado, porque hoy no os va a dar tiempo a otro.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.4863,11.3356",
           "verified_at": "2027-06-01"
         }
@@ -1782,7 +1789,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "speciality": "Knödeltris, sopa de castañas, buey y cordero de cocina sudtirolesa",
           "price_range": "€€",
           "reservation_required": true,
-          "notes": "Via dei Francescani 7, Bolzano. Cocina local de verdad, muy valorada (4,4 con más de 3.000 reseñas) y sin cover charge, algo raro en la zona. Abre 18:30–22:00. Cierra los martes. Reservad si llegáis pasadas las 21:00.",
+          "notes": "Via dei Francescani 7, Bolzano. Cocina local de verdad, muy valorada (4,4 con más de 3.000 reseñas) y sin cover charge, algo raro en la zona. Abre 18:30–22:00. Cierra los martes. Mejor reservar si llegáis pasadas las 21:00.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.5003,11.3536"
         },
         {
@@ -1810,10 +1817,10 @@ body.is-offline .offline-chip { display: inline-flex; }
       "info": {
         "travel_tips": [
           "ALTERNATIVA QUE MERECE LA PENA CONSIDERAR: como el trayecto Spiazzi–Carezza pasa por Bolzano de todas formas, podéis parar en la ciudad a las 17:25 y hacer Decathlon y supermercado con calma (ambos abiertos hasta las 20:00), y dejar el Lago di Carezza para el final, sobre las 19:20. Cuesta 36 minutos más de coche, pero os quita toda la prisa, resuelve la compra de comida y además pilláis Carezza casi vacío y con luz de atardecer. En junio no anochece hasta pasadas las 21:00.",
-          "El Decathlon de Via Galilei cierra a las 20:00 todos los días. Llegando a las 19:25 tenéis media hora: id directos a montaña.",
-          "Los ramponcini son compra condicionada. Mirad el parte de nieve y las reseñas recientes del sendero 215 (Sorapis) y del 627 (Pordoi) los días previos al viaje; si hay neveros, compradlos, y si no, os ahorráis 30 €.",
-          "Dron hoy: SÍ en Punta San Vigilio y en la Madonna della Corona; en Carezza solo desde el parking. Comprobad la zona en D-Flight.",
-          "Peajes A22: aprox. 10–12 € desde el Garda hasta Bolzano. Llevad monedas para los parkings, que varios tienen máquinas antiguas."
+          "El Decathlon de Via Galilei cierra a las 20:00 todos los días. Llegando a las 19:25 tenéis media hora: lo mejor es ir directos a montaña.",
+          "Los ramponcini son compra condicionada. Lo mejor es mirar el parte de nieve y las reseñas recientes del sendero 215 (Sorapis) y del 627 (Pordoi) los días previos al viaje; si hay neveros, comprarlos, y si no, os ahorráis 30 €.",
+          "Dron hoy: SÍ en Punta San Vigilio y en la Madonna della Corona; en Carezza solo desde el parking. Merece la pena comprobar la zona en D-Flight.",
+          "Peajes A22: aprox. 10–12 € desde el Garda hasta Bolzano. Compensa llevar monedas para los parkings, que varios tienen máquinas antiguas."
         ],
         "access": [
           "BGY → Punta San Vigilio: A4 este → salida Peschiera del Garda → SR249 norte (1 h 27 min).",
@@ -1838,7 +1845,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "06:15",
           "icon": "☕",
           "title": "Desayuno rápido y salida de Bolzano",
-          "description": "Desayunad en el apartamento con lo comprado ayer y salid a las 6:30. Preparad la mochila la noche antes: 2 l de agua, bastones, cortavientos, crema solar y las baterías del dron cargadas.",
+          "description": "Conviene desayunar en el apartamento con lo comprado ayer y mejor salir a las 6:30. Interesa preparar la mochila la noche antes: 2 l de agua, bastones, cortavientos, crema solar y las baterías del dron cargadas.",
           "type": "meal",
           "duration_min": 30
         },
@@ -1854,7 +1861,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "07:30",
           "icon": "🅿️",
           "title": "Llegada al Parking Cristauta (1.753 m)",
-          "description": "La barrera abre a las 8:00, así que llegar a las 7:30 os garantiza sitio y salida puntual. Es el mejor aparcamiento para atacar Seceda a pie. Acepta tarjeta. Aprovechad para calzaros bien y repartir peso.",
+          "description": "La barrera abre a las 8:00, así que llegar a las 7:30 os garantiza sitio y salida puntual. Es el mejor aparcamiento para atacar Seceda a pie. Acepta tarjeta. Conviene aprovechar para calzaros bien y repartir peso.",
           "type": "checkin",
           "duration_min": 30
         },
@@ -1871,7 +1878,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "11:00",
           "icon": "🏔️",
           "title": "Cima del Seceda (2.519 m) — cresta de las Odle",
-          "description": "La panorámica que habéis visto mil veces: la muralla dentada del Gruppo delle Odle cayendo en vertical, y detrás toda la Val Gardena. TRUCO IMPORTANTE: al llegar arriba, tomad el sendero de la izquierda hacia el funicular y os ahorráis los 5 € de la barrera privada instalada en la cresta. DRON PROHIBIDO: estáis dentro del Parco Naturale Puez-Odle.",
+          "description": "La panorámica que habéis visto mil veces: la muralla dentada del Gruppo delle Odle cayendo en vertical, y detrás toda la Val Gardena. TRUCO IMPORTANTE: al llegar arriba, conviene tomar el sendero de la izquierda hacia el funicular y os ahorráis los 5 € de la barrera privada instalada en la cresta. DRON PROHIBIDO: estáis dentro del Parco Naturale Puez-Odle.",
           "type": "visit",
           "duration_min": 60,
           "place_id": "seceda"
@@ -1880,7 +1887,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "12:00",
           "icon": "🍽️",
           "title": "Comida en la cresta",
-          "description": "Comed arriba: hay varios refugios junto a la estación superior con Knödel, Gulasch y sopas. Muchos solo aceptan efectivo. Alternativa más barata: picnic en la hierba con lo del súper, que además os deja escoger el sitio y la vista.",
+          "description": "Conviene comer arriba: hay varios refugios junto a la estación superior con Knödel, Gulasch y sopas. Muchos solo aceptan efectivo. Alternativa más barata: picnic en la hierba con lo del súper, que además os deja escoger el sitio y la vista.",
           "type": "meal",
           "duration_min": 45
         },
@@ -1904,7 +1911,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "13:40",
           "icon": "⛪",
           "title": "Chiesa di San Valentino — dron con el Sciliar de fondo",
-          "description": "Capilla del siglo XIII entre prados, con el macizo del Sciliar como telón. SE PUEDE VOLAR EL DRON. Aviso importante: no hay aparcamiento propio y la carretera final es privada; vuestro plan de dejar el coche en el hostal a 300 m es la opción práctica. Si no cuadra, aparcad en el centro de Siusi y subid en 20–25 min por el sendero 7 (empieza justo pasada la oficina de correos). La iglesia está siempre cerrada salvo visitas guiadas concertadas.",
+          "description": "Capilla del siglo XIII entre prados, con el macizo del Sciliar como telón. SE PUEDE VOLAR EL DRON. Aviso importante: no hay aparcamiento propio y la carretera final es privada; vuestro plan de dejar el coche en el hostal a 300 m es la opción práctica. Si no cuadra, lo mejor es aparcar en el centro de Siusi y subir en 20–25 min por el sendero 7 (empieza justo pasada la oficina de correos). La iglesia está siempre cerrada salvo visitas guiadas concertadas.",
           "type": "activity",
           "duration_min": 70,
           "place_id": "chiesa-san-valentino"
@@ -1913,7 +1920,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "14:50",
           "icon": "🍽️",
           "title": "Comida, compra y espera en Castelrotto",
-          "description": "Aquí hay un hueco obligado: al Alpe di Siusi no se puede subir en coche entre las 9:00 y las 17:00. Aprovechadlo en vez de sufrirlo. Castelrotto (Kastelruth) está a 10 min, tiene una plaza porticada preciosa, campanario barroco y terrazas tranquilas. Y es el momento de hacer la compra grande que ayer no dio tiempo: supermercado para los desayunos y los picnics de los próximos días, que a partir de mañana salís antes de las 7:00 todos los días.",
+          "description": "Aquí hay un hueco obligado: al Alpe di Siusi no se puede subir en coche entre las 9:00 y las 17:00. Mejor aprovecharlo en vez de sufrirlo. Castelrotto (Kastelruth) está a 10 min, tiene una plaza porticada preciosa, campanario barroco y terrazas tranquilas. Y es el momento de hacer la compra grande que ayer no dio tiempo: supermercado para los desayunos y los picnics de los próximos días, que a partir de mañana salís antes de las 7:00 todos los días.",
           "type": "free",
           "duration_min": 110
         },
@@ -1921,7 +1928,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "16:45",
           "icon": "🛣️",
           "title": "Castelrotto → Alpe di Siusi, Compatsch P2 (15 min)",
-          "description": "Subid justo cuando abren. En el checkpoint de San Valentino os piden la autorización de acceso: con la reserva del parking se emite automáticamente. Hay que escanear el QR en la barrera de entrada del P2, junto al Hotel Zorzi, y también al salir.",
+          "description": "Mejor subir justo cuando abren. En el checkpoint de San Valentino os piden la autorización de acceso: con la reserva del parking se emite automáticamente. Hay que escanear el QR en la barrera de entrada del P2, junto al Hotel Zorzi, y también al salir.",
           "type": "transport",
           "duration_min": 20
         },
@@ -1929,7 +1936,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "17:15",
           "icon": "🚁",
           "title": "Alpe di Siusi — la mejor toma de dron del viaje",
-          "description": "El altiplano alpino más grande de Europa, con el Sassolungo y el Sciliar enmarcándolo. SE PUEDE VOLAR EL DRON en una zona amplia. La mejor toma está a una hora andando subiendo hacia el Sporthotel Sonne: ese paseo os deja justo a tiempo para la luz dorada y, con suerte, la enrosadira sobre el Sassolungo. Bajad antes de que se haga de noche.",
+          "description": "El altiplano alpino más grande de Europa, con el Sassolungo y el Sciliar enmarcándolo. SE PUEDE VOLAR EL DRON en una zona amplia. La mejor toma está a una hora andando subiendo hacia el Sporthotel Sonne: ese paseo os deja justo a tiempo para la luz dorada y, con suerte, la enrosadira sobre el Sassolungo. Lo mejor es bajar antes de que se haga de noche.",
           "type": "activity",
           "duration_min": 165,
           "place_id": "alpe-di-siusi"
@@ -1962,7 +1969,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "El aparcamiento clave del día: 1.753 m, en Via Plistnat sobre Santa Cristina Valgardena, justo en el arranque del sendero 4 hacia Seceda. Amplio y con buena valoración. Es la forma barata y auténtica de subir a Seceda sin pasar por caja de los remontes.",
           "hours": "Abre a las 8:00. La carretera de acceso es estrecha pero asfaltada.",
           "price": "De pago en temporada: los usuarios reportan entre 5 y 8 € el día completo. Acepta tarjeta.",
-          "tips": "Llegad a las 7:30: en julio y agosto se llena antes de las 8:30. No hay aseos. Pagad sí o sí, porque la policía municipal controla.",
+          "tips": "Merece la pena llegar a las 7:30: en julio y agosto se llena antes de las 8:30. No hay aseos. Compensa pagar sí o sí, porque la policía municipal controla.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.5664,11.7249",
           "verified_at": null
         },
@@ -1990,7 +1997,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "Capilla del siglo XIII con campanario de bulbo, sola en mitad de los prados y con el Sciliar detrás. Conserva frescos de los siglos XIV y XV, uno con los Reyes Magos pintados sobre el paisaje del Alpe di Siusi. Salió en la película de Terrence Malick 'Vida oculta'.",
           "hours": "Exterior accesible siempre. Interior solo en visitas guiadas (finales de junio a principios de septiembre, con inscripción previa).",
           "price": "Gratuito.",
-          "tips": "SE PUEDE VOLAR EL DRON. No hay parking propio y la pista final es privada: dejad el coche donde tenéis previsto, a 300 m, o en Siusi y subid 20–25 min por el sendero 7. La luz de última hora es la buena, pero hoy pasáis a mediodía: compensadlo con altura de dron y un ángulo que meta el Sciliar completo.",
+          "tips": "SE PUEDE VOLAR EL DRON. No hay parking propio y la pista final es privada: merece la pena dejar el coche donde tenéis previsto, a 300 m, o en Siusi y compensa subir 20–25 min por el sendero 7. La luz de última hora es la buena, pero hoy pasáis a mediodía: compensa ganar altura con el dron y un ángulo que meta el Sciliar completo.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.5497,11.563",
           "verified_at": null
         },
@@ -2004,7 +2011,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "El altiplano alpino más extenso de Europa: 56 km² de praderas onduladas a 1.800–2.000 m con el Sassolungo y el Sciliar de fondo. Al estar cerrado al tráfico durante el día, a partir de las 17:00 se queda sorprendentemente tranquilo.",
           "hours": "Carretera de acceso abierta al tráfico privado SOLO antes de las 9:00 y después de las 17:00. Prohibido estacionar de 23:00 a 5:00.",
           "price": "Parking P2 Compatsch: 30 € al día. RESERVA ONLINE OBLIGATORIA en seiseralm.it, hasta 6 días antes y con matrícula.",
-          "tips": "SE PUEDE VOLAR EL DRON en zona amplia. Reservad el parking con antelación (la reserva genera automáticamente la autorización para el checkpoint de San Valentino) y llevad el QR descargado, porque hay que escanearlo al entrar y al salir. La mejor toma está a 1 h andando hacia el Sporthotel Sonne.",
+          "tips": "SE PUEDE VOLAR EL DRON en zona amplia. Interesa reservar el parking con antelación (la reserva genera automáticamente la autorización para el checkpoint de San Valentino) y conviene llevar el QR descargado, porque hay que escanearlo al entrar y al salir. La mejor toma está a 1 h andando hacia el Sporthotel Sonne.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.5399,11.6174",
           "verified_at": "2027-06-01"
         }
@@ -2024,13 +2031,13 @@ body.is-offline .offline-chip { display: inline-flex; }
           "speciality": "Pasta fresca, ragú casero, tiramisú",
           "price_range": "€€",
           "reservation_required": true,
-          "notes": "Vicolo della Parrocchia 2A, Bolzano. Escondida en un callejón del centro, cocina italiana honesta y sin postureo (4,5 de valoración). Se llena rápido: reservad o llegad al abrir a las 18:00. Cierra domingos.",
+          "notes": "Vicolo della Parrocchia 2A, Bolzano. Escondida en un callejón del centro, cocina italiana honesta y sin postureo (4,5 de valoración). Se llena rápido: compensa reservar o mejor llegar al abrir a las 18:00. Cierra domingos.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.4989,11.3536"
         }
       ],
       "alternative_plans": {
         "more_time": "Si bajáis de Seceda con fuerzas, la variante del sendero 6a rodeando el Monte Pic añade el balcón de Seurasass sobre la Val Gardena sin apenas desnivel extra. Y en el hueco de la tarde, Ortisei está a 10 min de Castelrotto: es la capital de la talla ladina en madera y sus tiendas son el mejor sitio del viaje para un souvenir de verdad.",
-        "less_time": "Si la subida a Seceda se alarga y llegáis justos, sacrificad la comida larga arriba (picnic de 20 min) o recortad la parada de San Valentino a 30 min. Lo que no conviene perder es la franja de las 17:00 en el Alpe di Siusi: es la única del día.",
+        "less_time": "Si la subida a Seceda se alarga y llegáis justos, interesa sacrificar la comida larga arriba (picnic de 20 min) o recortad la parada de San Valentino a 30 min. Lo que no conviene perder es la franja de las 17:00 en el Alpe di Siusi: es la única del día.",
         "rainy_day": "Con nubes bajas Seceda se queda sin vistas y no hay dron en ninguna parada. Plan B completo en Bolzano: Museo Arqueológico (Ötzi) por la mañana y Castel Roncolo por la tarde, un castillo medieval con los frescos profanos más extensos de Europa, a 20 min a pie del centro."
       },
       "logistics": {
@@ -2042,7 +2049,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       "info": {
         "travel_tips": [
-          "RESERVAD el parking P2 de Compatsch con antelación: es obligatorio desde 2026, se abre hasta 6 días antes y hay que introducir la matrícula exacta del coche de alquiler.",
+          "HAY QUE RESERVAR el parking P2 de Compatsch con antelación: es obligatorio desde 2026, se abre hasta 6 días antes y hay que introducir la matrícula exacta del coche de alquiler.",
           "La franja de acceso al Alpe di Siusi (antes de las 9:00 o después de las 17:00) no admite excepciones: el checkpoint de San Valentino está atendido y da la vuelta a quien no lleva autorización.",
           "Dron hoy: SÍ en San Valentino y en el Alpe di Siusi, NO en Seceda (parque natural).",
           "En la cresta de Seceda, el sendero de la izquierda hacia el funicular evita la barrera privada de 5 €. Si la barrera ha desaparecido en 2027, mejor: no perdéis nada por intentarlo."
@@ -2069,7 +2076,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "06:00",
           "icon": "🧳",
           "title": "Desayuno y checkout de Bolzano",
-          "description": "Cargad el coche entero antes de salir: hoy no volvéis. Dejad a mano la mochila de montaña y guardad el equipaje grande en el maletero.",
+          "description": "Conviene cargar el coche entero antes de salir: hoy no volvéis. Mejor dejar a mano la mochila de montaña y lo mejor es guardar el equipaje grande en el maletero.",
           "type": "meal",
           "duration_min": 45
         },
@@ -2085,7 +2092,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "07:45",
           "icon": "🅿️",
           "title": "Parking Malga Zannes (P1) — 1.685 m",
-          "description": "Abierto 24 h y con un semáforo a la entrada que indica si quedan plazas libres antes de subir. Unos 10–12 € el día. Ojo: varias máquinas solo aceptan monedas, así que llevad efectivo suelto por si acaso. Es el punto de partida de todas las rutas del fondo de la Val di Funes.",
+          "description": "Abierto 24 h y con un semáforo a la entrada que indica si quedan plazas libres antes de subir. Unos 10–12 € el día. Ojo: varias máquinas solo aceptan monedas, así que interesa llevar efectivo suelto por si acaso. Es el punto de partida de todas las rutas del fondo de la Val di Funes.",
           "type": "checkin",
           "duration_min": 25
         },
@@ -2093,7 +2100,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "08:15",
           "icon": "🥾",
           "title": "Circular al Rifugio Odle por el Adolf Munkel Weg",
-          "description": "La ruta más bonita del Alto Adigio y, con diferencia, la mejor relación entre esfuerzo y paisaje del viaje: 2 h 30 min de sendero circular. Empezad por el sendero 6, el del Fieno, que atraviesa el bosque en paralelo al río, y en la bifurcación coged el 35, el Adolf Munkel Weg, que discurre a media ladera justo debajo de la muralla vertical de las Odle hasta el refugio.",
+          "description": "La ruta más bonita del Alto Adigio y, con diferencia, la mejor relación entre esfuerzo y paisaje del viaje: 2 h 30 min de sendero circular. Lo mejor es empezar por el sendero 6, el del Fieno, que atraviesa el bosque en paralelo al río, y en la bifurcación se toma el 35, el Adolf Munkel Weg, que discurre a media ladera justo debajo de la muralla vertical de las Odle hasta el refugio.",
           "type": "activity",
           "duration_min": 105,
           "place_id": "malga-zannes"
@@ -2102,7 +2109,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "10:00",
           "icon": "🍽️",
           "title": "Parada en el Rifugio Odle (Geisleralm, 1.996 m)",
-          "description": "El 'cine de las Odle': tumbonas de madera en la terraza mirando de frente a las agujas. Abre a las 10:00 y cierra los lunes, así que hoy viernes vais bien. Llegad pronto, porque a partir de las 12:00 hay cola. Speckknödel, sopa de lentejas y curry, schnitzel y un suflé de chocolate que sale en todas las reseñas. Precios altos pero justificados.",
+          "description": "El 'cine de las Odle': tumbonas de madera en la terraza mirando de frente a las agujas. Abre a las 10:00 y cierra los lunes, así que hoy viernes vais bien. Merece la pena llegar pronto, porque a partir de las 12:00 hay cola. Speckknödel, sopa de lentejas y curry, schnitzel y un suflé de chocolate que sale en todas las reseñas. Precios altos pero justificados.",
           "type": "meal",
           "duration_min": 60,
           "place_id": "rifugio-odle"
@@ -2127,7 +2134,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "12:30",
           "icon": "⛪",
           "title": "Chiesa di San Giovanni in Ranui — dron",
-          "description": "La capilla barroca de 1744 en mitad del prado, con las Odle detrás: probablemente la postal más reproducida de todo el Tirol del Sur. SE PUEDE VOLAR EL DRON. Aparcad en Santa Maddalena y caminad hasta el photo view point. TRUCO: hay una plataforma de madera gratuita junto a la parada de autobús con el ángulo clásico; entrar al prado por el torno cuesta 4–5 € por persona y no se puede visitar el interior, así que solo merece la pena si queréis el primer plano.",
+          "description": "La capilla barroca de 1744 en mitad del prado, con las Odle detrás: probablemente la postal más reproducida de todo el Tirol del Sur. SE PUEDE VOLAR EL DRON. Compensa aparcar en Santa Maddalena y compensa caminar hasta el photo view point. TRUCO: hay una plataforma de madera gratuita junto a la parada de autobús con el ángulo clásico; entrar al prado por el torno cuesta 4–5 € por persona y no se puede visitar el interior, así que solo merece la pena si queréis el primer plano.",
           "type": "activity",
           "duration_min": 50,
           "place_id": "san-giovanni-ranui"
@@ -2144,7 +2151,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "13:40",
           "icon": "🚁",
           "title": "Chiesa di Santa Maddalena — el banco del mirador",
-          "description": "La otra gran postal de la Val di Funes: el pueblo con su campanario encajado entre prados y la muralla de las Odle al fondo. SE PUEDE VOLAR EL DRON. Aparcad gratis en el centro (junto al parque de bomberos o al centro de visitantes del Puez-Odle) y subid 20–25 min por el Magdalenaweg hasta el banco panorámico. La carretera hasta el mirador está reservada a autorizados: hay que subir andando. Contad hora y cuarto entre subida, dron, fotos y bajada.",
+          "description": "La otra gran postal de la Val di Funes: el pueblo con su campanario encajado entre prados y la muralla de las Odle al fondo. SE PUEDE VOLAR EL DRON. Interesa aparcar gratis en el centro (junto al parque de bomberos o al centro de visitantes del Puez-Odle) y merece la pena subir 20–25 min por el Magdalenaweg hasta el banco panorámico. La carretera hasta el mirador está reservada a autorizados: hay que subir andando. Conviene contar hora y cuarto entre subida, dron, fotos y bajada.",
           "type": "activity",
           "duration_min": 85,
           "place_id": "santa-maddalena"
@@ -2153,7 +2160,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "15:05",
           "icon": "🍽️",
           "title": "Comida ligera en Santa Maddalena",
-          "description": "La Val di Funes es destino Slow Food Travel y hay varias malgas y hostales con cocina de valle. Comed algo rápido antes del traslado largo: quedan casi dos horas y media de coche.",
+          "description": "La Val di Funes es destino Slow Food Travel y hay varias malgas y hostales con cocina de valle. Mejor comer algo rápido antes del traslado largo: quedan casi dos horas y media de coche.",
           "type": "meal",
           "duration_min": 45
         },
@@ -2169,7 +2176,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "18:15",
           "icon": "🏡",
           "title": "Check-in en el B&B Il Sogno y compra",
-          "description": "Base para las cuatro noches siguientes (337,60 € en total). Località Mas 32, zona muy tranquila y con vistas abiertas; los huéspedes destacan el desayuno y el trato de la propietaria. Santo Stefano di Cadore está a 5 min en coche y ahí tenéis supermercado y bares. Reponed provisiones para los desayunos y los picnics de los tres días siguientes: mañana salís a las 6:40 hacia el Sorapis.",
+          "description": "Base para las cuatro noches siguientes (337,60 € en total). Località Mas 32, zona muy tranquila y con vistas abiertas; los huéspedes destacan el desayuno y el trato de la propietaria. Santo Stefano di Cadore está a 5 min en coche y ahí tenéis supermercado y bares. Merece la pena reponer provisiones para los desayunos y los picnics de los tres días siguientes: mañana salís a las 6:40 hacia el Sorapis.",
           "type": "checkin",
           "duration_min": 60
         },
@@ -2193,7 +2200,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "El aparcamiento del fondo de la Val di Funes, dentro del Parco Naturale Puez-Odle. Grande pero muy solicitado: un semáforo a la entrada avisa de si quedan plazas antes de subir. Desde aquí salen el Adolf Munkel Weg, la subida a Malga Brogles y el sendero naturalístico de Zannes.",
           "hours": "Abierto 24 h.",
           "price": "Unos 10–12 € el día completo. Algunas máquinas solo aceptan monedas.",
-          "tips": "Llegad antes de las 8:00 en temporada. El importe del parking se destina al mantenimiento del parque natural. Junto al aparcamiento hay un Info Point Dolomiti UNESCO que explica la formación del macizo, útil si os sobra media hora.",
+          "tips": "Lo mejor es llegar antes de las 8:00 en temporada. El importe del parking se destina al mantenimiento del parque natural. Junto al aparcamiento hay un Info Point Dolomiti UNESCO que explica la formación del macizo, útil si os sobra media hora.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.6354,11.7637",
           "verified_at": null
         },
@@ -2206,8 +2213,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           },
           "review": "La terraza con tumbonas de madera mirando de frente a las Odle, al final del Adolf Munkel Weg. Muy bien valorado (4,5 con más de 3.500 reseñas) por comida y vistas a partes iguales. No permite pernoctar: es solo restaurante y terraza.",
           "hours": "10:00–17:00. CERRADO LOS LUNES.",
-          "price": "Precios de refugio (nivel medio-alto). Comprobad si aceptan tarjeta o llevad efectivo.",
-          "tips": "Llegad antes de las 12:00: a partir de esa hora hay cola en la puerta. Platos que repiten en las reseñas: Speckknödel, sopa de lentejas con coco y curry, schnitzel y suflé de chocolate. Si vais justos de tiempo, tomad solo algo en la terraza y seguid.",
+          "price": "Precios de refugio (nivel medio-alto). Merece la pena comprobar si aceptan tarjeta o compensa llevar efectivo.",
+          "tips": "Compensa llegar antes de las 12:00: a partir de esa hora hay cola en la puerta. Platos que repiten en las reseñas: Speckknödel, sopa de lentejas con coco y curry, schnitzel y suflé de chocolate. Si vais justos de tiempo, mejor tomar solo algo en la terraza y seguir.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.621,11.7495",
           "verified_at": "2027-06-01"
         },
@@ -2221,7 +2228,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "Capilla barroca de 1744 dedicada a San Juan Nepomuceno, aislada en el prado del maso Ranuihof con las Odle de fondo. Es propiedad privada y sigue siendo una granja en funcionamiento: hay cabras y gallinas alrededor.",
           "hours": "Prado accesible en horario diurno. El interior no se visita (solo se abre para bodas y ocasiones especiales).",
           "price": "Plataforma panorámica exterior: GRATIS. Acceso al prado por torno: 4–5 € por persona. Parkings de la zona: unos 4 €.",
-          "tips": "SE PUEDE VOLAR EL DRON. La plataforma de madera gratuita junto a la parada de bus da el ángulo clásico de postal; el pago solo aporta el primer plano. Por la mañana conviene el ángulo opuesto y por la tarde el clásico: hoy llegáis a mediodía, así que priorizad el dron sobre la foto de suelo.",
+          "tips": "SE PUEDE VOLAR EL DRON. La plataforma de madera gratuita junto a la parada de bus da el ángulo clásico de postal; el pago solo aporta el primer plano. Por la mañana conviene el ángulo opuesto y por la tarde el clásico: hoy llegáis a mediodía, así que mejor priorizar el dron sobre la foto de suelo.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.6351,11.7243",
           "verified_at": null
         },
@@ -2235,7 +2242,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "El pueblo de Santa Maddalena (1.339 m) visto desde el prado de arriba, con la iglesia en el centro y las Odle cerrando el fondo. El mirador está equipado con bancos para sentarse a mirar sin prisa. Uno de los sitios más queridos por quienes conocen bien los Dolomitas.",
           "hours": "Acceso libre. La carretera al mirador está reservada a vehículos autorizados: se sube a pie.",
           "price": "Aparcamiento gratuito en el centro del pueblo. Mirador gratuito.",
-          "tips": "SE PUEDE VOLAR EL DRON. Aparcad junto al parque de bomberos o al centro de visitantes del Puez-Odle y coged el Magdalenaweg: 20–25 min en subida constante hasta el banco. Podéis seguir hasta las dos curvas siguientes para ángulos algo más abiertos. La hora mágica es el atardecer, con enrosadira sobre las Odle.",
+          "tips": "SE PUEDE VOLAR EL DRON. Interesa aparcar junto al parque de bomberos o al centro de visitantes del Puez-Odle y conviene coger el Magdalenaweg: 20–25 min en subida constante hasta el banco. Podéis seguir hasta las dos curvas siguientes para ángulos algo más abiertos. La hora mágica es el atardecer, con enrosadira sobre las Odle.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.6447,11.7194",
           "verified_at": null
         }
@@ -2247,7 +2254,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "speciality": "Speckknödel, sopa de lentejas al curry, schnitzel, suflé de chocolate",
           "price_range": "€€",
           "reservation_required": false,
-          "notes": "Al final del Adolf Munkel Weg. Cierra los lunes y abre a las 10:00. Llegad antes de las 12:00 para no hacer cola.",
+          "notes": "Al final del Adolf Munkel Weg. Cierra los lunes y abre a las 10:00. Conviene llegar antes de las 12:00 para no hacer cola.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.621,11.7495"
         },
         {
@@ -2263,7 +2270,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       "alternative_plans": {
         "more_time": "Si el circular del Rifugio Odle se os hace corto, desde Malga Zannes sube en 1 h 30 min a Malga Gampen, con panorámica completa del valle. Y de camino al Comelico, un desvío de 15 min lleva al Lago di Braies, aunque lo tenéis programado para mañana con mejor luz.",
         "less_time": "Si vais retrasados, la parada prescindible es San Giovanni in Ranui: se ve bien desde la plataforma gratuita en 15 min. Lo que no conviene recortar es el mirador de Santa Maddalena, que es la mejor vista de las dos.",
-        "rainy_day": "El Adolf Munkel Weg con lluvia sigue siendo practicable (bosque y sendero ancho), pero sin las Odle a la vista pierde su razón de ser. Con mal tiempo, adelantad el traslado al Comelico y parad en Bressanone: casco medieval, claustro con frescos góticos y buenas cervecerías."
+        "rainy_day": "El Adolf Munkel Weg con lluvia sigue siendo practicable (bosque y sendero ancho), pero sin las Odle a la vista pierde su razón de ser. Con mal tiempo, adelantad el traslado al Comelico y mejor parar en Bressanone: casco medieval, claustro con frescos góticos y buenas cervecerías."
       },
       "logistics": {
         "driving_km": 215,
@@ -2275,9 +2282,9 @@ body.is-offline .offline-chip { display: inline-flex; }
       "info": {
         "travel_tips": [
           "Dron hoy: SÍ en San Giovanni in Ranui y en Santa Maddalena. En el Adolf Munkel Weg estáis dentro del Parco Naturale Puez-Odle, así que ahí NO.",
-          "El Rifugio Odle cierra los lunes. Hoy es viernes, pero tenedlo presente si reordenáis días.",
-          "Llevad monedas para el parking de Malga Zannes: varias reseñas recientes avisan de que la máquina rechaza billetes y tarjetas según el día.",
-          "El traslado de la tarde son 2 h 25 min reales. Salid de la Val di Funes no más tarde de las 16:00 para llegar con luz y hacer la compra sin agobios."
+          "El Rifugio Odle cierra los lunes. Hoy es viernes, pero conviene tenerlo presente si reordenáis días.",
+          "Mejor llevar monedas para el parking de Malga Zannes: varias reseñas recientes avisan de que la máquina rechaza billetes y tarjetas según el día.",
+          "El traslado de la tarde son 2 h 25 min reales. Lo mejor es salir de la Val di Funes no más tarde de las 16:00 para llegar con luz y hacer la compra sin agobios."
         ],
         "access": [
           "Bolzano → Malga Zannes: A22 norte → Bressanone/Brixen → SP83 Val di Funes hasta el fondo del valle (1 h).",
@@ -2301,7 +2308,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "06:20",
           "icon": "☕",
           "title": "Desayuno y salida",
-          "description": "Día partido en dos mitades. Desayunad fuerte: la ruta del Sorapis son cinco horas sin avituallamiento fiable. Mochila con 2 l de agua por persona, bastones y cortavientos.",
+          "description": "Día partido en dos mitades. Mejor desayunar fuerte: la ruta del Sorapis son cinco horas sin avituallamiento fiable. Mochila con 2 l de agua por persona, bastones y cortavientos.",
           "type": "meal",
           "duration_min": 20
         },
@@ -2326,7 +2333,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "10:00",
           "icon": "🏞️",
           "title": "Lago Sorapis (1.923 m)",
-          "description": "El turquesa lechoso más irreal de los Dolomitas, causado por la harina glaciar en suspensión, con las paredes del Sorapiss y el Dito di Dio cerrando el circo. DRON PROHIBIDO en el lago y en todo su entorno. Junto al lago está el Rifugio Vandelli, donde tomar algo caliente. Sacad las fotos desde la orilla norte, con el Dito di Dio a la izquierda.",
+          "description": "El turquesa lechoso más irreal de los Dolomitas, causado por la harina glaciar en suspensión, con las paredes del Sorapiss y el Dito di Dio cerrando el circo. DRON PROHIBIDO en el lago y en todo su entorno. Junto al lago está el Rifugio Vandelli, donde tomar algo caliente. Merece la pena sacar las fotos desde la orilla norte, con el Dito di Dio a la izquierda.",
           "type": "visit",
           "duration_min": 60
         },
@@ -2433,7 +2440,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "La ruta más espectacular de las Dolomitas ampezzanas y el lago de color más increíble del viaje. El sendero 215 recorre la ladera en travesía con vistas continuas sobre el valle de Cortina antes de entrar en el circo del Sorapiss. Muy popular: el aparcamiento se llena tempranísimo.",
           "hours": "Sendero abierto todo el día. Rifugio Vandelli operativo en temporada de verano.",
           "price": "Ruta y aparcamiento GRATUITOS. Plazas muy limitadas en el arcén.",
-          "tips": "DRON PROHIBIDO en el lago y alrededores. Empezad a las 7:30 sí o sí, tanto por el aparcamiento como por la afluencia. Hay tramos equipados con cable: calzado de montaña obligatorio y bastones muy recomendables. A finales de junio puede quedar algún nevero en las zonas de umbría: consultad el estado en atlasdolomiti.com o preguntad en el alojamiento.",
+          "tips": "DRON PROHIBIDO en el lago y alrededores. Compensa empezar a las 7:30 sí o sí, tanto por el aparcamiento como por la afluencia. Hay tramos equipados con cable: calzado de montaña obligatorio y bastones muy recomendables. A finales de junio puede quedar algún nevero en las zonas de umbría: conviene consultar el estado en atlasdolomiti.com o lo mejor es preguntar en el alojamiento.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.5561,12.1983",
           "verified_at": null
         },
@@ -2475,7 +2482,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "El lago más famoso de los Dolomitas: turquesa intenso, embarcadero de madera, hotel histórico en la orilla y la mole del Croda del Becco cerrando el valle. Casi 18.500 reseñas y 4,7 de media. A las 18:00 recupera parte de la calma que a mediodía es imposible.",
           "hours": "Acceso libre. En junio no hay restricción horaria de acceso en coche. Las barcas operan hasta media tarde.",
           "price": "Parking: unos 15 € en el más cercano; hay opciones desde 7 € a unos 800 m.",
-          "tips": "DRON PROHIBIDO, y la prohibición se extiende hasta unos 3 km alrededor: aquí la cámara se queda en tierra. Haced el circuito completo (3,5 km, 45 min): las mejores vistas no están en la orilla de entrada sino en la mitad opuesta del lago.",
+          "tips": "DRON PROHIBIDO, y la prohibición se extiende hasta unos 3 km alrededor: aquí la cámara se queda en tierra. Interesa hacer el circuito completo (3,5 km, 45 min): las mejores vistas no están en la orilla de entrada sino en la mitad opuesta del lago.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.6943,12.0854",
           "verified_at": null
         }
@@ -2502,7 +2509,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       "alternative_plans": {
         "more_time": "Si sobra energía después del Sorapis, desde el Lago di Braies sale la subida al Rifugio Biella (unas 3 h, 700 m): panorámica cenital sobre el lago que muy poca gente hace. Solo si las piernas van sobradas, porque mañana toca Piz Boè.",
         "less_time": "Si la ruta del Sorapis se alarga, el recorte limpio es el Lago di Dobbiaco: se ve bien desde el coche en 10 min. Landro es demasiado rápido para saltárselo y Braies es el objetivo de la tarde.",
-        "rainy_day": "Con lluvia NO hagáis el Sorapis: los tramos equipados con cable se vuelven resbaladizos y peligrosos. Plan B: dedicar la mañana a los tres lagos con calma (Landro, Dobbiaco y Braies aguantan bien el mal tiempo y hasta ganan atmósfera) y reservar la tarde para Cortina o para descansar."
+        "rainy_day": "Con lluvia, mejor no hacer el Sorapis: los tramos equipados con cable se vuelven resbaladizos y peligrosos. Plan B: dedicar la mañana a los tres lagos con calma (Landro, Dobbiaco y Braies aguantan bien el mal tiempo y hasta ganan atmósfera) y reservar la tarde para Cortina o para descansar."
       },
       "logistics": {
         "driving_km": 215,
@@ -2513,10 +2520,10 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       "info": {
         "travel_tips": [
-          "Hoy el dron no vuela en ninguna parada: Sorapis, Landro, Dobbiaco y Braies están todos prohibidos. Dejadlo cargando en el apartamento y ahorrad peso en la mochila.",
+          "Hoy el dron no vuela en ninguna parada: Sorapis, Landro, Dobbiaco y Braies están todos prohibidos. Lo mejor es dejarlo cargando en el apartamento y ahorrar peso en la mochila.",
           "El aparcamiento del Sorapis es gratuito pero minúsculo. Las 7:30 no es una recomendación, es el margen real.",
-          "Llevad monedas para Landro y Dobbiaco: máquinas antiguas que a menudo no admiten tarjeta.",
-          "Aprovechad la parada del mediodía en el alojamiento para cambiar de calcetines y calzado: la tarde de lagos se hace con zapatilla cómoda, no con bota."
+          "Conviene llevar monedas para Landro y Dobbiaco: máquinas antiguas que a menudo no admiten tarjeta.",
+          "Mejor aprovechar la parada del mediodía en el alojamiento para cambiar de calcetines y calzado: la tarde de lagos se hace con zapatilla cómoda, no con bota."
         ],
         "access": [
           "San Pietro di Cadore → Passo Tre Croci: SS48 vía Auronzo y Cortina (50 min).",
@@ -2541,7 +2548,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "06:10",
           "icon": "☕",
           "title": "Desayuno y salida",
-          "description": "El día con el traslado de aproximación más largo (2 h 25 min) y la ruta más alta del viaje. Salid a las 6:30 para empezar a caminar sobre las 9:00, que es la hora buena: los tramos equipados del 638 se saturan a media mañana.",
+          "description": "El día con el traslado de aproximación más largo (2 h 25 min) y la ruta más alta del viaje. Mejor salir a las 6:30 para empezar a caminar sobre las 9:00, que es la hora buena: los tramos equipados del 638 se saturan a media mañana.",
           "type": "meal",
           "duration_min": 20
         },
@@ -2549,7 +2556,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "06:30",
           "icon": "🛣️",
           "title": "San Pietro di Cadore → Passo Pordoi (2 h 25 min)",
-          "description": "Comelico → Cortina → Passo Falzarego → Arabba → Passo Pordoi. Es una de las carreteras más bonitas de Europa: se atraviesan tres puertos de montaña seguidos. Conducid con calma y disfrutadlo, porque el trayecto forma parte del día.",
+          "description": "Comelico → Cortina → Passo Falzarego → Arabba → Passo Pordoi. Es una de las carreteras más bonitas de Europa: se atraviesan tres puertos de montaña seguidos. Lo mejor es conducir con calma y disfrutarlo, porque el trayecto forma parte del día.",
           "type": "transport",
           "duration_min": 145
         },
@@ -2590,7 +2597,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "13:00",
           "icon": "🍽️",
           "title": "Cima y comida en la Capanna Fassa",
-          "description": "Panorámica de 360º sobre casi todos los Dolomitas: Marmolada enfrente con su glaciar, Sassolungo, Tofane, y hacia el norte incluso las Odle que pisasteis anteayer. Comed aquí y volad el dron a 40 m, que es el límite permitido.",
+          "description": "Panorámica de 360º sobre casi todos los Dolomitas: Marmolada enfrente con su glaciar, Sassolungo, Tofane, y hacia el norte incluso las Odle que pisasteis anteayer. Merece la pena comer aquí y merece la pena volar el dron a 40 m, que es el límite permitido.",
           "type": "meal",
           "duration_min": 45
         },
@@ -2630,7 +2637,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "18:50",
           "icon": "🍽️",
           "title": "Cena temprana y preparación del día grande",
-          "description": "Cena pronto y a la cama pronto: mañana hay que salir a las 5:45 para llegar al peaje de las Tre Cime en cuanto abra. ANTES DE DORMIR: comprobad que la reserva del peaje está hecha con la matrícula correcta del coche de alquiler.",
+          "description": "Cena pronto y a la cama pronto: mañana hay que salir a las 5:45 para llegar al peaje de las Tre Cime en cuanto abra. ANTES DE DORMIR: mejor comprobar que la reserva del peaje está hecha con la matrícula correcta del coche de alquiler.",
           "type": "meal",
           "duration_min": 90
         }
@@ -2646,7 +2653,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "El puerto más mítico de los Dolomitas —Cima Coppi del Giro en más de cincuenta ocasiones— y punto de partida del único tresmil del Grupo del Sella. La ruta 627+638 recorre un altiplano detrítico que parece un paisaje lunar y termina en una panorámica de 360º sobre la Marmolada. Es la ruta más alta y más completa del viaje.",
           "hours": "Sendero abierto en verano. Refugios Forcella Pordoi, Capanna Fassa y Boè operativos en temporada.",
           "price": "Aparcamiento aprox. 1,5 € la hora. Ruta gratuita. Telecabina al Sass Pordoi (opcional): unos 15 €.",
-          "tips": "DRON: permitido hasta 120 m en Forcella Pordoi y hasta 40 m en la cima del Piz Boè. Empezad temprano: los tramos equipados del 638 se congestionan a media mañana. Hay neveros permanentes en las zonas de umbría incluso en pleno verano; si el paso no os convence, existe una variante menos expuesta. Junto al parking, el osario de la Gran Guerra merece la parada.",
+          "tips": "DRON: permitido hasta 120 m en Forcella Pordoi y hasta 40 m en la cima del Piz Boè. Compensa empezar temprano: los tramos equipados del 638 se congestionan a media mañana. Hay neveros permanentes en las zonas de umbría incluso en pleno verano; si el paso no os convence, existe una variante menos expuesta. Junto al parking, el osario de la Gran Guerra merece la parada.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.4881,11.8105",
           "verified_at": null
         },
@@ -2660,7 +2667,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "La localidad más famosa de los Dolomitas: sede olímpica en 1956 y en 2026, con el Corso Italia como eje peatonal. Cara para comer o dormir, pero muy agradable para una tarde de paseo después de la montaña, y útil si necesitáis material deportivo o farmacia.",
           "hours": "Comercios habitualmente 9:00–12:30 y 15:30–19:30.",
           "price": "Paseo gratuito. Aparcamiento de pago en el centro.",
-          "tips": "Consejo de bolsillo: tomad el café o el helado en el Corso pero cenad en el Comelico, donde lo mismo cuesta la mitad. Buen sitio para reponer cartuchos de gas, tiritas, crema solar o una tarjeta de memoria de repuesto.",
+          "tips": "Consejo de bolsillo: lo mejor es tomar el café o el helado en el Corso pero mejor cenar en el Comelico, donde lo mismo cuesta la mitad. Buen sitio para reponer cartuchos de gas, tiritas, crema solar o una tarjeta de memoria de repuesto.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.5369,12.1357",
           "verified_at": null
         }
@@ -2686,8 +2693,8 @@ body.is-offline .offline-chip { display: inline-flex; }
       ],
       "alternative_plans": {
         "more_time": "Desde la cima del Piz Boè podéis cerrar un circuito bajando por el 638 hasta el Rifugio Boè (2.871 m) y volviendo a la Forcella por el 627: añade poco tiempo y bastante paisaje. En Cortina, si os sobra una hora, el Museo della Grande Guerra prepara muy bien la visita a las Cinque Torri del día 7.",
-        "less_time": "Si vais justos o el tiempo empeora, quedaos en la Forcella Pordoi (2.848 m): ya tenéis el altiplano, el refugio y el vuelo de dron a 120 m, que es lo mejor del día. Y si el cansancio manda, se puede subir en telecabina al Sass Pordoi (2.950 m) y hacer solo el tramo final.",
-        "rainy_day": "Con tormenta NO subáis al Piz Boè: los tramos equipados y la cresta expuesta son mala idea con roca mojada, y las tormentas eléctricas de tarde son frecuentes en junio. Plan B: recorrer la Grande Strada delle Dolomiti en coche (Pordoi, Sella, Gardena, Campolongo) parando en los cuatro puertos, y ampliar la tarde de Cortina."
+        "less_time": "Si vais justos o el tiempo empeora, compensa quedarse en la Forcella Pordoi (2.848 m): ya tenéis el altiplano, el refugio y el vuelo de dron a 120 m, que es lo mejor del día. Y si el cansancio manda, se puede subir en telecabina al Sass Pordoi (2.950 m) y hacer solo el tramo final.",
+        "rainy_day": "Con tormenta, mejor no subir al Piz Boè: los tramos equipados y la cresta expuesta son mala idea con roca mojada, y las tormentas eléctricas de tarde son frecuentes en junio. Plan B: recorrer la Grande Strada delle Dolomiti en coche (Pordoi, Sella, Gardena, Campolongo) parando en los cuatro puertos, y ampliar la tarde de Cortina."
       },
       "logistics": {
         "driving_km": 230,
@@ -2698,10 +2705,10 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       "info": {
         "travel_tips": [
-          "Dron hoy: SÍ, con límites de altura concretos — 120 m en Forcella Pordoi y 40 m en la cima del Piz Boè. Respetadlos escrupulosamente.",
-          "Es la jornada de más altitud del viaje (3.152 m). Bebed más de lo que os pida el cuerpo y no forcéis el ritmo en el 638.",
-          "Las tormentas eléctricas de tarde son habituales en junio. Si a las 13:00 el cielo se cierra por el oeste, iniciad la bajada sin discutirlo.",
-          "RECORDATORIO CRÍTICO: esta noche comprobad la reserva del peaje de las Tre Cime en pass.auronzo.info con la matrícula exacta del coche de alquiler."
+          "Dron hoy: SÍ, con límites de altura concretos — 120 m en Forcella Pordoi y 40 m en la cima del Piz Boè. Conviene respetarlos escrupulosamente.",
+          "Es la jornada de más altitud del viaje (3.152 m). Interesa beber más de lo que os pida el cuerpo y no forcéis el ritmo en el 638.",
+          "Las tormentas eléctricas de tarde son habituales en junio. Si a las 13:00 el cielo se cierra por el oeste, lo mejor es iniciar la bajada sin discutirlo.",
+          "RECORDATORIO CRÍTICO: esta noche merece la pena comprobar la reserva del peaje de las Tre Cime en pass.auronzo.info con la matrícula exacta del coche de alquiler."
         ],
         "access": [
           "San Pietro → Passo Pordoi: Comelico → Cortina → Passo Falzarego → Arabba → Pordoi (2 h 25 min).",
@@ -2749,7 +2756,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "07:40",
           "icon": "🥾",
           "title": "Cadini di Misurina por el sendero 117",
-          "description": "Antes de las Tre Cime, el mirador que casi nadie hace primero. Desde el aparcamiento, seguid el 117 en dirección al Rifugio Fonda Savio: 1,5 km de ida con subida suave. A los 20 min hay un cruce, girad a la izquierda; el terreno se vuelve más serpenteante y en otros 15 min estáis frente a las agujas. Los últimos 100 m tienen algo de exposición con cable: si os da respeto, las vistas desde justo antes ya son excelentes. DRON PERMITIDO aquí.",
+          "description": "Antes de las Tre Cime, el mirador que casi nadie hace primero. Desde el aparcamiento, conviene seguir el 117 en dirección al Rifugio Fonda Savio: 1,5 km de ida con subida suave. A los 20 min hay un cruce, girad a la izquierda; el terreno se vuelve más serpenteante y en otros 15 min estáis frente a las agujas. Los últimos 100 m tienen algo de exposición con cable: si os da respeto, las vistas desde justo antes ya son excelentes. DRON PERMITIDO aquí.",
           "type": "activity",
           "duration_min": 95,
           "place_id": "cadini-misurina"
@@ -2758,7 +2765,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "09:15",
           "icon": "🚁",
           "title": "Mirador de los Cadini — dron y fotografía",
-          "description": "Las agujas afiladas de los Cadini escalonadas hacia el valle, y detrás, si giráis, las Tre Cime. Es de las composiciones más difíciles de conseguir desde el aire en toda la zona y hoy la tenéis permitida. A esta hora ya empieza a haber cola en el peldaño exacto del mirador: sacad el dron y os ahorráis la fila.",
+          "description": "Las agujas afiladas de los Cadini escalonadas hacia el valle, y detrás, si giráis, las Tre Cime. Es de las composiciones más difíciles de conseguir desde el aire en toda la zona y hoy la tenéis permitida. A esta hora ya empieza a haber cola en el peldaño exacto del mirador: compensa sacar el dron y os ahorráis la fila.",
           "type": "activity",
           "duration_min": 25
         },
@@ -2775,7 +2782,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "11:00",
           "icon": "🏔️",
           "title": "Forcella Lavaredo (2.454 m) y ascenso al Locatelli",
-          "description": "En la Forcella, a 2.454 m y en la frontera con el Alto Adigio, las tres cimas se alinean casi como una sola: es el punto donde más cerca estáis de ellas. Después hay dos caminos: el bajo y el alto. Si no sufrís de vértigo, coged el alto, mucho menos transitado y con mejores vistas, bordeando por la derecha las paredes del Monte Paterno.",
+          "description": "En la Forcella, a 2.454 m y en la frontera con el Alto Adigio, las tres cimas se alinean casi como una sola: es el punto donde más cerca estáis de ellas. Después hay dos caminos: el bajo y el alto. Si no sufrís de vértigo, mejor coger el alto, mucho menos transitado y con mejores vistas, bordeando por la derecha las paredes del Monte Paterno.",
           "type": "visit",
           "duration_min": 60
         },
@@ -2783,7 +2790,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "12:15",
           "icon": "🍽️",
           "title": "Comida en el Rifugio Locatelli (2.405 m)",
-          "description": "El refugio con la vista más famosa de los Alpes: las tres columnas de frente desde el norte. Es también uno de los más concurridos de los Dolomitas, así que calculad bien la hora o esperaréis mucho. Detrás del refugio hay unos lagos preciosos donde a veces se ven marmotas, y unas cuevas que son la foto típica.",
+          "description": "El refugio con la vista más famosa de los Alpes: las tres columnas de frente desde el norte. Es también uno de los más concurridos de los Dolomitas, así que interesa calcular bien la hora o esperaréis mucho. Detrás del refugio hay unos lagos preciosos donde a veces se ven marmotas, y unas cuevas que son la foto típica.",
           "type": "meal",
           "duration_min": 60
         },
@@ -2841,7 +2848,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "17:15",
           "icon": "🧳",
           "title": "Última tarde en el Comelico",
-          "description": "Llegáis pronto, y viene bien: mañana hay que salir a las 6:00 y devolver el coche en Bérgamo a las 17:00. Dejad el equipaje hecho esta noche, descargad las tarjetas de memoria y cargad todo.",
+          "description": "Llegáis pronto, y viene bien: mañana hay que salir a las 6:00 y devolver el coche en Bérgamo a las 17:00. Conviene dejar el equipaje hecho esta noche, descargar las tarjetas de memoria y cargar todo.",
           "type": "free",
           "duration_min": 90
         },
@@ -2865,7 +2872,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "El mirador que se ha hecho famoso por las fotos aéreas: un dedo de roca asomado al vacío con las agujas de los Cadini escalonándose detrás. Sendero corto y casi llano desde el parking del Rifugio Auronzo, con algo de exposición en los últimos metros. Muy valorado (4,7), pero con cola en el punto exacto de la foto a partir de media mañana.",
           "hours": "Acceso libre a pie desde el aparcamiento del Rifugio Auronzo.",
           "price": "Sin coste adicional: va incluido en el peaje de la carretera.",
-          "tips": "DRON PERMITIDO. Hacedlo ANTES del giro de las Tre Cime, no después: a las 7:40 estaréis prácticamente solos y a las 10:00 hay fila. Los últimos 100 m tienen cable y algo de vertical: si hay vértigo, quedaos en el tramo anterior, que ya tiene una vista excelente. Hay un sendero paralelo justo por encima con vistas igual de buenas y sin cola.",
+          "tips": "DRON PERMITIDO. Mejor hacerlo ANTES del giro de las Tre Cime, no después: a las 7:40 estaréis prácticamente solos y a las 10:00 hay fila. Los últimos 100 m tienen cable y algo de vertical: si hay vértigo, compensa quedarse en el tramo anterior, que ya tiene una vista excelente. Hay un sendero paralelo justo por encima con vistas igual de buenas y sin cola.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.6009,12.2954",
           "verified_at": null
         },
@@ -2879,7 +2886,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "El trekking más emblemático de los Dolomitas: 10 km en circular alrededor de las tres columnas, con el Rifugio Lavaredo y el Rifugio Locatelli en el camino. La cara norte, desde el Locatelli, es la imagen que todo el mundo tiene en la cabeza; la sur, la que se ve desde el aparcamiento. Fácil técnicamente, largo de piernas.",
           "hours": "Carretera de peaje abierta 24 h en temporada (mayo–noviembre). Cabina atendida aprox. 8:00–20:00; fuera de ese horario se paga a la salida. Rifugio Auronzo 8:30–17:00.",
           "price": "Peaje: 40 € por turismo. RESERVA ONLINE OBLIGATORIA en pass.auronzo.info, con matrícula. Ticket válido 12 h desde la hora reservada.",
-          "tips": "DRON: permitido únicamente en la cara sur, en la zona del Rifugio Lavaredo. En el resto del giro, y especialmente en el sector norte del Locatelli, no. Sentido antihorario: es el bueno, porque deja la cara norte para media mañana con mejor luz. En la Forcella Lavaredo escoged el camino alto si no tenéis vértigo. El aseo del Rifugio Auronzo cuesta 1 € en monedas.",
+          "tips": "DRON: permitido únicamente en la cara sur, en la zona del Rifugio Lavaredo. En el resto del giro, y especialmente en el sector norte del Locatelli, no. Sentido antihorario: es el bueno, porque deja la cara norte para media mañana con mejor luz. En la Forcella Lavaredo conviene escoger el camino alto si no tenéis vértigo. El aseo del Rifugio Auronzo cuesta 1 € en monedas.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.6122,12.2962",
           "verified_at": "2027-06-01"
         },
@@ -2919,7 +2926,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "speciality": "Knödel, Gulasch, sopas de montaña",
           "price_range": "€€",
           "reservation_required": false,
-          "notes": "A 2.405 m, en el punto medio del giro. La vista de la cara norte de las Tre Cime desde su terraza es la más famosa de los Alpes. Es también uno de los refugios más llenos: llegad antes de las 12:30 o esperaréis bastante."
+          "notes": "A 2.405 m, en el punto medio del giro. La vista de la cara norte de las Tre Cime desde su terraza es la más famosa de los Alpes. Es también uno de los refugios más llenos: mejor llegar antes de las 12:30 o esperaréis bastante."
         },
         {
           "name": "Rifugio Auronzo",
@@ -2934,7 +2941,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       "alternative_plans": {
         "more_time": "Si al cerrar el giro os quedan fuerzas, desde el Rifugio Locatelli sale la subida a la Forcella del Monte Paterno y a las galerías de guerra excavadas en la roca: histórico y con muy poca gente. También podéis alargar por el Lago d'Antorno hacia arriba por el sendero que sube al Rifugio Auronzo.",
         "less_time": "Si el circular se hace largo, existe la versión corta: Rifugio Auronzo → Rifugio Lavaredo → vuelta, unos 4 km y 1 h 30 min. Tenéis las vistas frontales y la Forcella, y os ahorráis el sector norte. Perdéis la cara del Locatelli, que es la mejor.",
-        "rainy_day": "El giro es practicable con lluvia (sendero ancho, sin dificultad técnica), pero con niebla las Tre Cime desaparecen y el peaje de 40 € se convierte en dinero tirado. Si el parte es malo, considerad mover este día al 7 y adelantar las Cinque Torri: el peaje se reserva con franja horaria y conviene decidirlo la víspera."
+        "rainy_day": "El giro es practicable con lluvia (sendero ancho, sin dificultad técnica), pero con niebla las Tre Cime desaparecen y el peaje de 40 € se convierte en dinero tirado. Si el parte es malo, considerad mover este día al 7 y adelantar las Cinque Torri: el peaje se reserva con franja horaria y decidirlo la víspera."
       },
       "logistics": {
         "driving_km": 170,
@@ -2945,11 +2952,11 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       "info": {
         "travel_tips": [
-          "SIN RESERVA NO SE PASA. El peaje de las Tre Cime exige reserva online previa en pass.auronzo.info con la matrícula del coche de alquiler. Compradla con días de antelación y llevad el justificante en el móvil y en papel.",
-          "El ticket vale 12 h desde la hora de acceso que reservéis: escoged franja de primera hora.",
+          "SIN RESERVA NO SE PASA. El peaje de las Tre Cime exige reserva online previa en pass.auronzo.info con la matrícula del coche de alquiler. Compensa comprarla con días de antelación y conviene llevar el justificante en el móvil y en papel.",
+          "El ticket vale 12 h desde la hora de acceso que reservéis: lo mejor es escoger franja de primera hora.",
           "Dron hoy: SÍ en los Cadini y en la cara sur (zona del Rifugio Lavaredo). NO en el resto del giro.",
-          "Haced los Cadini ANTES del circular. Es contraintuitivo pero es la clave del día: a las 7:40 no hay nadie y a las 10:00 hay cola para la foto.",
-          "Llevad monedas: el aseo del Rifugio Auronzo cuesta 1 € y no acepta tarjeta."
+          "Mejor hacer los Cadini ANTES del circular. Es contraintuitivo pero es la clave del día: a las 7:40 no hay nadie y a las 10:00 hay cola para la foto.",
+          "Lo mejor es llevar monedas: el aseo del Rifugio Auronzo cuesta 1 € y no acepta tarjeta."
         ],
         "access": [
           "San Pietro di Cadore → peaje Tre Cime: Comelico → Auronzo → SS48 → Misurina → cabina justo al norte del lago (1 h 35 min).",
@@ -3006,7 +3013,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "09:00",
           "icon": "🗼",
           "title": "Cinque Torri y Museo al Aire Libre de la Gran Guerra",
-          "description": "Las cinco torres de dolomía a 2.361 m y, a sus pies, el museo al aire libre mejor conservado del frente dolomítico: trincheras, puestos de cañón, observatorios y barracones restaurados con paneles explicativos. Aquí estuvo el centro de mando de la artillería de montaña italiana, porque desde estas torres se dominaban las posiciones austríacas del Lagazuoi y el Sass de Stria. Contad 45 min para recorrerlo con calma. DRON PROHIBIDO en toda la zona.",
+          "description": "Las cinco torres de dolomía a 2.361 m y, a sus pies, el museo al aire libre mejor conservado del frente dolomítico: trincheras, puestos de cañón, observatorios y barracones restaurados con paneles explicativos. Aquí estuvo el centro de mando de la artillería de montaña italiana, porque desde estas torres se dominaban las posiciones austríacas del Lagazuoi y el Sass de Stria. Merece la pena contar 45 min para recorrerlo con calma. DRON PROHIBIDO en toda la zona.",
           "type": "visit",
           "duration_min": 60
         },
@@ -3022,7 +3029,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "10:40",
           "icon": "🛣️",
           "title": "Col Gallina → Passo Giau (20 min)",
-          "description": "La strada a serpente: la subida al Giau por la SS638 es una sucesión de curvas de herradura que, vista desde arriba, dibuja el zigzag más fotogénico de los Dolomitas. Conducid con calma, que hay ciclistas.",
+          "description": "La strada a serpente: la subida al Giau por la SS638 es una sucesión de curvas de herradura que, vista desde arriba, dibuja el zigzag más fotogénico de los Dolomitas. Compensa conducir con calma, que hay ciclistas.",
           "type": "transport",
           "duration_min": 20
         },
@@ -3030,7 +3037,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "11:00",
           "icon": "🚁",
           "title": "Passo Giau (2.233 m) — última parada del viaje",
-          "description": "El puerto más bonito del macizo (4,9 de valoración con más de 2.000 reseñas) y el mejor cierre posible: la aguja de la Ra Gusela justo encima, el Pelmo y las Tofane alrededor, y la carretera serpenteando ladera abajo. Aparcamiento gratuito. Es el sitio ideal para el último vuelo del dron, con la carretera en zigzag como protagonista. Contad una hora larga entre vuelo, fotos y un café en el Rifugio Giau.",
+          "description": "El puerto más bonito del macizo (4,9 de valoración con más de 2.000 reseñas) y el mejor cierre posible: la aguja de la Ra Gusela justo encima, el Pelmo y las Tofane alrededor, y la carretera serpenteando ladera abajo. Aparcamiento gratuito. Es el sitio ideal para el último vuelo del dron, con la carretera en zigzag como protagonista. Interesa contar una hora larga entre vuelo, fotos y un café en el Rifugio Giau.",
           "type": "activity",
           "duration_min": 60,
           "place_id": "passo-giau"
@@ -3039,7 +3046,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "12:00",
           "icon": "🛣️",
           "title": "Passo Giau → Milán-Bérgamo (4 h 15 min de conducción)",
-          "description": "El tramo largo: bajada a Caprile o Cortina, valle del Piave o Val Pusteria hacia la A27/A22 y luego A4 oeste hasta Bérgamo. Salid a las 12:00 en punto. Contad una parada de 40–45 min a mitad de camino para comer y repostar, lo que sitúa la llegada en torno a las 16:30.",
+          "description": "El tramo largo: bajada a Caprile o Cortina, valle del Piave o Val Pusteria hacia la A27/A22 y luego A4 oeste hasta Bérgamo. Conviene salir a las 12:00 en punto. Mejor contar una parada de 40–45 min a mitad de camino para comer y repostar, lo que sitúa la llegada en torno a las 16:30.",
           "type": "transport",
           "duration_min": 255
         },
@@ -3055,7 +3062,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "14:15",
           "icon": "🍝",
           "title": "Comida tranquila y repostaje en ruta",
-          "description": "Aprovechad que hoy sobra tiempo y comed bien en vez de en un área de servicio: los pueblos del valle del Piave o la zona de Trento tienen trattorias a pie de carretera mucho mejores. Contad 60–75 min. IMPORTANTE: llenad el depósito aquí o en una gasolinera a 15–20 km del aeropuerto, porque las de las inmediaciones de BGY son bastante más caras.",
+          "description": "Lo mejor es aprovechar que hoy sobra tiempo y mejor comer bien en vez de en un área de servicio: los pueblos del valle del Piave o la zona de Trento tienen trattorias a pie de carretera mucho mejores. Lo mejor es contar 60–75 min. IMPORTANTE: merece la pena llenar el depósito aquí o en una gasolinera a 15–20 km del aeropuerto, porque las de las inmediaciones de BGY son bastante más caras.",
           "type": "meal",
           "duration_min": 75
         },
@@ -3063,7 +3070,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "16:30",
           "icon": "🚗",
           "title": "Llegada a BGY y devolución del coche (17:00)",
-          "description": "Devolución a las 17:00 según contrato. Antes de entregar las llaves: fotos de los cuatro laterales, del cuentakilómetros y del indicador de combustible, y guardad el justificante de devolución. Los mostradores están en la propia terminal, así que recuperáis el equipaje y ya estáis dentro.",
+          "description": "Devolución a las 17:00 según contrato. Antes de entregar las llaves: fotos de los cuatro laterales, del cuentakilómetros y del indicador de combustible, y guardar el justificante de devolución. Los mostradores están en la propia terminal, así que recuperáis el equipaje y ya estáis dentro.",
           "type": "checkout",
           "duration_min": 45
         },
@@ -3071,7 +3078,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "17:15",
           "icon": "🏰",
           "title": "Tres horas libres: opción Bérgamo Città Alta",
-          "description": "Con el vuelo a las 20:10 os quedan casi tres horas. Si no queréis pasarlas en la terminal, el autobús ATB línea 1 sale de la puerta del aeropuerto y deja en el centro de Bérgamo en unos 15–20 min; desde allí el funicular sube a la Città Alta, una ciudad medieval amurallada declarada Patrimonio de la Humanidad. Es factible con equipaje de cabina, pero id justos de reloj: para volver a estar en el aeropuerto a las 19:00 hay que coger el bus de vuelta sobre las 18:30 como muy tarde. Si preferís no arriesgar, la terminal tiene cafeterías y zona de espera decente.",
+          "description": "Con el vuelo a las 20:10 os quedan casi tres horas. Si no queréis pasarlas en la terminal, el autobús ATB línea 1 sale de la puerta del aeropuerto y deja en el centro de Bérgamo en unos 15–20 min; desde allí el funicular sube a la Città Alta, una ciudad medieval amurallada declarada Patrimonio de la Humanidad. Es factible con equipaje de cabina, pero compensa ir justos de reloj: para volver a estar en el aeropuerto a las 19:00 hay que coger el bus de vuelta sobre las 18:30 como muy tarde. Si preferís no arriesgar, la terminal tiene cafeterías y zona de espera decente.",
           "type": "free",
           "duration_min": 105
         },
@@ -3079,7 +3086,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "19:00",
           "icon": "✈️",
           "title": "Facturación, control y embarque",
-          "description": "BGY es pequeño y ágil, pero en verano las colas de seguridad se alargan bastante a última hora de la tarde. Estad en el control a las 19:00 para embarcar con calma. Check-in online hecho la noche anterior y tarjetas de embarque descargadas en el móvil.",
+          "description": "BGY es pequeño y ágil, pero en verano las colas de seguridad se alargan bastante a última hora de la tarde. Merece la pena estar en el control a las 19:00 para embarcar con calma. Check-in online hecho la noche anterior y tarjetas de embarque descargadas en el móvil.",
           "type": "transport",
           "duration_min": 70
         },
@@ -3102,7 +3109,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "Cinco torres de dolomía a 2.361 m, paraíso de escaladores y, a sus pies, el museo al aire libre de la Primera Guerra Mundial mejor conservado de los Dolomitas. Desde aquí los italianos dirigían el fuego de artillería contra el Lagazuoi. Ruta cómoda y muy agradecida, con las Tofane siempre de frente.",
           "hours": "Acceso libre al sendero y al museo. Rifugio Scoiattoli y Rifugio 5 Torri operativos en temporada de verano.",
           "price": "Ruta y aparcamiento de Col Gallina: GRATUITOS. Telesilla desde Bai de Dones (opcional): unos 8 €.",
-          "tips": "DRON PROHIBIDO. Desde Col Gallina por el 424 es la opción con menos desnivel y sin coste; el regreso por el 440 cierra un pequeño anillo. Reservad 45 min para el museo: los paneles explicativos son buenos y ponen en contexto todo lo que habéis visto estos días en el Pordoi y las Tre Cime.",
+          "tips": "DRON PROHIBIDO. Desde Col Gallina por el 424 es la opción con menos desnivel y sin coste; el regreso por el 440 cierra un pequeño anillo. Compensa reservar 45 min para el museo: los paneles explicativos son buenos y ponen en contexto todo lo que habéis visto estos días en el Pordoi y las Tre Cime.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.5082,12.0547",
           "verified_at": null
         },
@@ -3116,7 +3123,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "review": "El puerto más fotogénico de los Dolomitas y uno de los mejor valorados de toda Italia: 360 grados de agujas, la Ra Gusela justo encima, el Pelmo al sur y las Tofane al norte. La carretera de subida, con sus curvas encadenadas, es tan protagonista como las montañas.",
           "hours": "Acceso libre todo el año (salvo cierres invernales por nieve). Rifugio Giau operativo en temporada.",
           "price": "Aparcamiento GRATUITO.",
-          "tips": "SE PUEDE VOLAR EL DRON. Es el mejor cierre del viaje: buscad el plano cenital de la strada a serpente con el coche o un ciclista dando escala. Ojo con el viento, que en el collado sopla más de lo que parece desde el suelo. La SS638 tiene curvas muy cerradas y bastante tráfico ciclista: bajad despacio.",
+          "tips": "SE PUEDE VOLAR EL DRON. Es el mejor cierre del viaje: interesa buscar el plano cenital de la strada a serpente con el coche o un ciclista dando escala. Ojo con el viento, que en el collado sopla más de lo que parece desde el suelo. La SS638 tiene curvas muy cerradas y bastante tráfico ciclista: conviene bajar despacio.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.4831,12.0542",
           "verified_at": null
         }
@@ -3128,7 +3135,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "speciality": "Café, strudel, bocadillos de montaña",
           "price_range": "€€",
           "reservation_required": false,
-          "notes": "A 2.255 m, junto a las Cinque Torri. Parada natural a mitad de ruta, con terraza mirando a las Tofane. Nota: el vecino Rifugio Col Gallina, donde aparcáis, tiene reseñas bastante malas en comida y trato, así que usadlo solo como aparcamiento."
+          "notes": "A 2.255 m, junto a las Cinque Torri. Parada natural a mitad de ruta, con terraza mirando a las Tofane. Nota: el vecino Rifugio Col Gallina, donde aparcáis, tiene reseñas bastante malas en comida y trato, así que mejor usarlo solo como aparcamiento."
         },
         {
           "name": "Rifugio Giau",
@@ -3155,10 +3162,10 @@ body.is-offline .offline-chip { display: inline-flex; }
       "info": {
         "travel_tips": [
           "El día tiene holgura: salida a las 6:00, ruta corta, a las 12:00 en carretera y devolución a las 17:00 con el vuelo a las 20:10. La hora crítica es la del coche, no la del avión.",
-          "Dron hoy: NO en las Cinque Torri; SÍ en el Passo Giau. Es el último vuelo del viaje, así que llevad las baterías cargadas de la noche anterior.",
-          "Repostad lejos del aeropuerto. Las gasolineras de las inmediaciones de BGY son bastante más caras y devolver el coche sin el depósito lleno se penaliza con creces.",
-          "Antes de entregar el coche: fotos de los cuatro laterales, cuentakilómetros y nivel de combustible, y guardad el justificante de devolución. Conservad también todos los tickets de peaje y parking.",
-          "Si os animáis con la Città Alta de Bérgamo, el autobús ATB línea 1 sale de la puerta de la terminal. Calculad estar de vuelta en el aeropuerto a las 19:00 como muy tarde."
+          "Dron hoy: NO en las Cinque Torri; SÍ en el Passo Giau. Es el último vuelo del viaje, así que mejor llevar las baterías cargadas de la noche anterior.",
+          "Interesa repostar lejos del aeropuerto. Las gasolineras de las inmediaciones de BGY son bastante más caras y devolver el coche sin el depósito lleno se penaliza con creces.",
+          "Antes de entregar el coche: fotos de los cuatro laterales, cuentakilómetros y nivel de combustible, y guardar el justificante de devolución. Interesa conservar también todos los tickets de peaje y parking.",
+          "Si os animáis con la Città Alta de Bérgamo, el autobús ATB línea 1 sale de la puerta de la terminal. Conviene calcular estar de vuelta en el aeropuerto a las 19:00 como muy tarde."
         ],
         "access": [
           "San Pietro di Cadore → Rifugio Col Gallina: Comelico → Cortina → carretera del Passo Falzarego, 1 km antes del puerto (1 h 30 min).",
@@ -3180,31 +3187,31 @@ body.is-offline .offline-chip { display: inline-flex; }
       "items": [
         {
           "subtitle": "En cuanto tengáis el coche confirmado",
-          "text": "Apuntad la MATRÍCULA en el móvil: la piden las dos reservas críticas del viaje y no la vais a tener a mano cuando la necesitéis. Si la empresa de alquiler no os la da hasta el mostrador, tendréis que hacer ambas reservas el día 1 desde el aeropuerto: contad con ello."
+          "text": "Mejor apuntar la MATRÍCULA en el móvil: la piden las dos reservas críticas del viaje y no la vais a tener a mano cuando la necesitéis. Si la empresa de alquiler no os la da hasta el mostrador, tendréis que hacer ambas reservas el día 1 desde el aeropuerto: merece la pena contar con ello."
         },
         {
           "subtitle": "Dos o tres meses antes · coche y vuelos",
-          "text": "El alquiler en Bérgamo sube mucho según se acerca junio. Reservad con antelación y con cancelación gratuita, que suele costar lo mismo. Comprobad que el seguro premium cubre cristales y bajos, porque en las carreteras de los pasos la grava salta."
+          "text": "El alquiler en Bérgamo sube mucho según se acerca junio. Lo mejor es reservar con antelación y con cancelación gratuita, que suele costar lo mismo. Merece la pena comprobar que el seguro premium cubre cristales y bajos, porque en las carreteras de los pasos la grava salta."
         },
         {
           "subtitle": "Un mes antes · dron",
-          "text": "Registro en D-Flight (d-flight.it), unos 90 € de pago único, más el certificado A1/A3 de EASA, que es gratuito y online. Y revisad que el seguro de responsabilidad civil del dron cubre Italia con el mínimo de 920.000 € exigido. Es el trámite que más tarda y sin él no se puede volar en ninguna de las once paradas donde sí está permitido."
+          "text": "Registro en D-Flight (d-flight.it), unos 90 € de pago único, más el certificado A1/A3 de EASA, que es gratuito y online. Y compensa revisar que el seguro de responsabilidad civil del dron cubre Italia con el mínimo de 920.000 € exigido. Es el trámite que más tarda y sin él no se puede volar en ninguna de las once paradas donde sí está permitido."
         },
         {
           "subtitle": "Exactamente 6 días antes · parking del Alpe di Siusi",
-          "text": "FECHA LÍMITE DURA. La reserva del parking P2 de Compatsch (día 2) se abre solo 6 días antes en seiseralm.it, cuesta 30 € y exige matrícula. Poned una alarma en el móvil: si se agota, ese día se queda sin la mejor toma de dron del viaje, porque al altiplano no se sube en coche entre las 9:00 y las 17:00."
+          "text": "FECHA LÍMITE DURA. La reserva del parking P2 de Compatsch (día 2) se abre solo 6 días antes en seiseralm.it, cuesta 30 € y exige matrícula. Compensa poner una alarma en el móvil: si se agota, ese día se queda sin la mejor toma de dron del viaje, porque al altiplano no se sube en coche entre las 9:00 y las 17:00."
         },
         {
           "subtitle": "En cuanto se abra el cupo · peaje de las Tre Cime",
-          "text": "La reserva del día 6 se hace en pass.auronzo.info con matrícula y franja horaria, y cuesta unos 40 €. Escoged la franja de primera hora, porque el ticket vale 12 h desde la hora reservada y el parking del Rifugio Auronzo se llena antes de las 9:00. Sin reserva la barrera no abre: no hay plan B."
+          "text": "La reserva del día 6 se hace en pass.auronzo.info con matrícula y franja horaria, y cuesta unos 40 €. Interesa escoger la franja de primera hora, porque el ticket vale 12 h desde la hora reservada y el parking del Rifugio Auronzo se llena antes de las 9:00. Sin reserva la barrera no abre: no hay plan B."
         },
         {
           "subtitle": "La semana antes · nieve y ramponcini",
-          "text": "Mirad el parte de MeteoTrentino y las reseñas recientes en AllTrails y atlasdolomiti.com de dos rutas concretas: el sendero 215 del Sorapis (día 4) y el 627 hacia Forcella Pordoi (día 5). Son las que guardan neveros a finales de junio. Si hay nieve, los ramponcini se compran el día 1 en el Decathlon de Bolzano; si no, os ahorráis unos 30 €."
+          "text": "Conviene mirar el parte de MeteoTrentino y las reseñas recientes en AllTrails y atlasdolomiti.com de dos rutas concretas: el sendero 215 del Sorapis (día 4) y el 627 hacia Forcella Pordoi (día 5). Son las que guardan neveros a finales de junio. Si hay nieve, los ramponcini se compran el día 1 en el Decathlon de Bolzano; si no, os ahorráis unos 30 €."
         },
         {
           "subtitle": "La víspera · guía sin conexión y copia de seguridad",
-          "text": "Con wifi, abrid la guía y pulsad «Preparar para usar sin conexión» en Yo → Herramientas: descarga la guía y las fotos compartidas para que funcione en modo avión, que es como la vais a usar en el Comelico y en los pasos. Descargad también los mapas offline de Google Maps y de Komoot para las zonas del Garda, Val Gardena, Val di Funes y Cortina-Comelico-Misurina."
+          "text": "Con wifi, lo mejor es abrir la guía y pulsar «Preparar para usar sin conexión» en Yo → Herramientas: descarga la guía y las fotos compartidas para que funcione en modo avión, que es como la vais a usar en el Comelico y en los pasos. Mejor descargar también los mapas offline de Google Maps y de Komoot para las zonas del Garda, Val Gardena, Val di Funes y Cortina-Comelico-Misurina."
         }
       ]
     },
@@ -3225,8 +3232,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "text": "Día 1: A4 desde Bérgamo hasta Peschiera ~8 € más A22 hasta Bolzano ~11 €. Día 3: A22 Bolzano–Bressanone ~4 €. Día 7: A27/A22 y A4 hasta Bérgamo ~28 €. Con los parkings, la partida completa suma unos 186 €, que es lo presupuestado. Las carreteras dolomíticas (SS48, SS51, SS241, SS242, SS638) no tienen peaje."
         },
         {
-          "subtitle": "Llevad monedas siempre",
-          "text": "Varias máquinas del itinerario solo aceptan monedas y algunas rechazan billetes: Malga Zannes, Landro y Dobbiaco aparecen repetidamente en reseñas recientes con este problema. Llevad al menos 20–30 € en monedas de 1 y 2 €. El aseo del Rifugio Auronzo también cuesta 1 € en monedas."
+          "subtitle": "Lo mejor es llevar monedas siempre",
+          "text": "Varias máquinas del itinerario solo aceptan monedas y algunas rechazan billetes: Malga Zannes, Landro y Dobbiaco aparecen repetidamente en reseñas recientes con este problema. Merece la pena llevar al menos 20–30 € en monedas de 1 y 2 €. El aseo del Rifugio Auronzo también cuesta 1 € en monedas."
         },
         {
           "subtitle": "Horas límite reales para tener sitio",
@@ -3248,15 +3255,15 @@ body.is-offline .offline-chip { display: inline-flex; }
         },
         {
           "subtitle": "NO SE PUEDE VOLAR",
-          "text": "Seceda, por estar dentro del Parco Naturale Puez-Odle (día 2) · Lago Sorapis y todo su entorno (día 4) · Lago di Landro (día 4) · Lago di Dobbiaco (día 4) · Lago di Braies, y la prohibición se extiende hasta unos 3 km alrededor (día 4) · Cinque Torri (día 7). En el día 4 no vuela en ninguna parada: dejad el dron cargando y ahorrad peso."
+          "text": "Seceda, por estar dentro del Parco Naturale Puez-Odle (día 2) · Lago Sorapis y todo su entorno (día 4) · Lago di Landro (día 4) · Lago di Dobbiaco (día 4) · Lago di Braies, y la prohibición se extiende hasta unos 3 km alrededor (día 4) · Cinque Torri (día 7). En el día 4 no vuela en ninguna parada: interesa dejar el dron cargando y ahorrad peso."
         },
         {
           "subtitle": "Papeleo antes de salir de casa",
-          "text": "Registro en D-Flight (d-flight.it), la plataforma del ENAC italiano, con pago único de unos 90 €. Certificado A1/A3 de EASA (gratuito y online). Seguro de responsabilidad civil obligatorio con cobertura mínima de 920.000 € por incidente: comprobad que vuestra póliza cubre Italia. Llevad ambos documentos descargados en el móvil, porque en zonas de valle no siempre hay cobertura."
+          "text": "Registro en D-Flight (d-flight.it), la plataforma del ENAC italiano, con pago único de unos 90 €. Certificado A1/A3 de EASA (gratuito y online). Seguro de responsabilidad civil obligatorio con cobertura mínima de 920.000 € por incidente: conviene comprobar que vuestra póliza cubre Italia. Compensa llevar ambos documentos descargados en el móvil, porque en zonas de valle no siempre hay cobertura."
         },
         {
-          "subtitle": "Comprobad D-Flight igualmente",
-          "text": "La lista de arriba refleja lo investigado para este itinerario, pero los perímetros de los parques y las zonas restringidas se actualizan. Abrid el mapa de D-Flight antes de cada despegue: son treinta segundos y las multas por volar en parque natural van de 516 € a decenas de miles."
+          "subtitle": "Interesa comprobar D-Flight igualmente",
+          "text": "La lista de arriba refleja lo investigado para este itinerario, pero los perímetros de los parques y las zonas restringidas se actualizan. Conviene abrir el mapa de D-Flight antes de cada despegue: son treinta segundos y las multas por volar en parque natural van de 516 € a decenas de miles."
         }
       ]
     },
@@ -3266,15 +3273,15 @@ body.is-offline .offline-chip { display: inline-flex; }
       "items": [
         {
           "subtitle": "Recogida y devolución en Bérgamo (BGY)",
-          "text": "Los mostradores de alquiler están en la propia terminal de llegadas, saliendo y a la izquierda. Con llegada a las 11:00, salir a las 12:00 es realista si tenéis la reserva confirmada y hacéis el check-in exprés online de la compañía. Para la devolución del último día a las 17:00, calculad estar en el aeropuerto sobre las 16:30. Fotografiad el coche al recoger y al devolver."
+          "text": "Los mostradores de alquiler están en la propia terminal de llegadas, saliendo y a la izquierda. Con llegada a las 11:00, salir a las 12:00 es realista si tenéis la reserva confirmada y hacéis el check-in exprés online de la compañía. Para la devolución del último día a las 17:00, calcular estar en el aeropuerto sobre las 16:30. Mejor fotografiar el coche al recoger y al devolver."
         },
         {
           "subtitle": "Peajes y combustible",
-          "text": "Los tramos de autopista del viaje son el día 1 (A4 y A22, unos 18–20 € en total) y el día 7 (A22/A4 hacia Bérgamo, unos 25–30 €). Las carreteras dolomíticas (SS48, SS51, SS241, SS242, SS638) no tienen peaje. Repostad siempre en el fondo del valle, nunca en los pasos ni junto al aeropuerto."
+          "text": "Los tramos de autopista del viaje son el día 1 (A4 y A22, unos 18–20 € en total) y el día 7 (A22/A4 hacia Bérgamo, unos 25–30 €). Las carreteras dolomíticas (SS48, SS51, SS241, SS242, SS638) no tienen peaje. Lo mejor es repostar siempre en el fondo del valle, nunca en los pasos ni junto al aeropuerto."
         },
         {
           "subtitle": "Conducir en los puertos",
-          "text": "Pordoi, Falzarego y Giau encadenan curvas de herradura con pendientes del 9–10 %. Bajad con marcha corta en vez de frenar continuamente, para no quemar los frenos. En junio hay muchísimo ciclista y bastante moto: no adelantéis en curva y dad espacio. Y no os fieis de la hora que da el navegador: en estas carreteras siempre se tarda algo más."
+          "text": "Pordoi, Falzarego y Giau encadenan curvas de herradura con pendientes del 9–10 %. Merece la pena bajar con marcha corta en vez de frenar continuamente, para no quemar los frenos. En junio hay muchísimo ciclista y bastante moto: no adelantéis en curva y conviene dar espacio. Y no os fieis de la hora que da el navegador: en estas carreteras siempre se tarda algo más."
         },
         {
           "subtitle": "Los dos traslados largos",
@@ -3296,15 +3303,15 @@ body.is-offline .offline-chip { display: inline-flex; }
         },
         {
           "subtitle": "La regla de las tormentas de tarde",
-          "text": "En junio en los Dolomitas las tormentas eléctricas de tarde son frecuentes entre las 13:00 y las 17:00. Todo este itinerario está diseñado para empezar temprano y estar de bajada a primera hora de la tarde, y conviene respetarlo. Si el cielo se cierra por el oeste, iniciad el descenso sin debatirlo: nunca en crestas, collados ni junto a agujas de roca."
+          "text": "En junio en los Dolomitas las tormentas eléctricas de tarde son frecuentes entre las 13:00 y las 17:00. Todo este itinerario está diseñado para empezar temprano y estar de bajada a primera hora de la tarde, y conviene respetarlo. Si el cielo se cierra por el oeste, conviene iniciar el descenso sin debatirlo: nunca en crestas, collados ni junto a agujas de roca."
         },
         {
           "subtitle": "Neveros en junio",
-          "text": "A finales de junio puede quedar nieve residual en zonas de umbría, sobre todo en el sendero 215 del Sorapis y en el 627/638 del Pordoi, donde los neveros aguantan todo el verano. Consultad el estado en atlasdolomiti.com o preguntad en el alojamiento la víspera."
+          "text": "A finales de junio puede quedar nieve residual en zonas de umbría, sobre todo en el sendero 215 del Sorapis y en el 627/638 del Pordoi, donde los neveros aguantan todo el verano. Compensa consultar el estado en atlasdolomiti.com o mejor preguntar en el alojamiento la víspera."
         },
         {
           "subtitle": "¿Crampones a finales de junio? Mejor ramponcini",
-          "text": "Para este itinerario y estas fechas, los crampones completos de alpinismo son excesivos y ni siquiera sirven con bota flexible. Lo que de verdad resuelve son los ramponcini o microspikes: cadenas con puntas cortas que se calzan sobre la bota, pesan poco y en Decathlon rondan los 25–35 €. Sirven exactamente para lo que os podéis encontrar: neveros residuales en el sendero 215 del Sorapis y en las zonas de umbría del 627 hacia Forcella Pordoi. Cómo decidir: la semana antes de salir, mirad el parte de MeteoTrentino y las reseñas recientes de esas dos rutas en AllTrails o atlasdolomiti.com. Si hay nieve, los compráis el día 1 en Bolzano; si no, os ahorráis el gasto."
+          "text": "Para este itinerario y estas fechas, los crampones completos de alpinismo son excesivos y ni siquiera sirven con bota flexible. Lo que de verdad resuelve son los ramponcini o microspikes: cadenas con puntas cortas que se calzan sobre la bota, pesan poco y en Decathlon rondan los 25–35 €. Sirven exactamente para lo que os podéis encontrar: neveros residuales en el sendero 215 del Sorapis y en las zonas de umbría del 627 hacia Forcella Pordoi. Cómo decidir: la semana antes de salir, lo mejor es mirar el parte de MeteoTrentino y las reseñas recientes de esas dos rutas en AllTrails o atlasdolomiti.com. Si hay nieve, los compráis el día 1 en Bolzano; si no, os ahorráis el gasto."
         }
       ]
     },
@@ -3322,7 +3329,7 @@ body.is-offline .offline-chip { display: inline-flex; }
         },
         {
           "subtitle": "Comer en Cortina y en los lagos famosos",
-          "text": "Cortina y las orillas de Braies o Misurina son los sitios más caros del itinerario y no los mejores. Comed y cenad en el Comelico, donde lo mismo cuesta la mitad y la cocina es local de verdad. Y en Braies, saltaos las tiendas de souvenirs de la entrada."
+          "text": "Cortina y las orillas de Braies o Misurina son los sitios más caros del itinerario y no los mejores. Interesa comer y cenar en el Comelico, donde lo mismo cuesta la mitad y la cocina es local de verdad. Y en Braies, saltaos las tiendas de souvenirs de la entrada."
         },
         {
           "subtitle": "Subir a Seceda y al Pordoi en telecabina",
@@ -3330,7 +3337,7 @@ body.is-offline .offline-chip { display: inline-flex; }
         },
         {
           "subtitle": "El Rifugio Col Gallina, solo como aparcamiento",
-          "text": "Las reseñas recientes son consistentemente malas en comida, trato y alojamiento. Usadlo para dejar el coche (que es gratis y está perfectamente situado) y tomad algo arriba, en el Rifugio Scoiattoli."
+          "text": "Las reseñas recientes son consistentemente malas en comida, trato y alojamiento. Mejor usarlo solo para dejar el coche (que es gratis y está perfectamente situado) y tomar algo arriba, en el Rifugio Scoiattoli."
         },
         {
           "subtitle": "Llegar a los sitios famosos a media mañana",
@@ -3344,15 +3351,15 @@ body.is-offline .offline-chip { display: inline-flex; }
       "items": [
         {
           "subtitle": "El presupuesto real, partida por partida",
-          "text": "Vuelos 288 € los dos con maleta de cabina · Alojamientos 568,60 € (231 € las dos noches de Bolzano y 337,60 € las cuatro del B&B Il Sogno) · Transporte local 450 € (350 € del coche con seguro premium y unos 100 € de combustible) · Parkings y peajes 186 € · Comida 200 € · Compras 80 € para ramponcini y bastones. Total: 1.772,60 € para dos personas y siete días, unos 886 € por persona. La partida de comida es ajustada y solo cuadra tirando de supermercado: si queréis cenar fuera todas las noches, contad 350–400 €."
+          "text": "Vuelos 288 € los dos con maleta de cabina · Alojamientos 568,60 € (231 € las dos noches de Bolzano y 337,60 € las cuatro del B&B Il Sogno) · Transporte local 450 € (350 € del coche con seguro premium y unos 100 € de combustible) · Parkings y peajes 186 € · Comida 200 € · Compras 80 € para ramponcini y bastones. Total: 1.772,60 € para dos personas y siete días, unos 886 € por persona. La partida de comida es ajustada y solo cuadra tirando de supermercado: si queréis cenar fuera todas las noches, compensa contar 350–400 €."
         },
         {
           "subtitle": "Supermercado en Bolzano y en el Comelico",
-          "text": "Los Despar y Eurospar de Bolzano tienen speck, quesos de alpaje, pan de centeno y vinos del Alto Adigio a precio normal. Un picnic en la cresta de Seceda o en el Lago d'Antorno cuesta un tercio que un plato de refugio y os deja elegir la vista. Comprad la primera noche y reponed al llegar a San Pietro."
+          "text": "Los Despar y Eurospar de Bolzano tienen speck, quesos de alpaje, pan de centeno y vinos del Alto Adigio a precio normal. Un picnic en la cresta de Seceda o en el Lago d'Antorno cuesta un tercio que un plato de refugio y os deja elegir la vista. Comprad la primera noche y compensa reponer al llegar a San Pietro."
         },
         {
           "subtitle": "Efectivo para los refugios",
-          "text": "Buena parte de los refugios dolomíticos siguen siendo solo efectivo o tienen datáfono intermitente por cobertura: Vandelli, Capanna Fassa y los de la cresta de Seceda entre ellos. Sacad efectivo en Bolzano y en Auronzo antes de cada jornada de montaña."
+          "text": "Buena parte de los refugios dolomíticos siguen siendo solo efectivo o tienen datáfono intermitente por cobertura: Vandelli, Capanna Fassa y los de la cresta de Seceda entre ellos. Conviene sacar efectivo en Bolzano y en Auronzo antes de cada jornada de montaña."
         },
         {
           "subtitle": "Dormir en el Comelico en vez de en Cortina",
@@ -3360,7 +3367,7 @@ body.is-offline .offline-chip { display: inline-flex; }
         },
         {
           "subtitle": "Tarjeta sin comisiones",
-          "text": "Revolut, Wise o similar para pagar y sacar euros sin recargo. Ojo con las máquinas de parking que ofrecen conversión de divisa: rechazadla siempre y pagad en euros."
+          "text": "Revolut, Wise o similar para pagar y sacar euros sin recargo. Ojo con las máquinas de parking que ofrecen conversión de divisa: conviene rechazarla siempre y pagar en euros."
         },
         {
           "subtitle": "El material de montaña, resuelto el día 1",
@@ -3382,7 +3389,7 @@ body.is-offline .offline-chip { display: inline-flex; }
         },
         {
           "subtitle": "Cómo funcionan los refugios",
-          "text": "La mayoría sirven comida en franja estrecha, típicamente de 12:00 a 14:00, y algunos cierran un día a la semana: el Rifugio Odle cierra los lunes. Llegad antes de las 12:00 si queréis mesa sin cola, sobre todo en el Locatelli, que es de los más concurridos de todos los Alpes."
+          "text": "La mayoría sirven comida en franja estrecha, típicamente de 12:00 a 14:00, y algunos cierran un día a la semana: el Rifugio Odle cierra los lunes. Mejor llegar antes de las 12:00 si queréis mesa sin cola, sobre todo en el Locatelli, que es de los más concurridos de todos los Alpes."
         },
         {
           "subtitle": "Desayunos",
@@ -3396,19 +3403,19 @@ body.is-offline .offline-chip { display: inline-flex; }
       "items": [
         {
           "subtitle": "Tarjeta Sanitaria Europea",
-          "text": "Gratuita y tramitable online en la Seguridad Social. Cubre la asistencia urgente en la sanidad pública italiana. Complementadla con un seguro de viaje que incluya expresamente senderismo de montaña y rescate en helicóptero: el rescate en los Dolomitas se factura y no es barato."
+          "text": "Gratuita y tramitable online en la Seguridad Social. Cubre la asistencia urgente en la sanidad pública italiana. Conviene complementarla con un seguro de viaje que incluya expresamente senderismo de montaña y rescate en helicóptero: el rescate en los Dolomitas se factura y no es barato."
         },
         {
           "subtitle": "Antes de cada ruta larga",
-          "text": "Dejad dicho en el alojamiento la ruta y la hora de vuelta prevista, o una nota visible en el salpicadero. En el Sorapis y el Piz Boè hay tramos donde un tobillo mal puesto complica mucho la salida por vuestro propio pie."
+          "text": "Lo mejor es dejar dicho en el alojamiento la ruta y la hora de vuelta prevista, o una nota visible en el salpicadero. En el Sorapis y el Piz Boè hay tramos donde un tobillo mal puesto complica mucho la salida por vuestro propio pie."
         },
         {
           "subtitle": "Altitud y sol",
-          "text": "El día 5 llegáis a 3.152 m. Bebed más de lo que os pida el cuerpo y no forcéis el ritmo. La radiación ultravioleta a esa altura es hasta tres veces la del nivel del mar: crema SPF 50+ aunque esté nublado, gafas UV400 y gorra. Las quemaduras de junio en alta montaña son traicioneras porque no se notan hasta la noche."
+          "text": "El día 5 llegáis a 3.152 m. Merece la pena beber más de lo que os pida el cuerpo y no forcéis el ritmo. La radiación ultravioleta a esa altura es hasta tres veces la del nivel del mar: crema SPF 50+ aunque esté nublado, gafas UV400 y gorra. Las quemaduras de junio en alta montaña son traicioneras porque no se notan hasta la noche."
         },
         {
           "subtitle": "Números útiles",
-          "text": "112 para cualquier emergencia en toda la UE, incluido el rescate de montaña. Guardadlo junto con la dirección del alojamiento escrita en italiano por si tenéis que dar referencias."
+          "text": "112 para cualquier emergencia en toda la UE, incluido el rescate de montaña. Conviene guardarlo junto con la dirección del alojamiento escrita en italiano por si tenéis que dar referencias."
         }
       ]
     },
@@ -3422,11 +3429,11 @@ body.is-offline .offline-chip { display: inline-flex; }
         },
         {
           "subtitle": "Sistema de tres capas",
-          "text": "Camiseta técnica o de lana merino, forro polar o softshell, y chubasquero impermeable tipo Gore-Tex. Con eso se cubre desde los 27 °C del Garda hasta los 3 °C de la cima del Piz Boè sin cargar la mochila. Añadid gorro fino y guantes ligeros solo para los madrugones en altura."
+          "text": "Camiseta técnica o de lana merino, forro polar o softshell, y chubasquero impermeable tipo Gore-Tex. Con eso se cubre desde los 27 °C del Garda hasta los 3 °C de la cima del Piz Boè sin cargar la mochila. Compensa añadir gorro fino y guantes ligeros solo para los madrugones en altura."
         },
         {
           "subtitle": "Luz de solsticio",
-          "text": "Estáis a pocos días del 21 de junio: amanece hacia las 5:20 y anochece pasadas las 21:00. Eso es lo que hace viables las tardes largas del día 2 (Alpe di Siusi a las 17:00) y del día 4 (Braies a las 18:00). Aprovechadlo, porque es una ventaja que en septiembre no tendríais."
+          "text": "Estáis a pocos días del 21 de junio: amanece hacia las 5:20 y anochece pasadas las 21:00. Eso es lo que hace viables las tardes largas del día 2 (Alpe di Siusi a las 17:00) y del día 4 (Braies a las 18:00). Merece la pena aprovecharlo, porque es una ventaja que en septiembre no tendríais."
         }
       ]
     },
@@ -3523,7 +3530,7 @@ body.is-offline .offline-chip { display: inline-flex; }
   },
   "shopping": {
     "authentic_products": [
-      "Ramponcini (microspikes) y bastones de trekking: material de montaña de calidad, con más variedad y mejor precio que en España",
+      "Ramponcini (microspikes) y bastones de trekking: material de montaña de calidad, con más variedad y precio que en España",
       "Speck del Alto Adigio con sello DOP: el mejor souvenir comestible del viaje",
       "Vinos blancos del Alto Adigio: Gewürztraminer, Pinot Bianco, Sylvaner; en tinto, Lagrein",
       "Queso Graukäse (queso gris tirolés) y quesos de alpaje de la Val di Funes",
@@ -3552,7 +3559,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     "medical": "118 (emergencia sanitaria). Hospitales de referencia: Ospedale di Bolzano (días 1–2) · Ospedale di Cortina d'Ampezzo, Via del Lacedel 68, tel. +39 0436 883111 (días 3–7) · Ospedale di Pieve di Cadore para el Comelico",
     "police": "113 (Polizia di Stato) · 112 (Carabinieri) · Soccorso Alpino a través del 112",
     "embassy": "Consulado General de España en Milán: Via Palestro 24, +39 02 36519480 · Embajada de España en Roma: +39 06 684 0401",
-    "insurance_reminder": "Llevad la Tarjeta Sanitaria Europea y un seguro de viaje que cubra expresamente senderismo de montaña y rescate en helicóptero. Guardad el número de póliza y el teléfono de asistencia en el móvil y en papel."
+    "insurance_reminder": "Interesa llevar la Tarjeta Sanitaria Europea y un seguro de viaje que cubra expresamente senderismo de montaña y rescate en helicóptero. Conviene guardar el número de póliza y el teléfono de asistencia en el móvil y en papel."
   },
   "apps_recommended": [
     {
@@ -3569,7 +3576,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     },
     {
       "name": "Komoot",
-      "purpose": "Rutas con mapas offline del Alto Adigio y el Véneto. Descargad antes de salir: Seceda desde Cristauta, Adolf Munkel Weg, sendero 215 del Sorapis, 627/638 al Piz Boè, giro 101/105 de las Tre Cime y el 424 de las Cinque Torri."
+      "purpose": "Rutas con mapas offline del Alto Adigio y el Véneto. Mejor descargar antes de salir: Seceda desde Cristauta, Adolf Munkel Weg, sendero 215 del Sorapis, 627/638 al Piz Boè, giro 101/105 de las Tre Cime y el 424 de las Cinque Torri."
     },
     {
       "name": "AllTrails",
@@ -3577,11 +3584,11 @@ body.is-offline .offline-chip { display: inline-flex; }
     },
     {
       "name": "MeteoTrentino",
-      "purpose": "El parte alpino más fiable de la zona: previsión por altitud y probabilidad de tormenta de tarde. Consultadlo cada mañana antes de decidir la ruta."
+      "purpose": "El parte alpino más fiable de la zona: previsión por altitud y probabilidad de tormenta de tarde. Interesa consultarlo cada mañana antes de decidir la ruta."
     },
     {
       "name": "Google Maps (offline)",
-      "purpose": "Descargad las áreas de Lago di Garda, Bolzano-Val Gardena, Val di Funes y Cortina-Comelico-Misurina. En los valles altos la cobertura falla más de lo que parece."
+      "purpose": "Lo mejor es descargar las áreas de Lago di Garda, Bolzano-Val Gardena, Val di Funes y Cortina-Comelico-Misurina. En los valles altos la cobertura falla más de lo que parece."
     },
     {
       "name": "atlasdolomiti.com",
@@ -3589,7 +3596,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     },
     {
       "name": "Revolut o Wise",
-      "purpose": "Pagos y retiradas de efectivo sin comisiones. Rechazad siempre la conversión de divisa que ofrecen algunos cajeros y datáfonos."
+      "purpose": "Pagos y retiradas de efectivo sin comisiones. Lo mejor es rechazar siempre la conversión de divisa que ofrecen algunos cajeros y datáfonos."
     },
     {
       "name": "PhotoPills o Sun Surveyor",
