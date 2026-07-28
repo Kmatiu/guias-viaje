@@ -635,6 +635,41 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   .pr-cols { column-count: 2; column-gap: 8mm; }
   .pr-foot { margin-top: 14px; padding-top: 6px; border-top: 0.5pt solid #999; font-size: 8.5pt; color: #555; }
 }
+.doc-intro { font-size: 13px; color: var(--text-soft); line-height: 1.55; margin-bottom: 12px; }
+.doc-add { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.doc-group { margin-bottom: 18px; }
+.doc-group__head { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-muted); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid var(--line); }
+.doc-card { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 11px 13px; margin-bottom: 8px; }
+.doc-card--key { border-left: 3px solid var(--accent); }
+.doc-card__icon { font-size: 22px; flex-shrink: 0; }
+.doc-card__body { flex: 1; min-width: 0; }
+.doc-card__name { font-weight: 600; font-size: 14px; word-break: break-word; }
+.doc-card__meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+.doc-card__acts { display: flex; gap: 4px; flex-shrink: 0; }
+.doc-card__acts button { border: 0; background: transparent; cursor: pointer; font-size: 16px;
+  padding: 5px 6px; border-radius: 8px; line-height: 1; }
+.doc-card__acts button:hover { background: rgba(127,127,127,0.14); }
+.doc-viewer { position: fixed; inset: 0; z-index: 9500; background: rgba(0,0,0,0.92);
+  display: flex; flex-direction: column; }
+.doc-viewer__bar { display: flex; align-items: center; gap: 10px; padding: 12px 14px; color: #fff; }
+.doc-viewer__bar .t { flex: 1; font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-viewer__bar button { border: 1px solid rgba(255,255,255,0.32); background: rgba(255,255,255,0.14);
+  color: #fff; border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.doc-viewer__body { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 10px 14px; overflow: auto; }
+.doc-viewer__body img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+.doc-viewer__body iframe { width: 100%; height: 100%; border: 0; border-radius: 8px; background: #fff; }
+.doc-viewer__fallback { color: #fff; text-align: center; font-size: 14px; line-height: 1.6; padding: 24px; }
+.doc-form { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+.doc-form label { display: block; font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-muted); margin: 10px 0 4px; }
+.doc-form label:first-child { margin-top: 0; }
+.doc-form input[type=text], .doc-form select { width: 100%; padding: 9px 10px; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; font-size: 14px; }
+.doc-form__check { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13.5px; }
+.doc-form__row { display: flex; gap: 8px; margin-top: 14px; }
+.doc-form__row .btn { flex: 1; }
 .tip-remind { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--accent);
   background: transparent; border: 1px solid var(--accent); border-radius: 999px;
   padding: 5px 12px; cursor: pointer; }
@@ -3917,12 +3952,16 @@ body.is-offline .offline-chip { display: inline-flex; }
     if (__photoDB) return Promise.resolve(__photoDB);
     return new Promise(function (res, rej) {
       if (!window.indexedDB) { rej(new Error('sin IndexedDB')); return; }
-      const rq = indexedDB.open(PHOTO_DB, 1);
+      const rq = indexedDB.open(PHOTO_DB, 2);   // v2: añade el almacén de documentos
       rq.onupgradeneeded = function () {
         const db = rq.result;
         if (!db.objectStoreNames.contains('photos')) {
           const os = db.createObjectStore('photos', { keyPath: 'id' });
           os.createIndex('byPlace', 'placeId', { unique: false });
+        }
+        // Las fotos que ya hubiera guardadas no se tocan al subir de versión.
+        if (!db.objectStoreNames.contains('docs')) {
+          db.createObjectStore('docs', { keyPath: 'id' });
         }
       };
       rq.onsuccess = function () { __photoDB = rq.result; res(__photoDB); };
@@ -4423,11 +4462,14 @@ body.is-offline .offline-chip { display: inline-flex; }
         <div class="backup-note" id="bk-status"></div>
         <div class="backup-row" style="margin-top:14px">
           <button class="btn btn--ghost btn--sm" id="bk-photos">Exportar mis fotos (.zip)</button>
+          <button class="btn btn--ghost btn--sm" id="bk-docs">Exportar mis documentos (.zip)</button>
           <button class="btn btn--primary btn--sm" id="bk-offline">Preparar para usar sin conexión</button>
         </div>
         <div class="prep-bar" id="prep-bar"><div class="prep-bar__fill"></div></div>
         <p class="backup-note">
           El zip de fotos sale con los nombres correctos: descomprímelo y súbelo al repositorio para que las vea todo el mundo.
+          El de documentos guarda tus entradas y reservas con el nombre que les hayas puesto: consérvalo en el ordenador o en la nube,
+          porque si pierdes el móvil no hay forma de recuperarlos desde la guía.
           «Preparar para usar sin conexión» descarga la guía y las fotos compartidas para que se abra en modo avión; el mapa
           guardará además los tiles que hayas mirado. Hazlo con wifi antes de salir.
         </p>
@@ -4444,6 +4486,8 @@ body.is-offline .offline-chip { display: inline-flex; }
       e.target.value = '';
     });
     document.getElementById('bk-photos').addEventListener('click', function () { exportLocalPhotos(this); });
+    var bd = document.getElementById('bk-docs');
+    if (bd) bd.addEventListener('click', function () { exportDocs(this); });
     document.getElementById('bk-offline').addEventListener('click', function () {
       precacheForOffline(this, document.getElementById('prep-bar'));
     });
@@ -4666,6 +4710,17 @@ body.is-offline .offline-chip { display: inline-flex; }
       p.push('</div>');
     }
 
+    if (__docsForPrint && __docsForPrint.length) {
+      p.push('<div class="pr-sec"><h2 class="pr-h2">Documentos guardados</h2>' +
+        '<div class="pr-meta">Estos archivos están en la guía del móvil. Esta lista sirve de inventario: ' +
+        'comprueba que los llevas antes de salir.</div><table class="pr-table">' +
+        '<tr><th>Documento</th><th>Tipo</th><th>Día</th></tr>' +
+        __docsForPrint.map(function (d) {
+          var k = DOC_KINDS.filter(function (x) { return x.k === d.kind; })[0];
+          return '<tr><td>' + (d.key ? '★ ' : '') + pe(d.title || d.name) + '</td><td>' +
+                 pe(k ? k.l : '') + '</td><td>' + (d.day ? 'Día ' + d.day : '—') + '</td></tr>';
+        }).join('') + '</table></div>');
+    }
     p.push(prPackingHTML());
     p.push(prBudgetHTML());
 
@@ -4709,6 +4764,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     return p.join('');
   }
 
+  var __docsForPrint = [];
   function exportPDF() {
     var ov = document.createElement('div');
     ov.className = 'pdf-overlay';
@@ -4728,7 +4784,11 @@ body.is-offline .offline-chip { display: inline-flex; }
         }).catch(function () {});
       });
     });
-    // 2) Asegurar que las fotos del repositorio están localizadas
+    // 2) Inventario de documentos guardados
+    chain = chain.then(function () {
+      return docsAll().then(function (l) { __docsForPrint = l; }).catch(function () { __docsForPrint = []; });
+    });
+    // 3) Asegurar que las fotos del repositorio están localizadas
     ids.forEach(function (id) {
       chain = chain.then(function () { return repoPhotosOf(id).catch(function () { return []; }); });
     });
@@ -4809,6 +4869,248 @@ body.is-offline .offline-chip { display: inline-flex; }
     try { return localStorage.getItem(STORE_KEY + '_mapmode') === 'photo' ? 'photo' : 'day'; }
     catch (e) { return 'day'; }
   })();
+
+
+  // --- DOCUMENTOS (entradas, bonos, reservas) ----------------
+  // Van a IndexedDB, en su propio almacén: un PDF de reserva puede pesar
+  // varios MB y localStorage solo admite unos 5 MB en total.
+  const DOC_STORE = 'docs';
+  const DOC_MAX = 12 * 1024 * 1024;          // 12 MB por archivo
+  const DOC_KINDS = [
+    { k: 'reserva',   l: 'Reserva' },
+    { k: 'entrada',   l: 'Entrada o bono' },
+    { k: 'transporte',l: 'Transporte' },
+    { k: 'seguro',    l: 'Seguro' },
+    { k: 'otro',      l: 'Otro' }
+  ];
+
+  function docsDB() {
+    if (__photoDB) return Promise.resolve(__photoDB);
+    return photoDB();
+  }
+  function docStore(mode) {
+    return docsDB().then(function (db) {
+      if (!db.objectStoreNames.contains(DOC_STORE)) return null;
+      return db.transaction(DOC_STORE, mode).objectStore(DOC_STORE);
+    });
+  }
+  function docsAll() {
+    return docStore('readonly').then(function (os) {
+      if (!os) return [];
+      return new Promise(function (res, rej) {
+        var rq = os.getAll();
+        rq.onsuccess = function () { res((rq.result || []).sort(function (a, b) { return a.ts - b.ts; })); };
+        rq.onerror = function () { rej(rq.error); };
+      });
+    });
+  }
+  function docPut(rec) {
+    return docStore('readwrite').then(function (os) {
+      if (!os) return Promise.reject(new Error('sin almacén'));
+      return new Promise(function (res, rej) {
+        var rq = os.put(rec); rq.onsuccess = function () { res(); }; rq.onerror = function () { rej(rq.error); };
+      });
+    });
+  }
+  function docDel(id) {
+    return docStore('readwrite').then(function (os) {
+      if (!os) return;
+      return new Promise(function (res, rej) {
+        var rq = os.delete(id); rq.onsuccess = function () { res(); }; rq.onerror = function () { rej(rq.error); };
+      });
+    });
+  }
+
+  function docIcon(type) {
+    if (/pdf/.test(type)) return '📄';
+    if (/^image\//.test(type)) return '🖼️';
+    return '📎';
+  }
+  function fileSize(n) {
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return Math.round(n / 1024) + ' KB';
+    return (n / 1048576).toFixed(1).replace('.', ',') + ' MB';
+  }
+
+  function openDocViewer(rec) {
+    var url = URL.createObjectURL(rec.blob);
+    var ov = document.createElement('div');
+    ov.className = 'doc-viewer';
+    var inner;
+    if (/^image\//.test(rec.type)) {
+      inner = '<img src="' + url + '" alt="">';
+    } else if (/pdf/.test(rec.type)) {
+      inner = '<iframe src="' + url + '"></iframe>';
+    } else {
+      inner = '<div class="doc-viewer__fallback">Este tipo de archivo no se puede previsualizar aquí.<br>' +
+              'Descárgalo para abrirlo con otra aplicación.</div>';
+    }
+    ov.innerHTML =
+      '<div class="doc-viewer__bar">' +
+        '<span class="t">' + esc(rec.name) + '</span>' +
+        '<button data-a="dl">Descargar</button>' +
+        '<button data-a="close">Cerrar</button>' +
+      '</div><div class="doc-viewer__body">' + inner + '</div>';
+    document.body.appendChild(ov);
+    var close = function () { ov.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 1500); };
+    ov.querySelector('[data-a="close"]').addEventListener('click', close);
+    ov.querySelector('[data-a="dl"]').addEventListener('click', function () { triggerDownload(rec.blob, rec.name); });
+  }
+
+  function docFormHTML(file) {
+    var days = (DATA.days || []).map(function (d) {
+      return '<option value="' + d.day + '">Día ' + d.day + ' · ' +
+             esc(fmtDate(d.date, { day: 'numeric', month: 'short' })) + ' — ' + esc(d.title.slice(0, 44)) + '</option>';
+    }).join('');
+    return '<div class="doc-form" id="doc-form">' +
+      '<label>Archivo</label><div style="font-size:13.5px">' + docIcon(file.type) + ' ' + esc(file.name) +
+        ' <span style="color:var(--text-muted)">(' + fileSize(file.size) + ')</span></div>' +
+      '<label for="doc-title">Nombre</label><input type="text" id="doc-title" value="' + esc(file.name.replace(/\.[^.]+$/, '')) + '">' +
+      '<label for="doc-kind">Tipo</label><select id="doc-kind">' +
+        DOC_KINDS.map(function (k) { return '<option value="' + k.k + '">' + k.l + '</option>'; }).join('') +
+      '</select>' +
+      '<label for="doc-day">Día del viaje</label><select id="doc-day"><option value="">Sin día concreto</option>' + days + '</select>' +
+      '<div class="doc-form__check"><input type="checkbox" id="doc-key"><label for="doc-key" style="margin:0;text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:400;color:var(--text)">Imprescindible: tenerlo a mano</label></div>' +
+      '<div class="doc-form__row">' +
+        '<button class="btn btn--ghost" id="doc-cancel">Cancelar</button>' +
+        '<button class="btn btn--primary" id="doc-save">Guardar</button>' +
+      '</div></div>';
+  }
+
+  function renderMeDocs() {
+    var pane = document.querySelector('[data-me-pane="docs"]');
+    if (!pane) return;
+    docsAll().then(function (list) {
+      var intro = '<p class="doc-intro">Guarda aquí las entradas, bonos, reservas y seguros: los tendrás a mano sin rebuscar en el correo, y también sin cobertura. ' +
+        'Se guardan <strong>solo en este dispositivo</strong>, así que exporta el zip desde Herramientas antes de salir.</p>' +
+        '<div class="doc-add"><button class="btn btn--primary btn--sm" id="doc-add">+ Añadir documento</button>' +
+        '<input type="file" id="doc-file" accept="application/pdf,image/*,.pdf,.png,.jpg,.jpeg,.webp" style="display:none"></div>' +
+        '<div id="doc-form-slot"></div>';
+
+      var body;
+      if (!list.length) {
+        body = '<div class="empty-state">Todavía no has guardado ningún documento.</div>';
+      } else {
+        var key = list.filter(function (d) { return d.key; });
+        var byDay = {}, sinDia = [];
+        list.forEach(function (d) {
+          if (d.key) return;
+          if (d.day) { (byDay[d.day] = byDay[d.day] || []).push(d); } else sinDia.push(d);
+        });
+        body = '';
+        if (key.length) body += '<div class="doc-group"><div class="doc-group__head">⭐ Imprescindibles</div>' +
+          key.map(docCardHTML).join('') + '</div>';
+        Object.keys(byDay).sort(function (a, b) { return a - b; }).forEach(function (dn) {
+          var d = (DATA.days || []).filter(function (x) { return x.day == dn; })[0];
+          body += '<div class="doc-group"><div class="doc-group__head">Día ' + dn +
+            (d ? ' · ' + esc(fmtDate(d.date, { day: 'numeric', month: 'short' })) : '') + '</div>' +
+            byDay[dn].map(docCardHTML).join('') + '</div>';
+        });
+        if (sinDia.length) body += '<div class="doc-group"><div class="doc-group__head">Sin día concreto</div>' +
+          sinDia.map(docCardHTML).join('') + '</div>';
+      }
+      pane.innerHTML = intro + body;
+      wireDocs(list);
+    }).catch(function () {
+      pane.innerHTML = '<div class="empty-state">Este navegador no permite guardar documentos. Abre la guía desde su enlace web en lugar de como archivo descargado.</div>';
+    });
+  }
+
+  function docCardHTML(d) {
+    var kind = DOC_KINDS.filter(function (k) { return k.k === d.kind; })[0];
+    return '<div class="doc-card' + (d.key ? ' doc-card--key' : '') + '">' +
+      '<span class="doc-card__icon">' + docIcon(d.type) + '</span>' +
+      '<div class="doc-card__body"><div class="doc-card__name">' + esc(d.title || d.name) + '</div>' +
+      '<div class="doc-card__meta">' + (kind ? esc(kind.l) + ' · ' : '') + fileSize(d.size) + '</div></div>' +
+      '<div class="doc-card__acts">' +
+        '<button data-doc-view="' + d.id + '" aria-label="Ver">👁</button>' +
+        '<button data-doc-dl="' + d.id + '" aria-label="Descargar">⬇</button>' +
+        '<button data-doc-del="' + d.id + '" aria-label="Eliminar">✕</button>' +
+      '</div></div>';
+  }
+
+  function wireDocs(list) {
+    var byId = {};
+    list.forEach(function (d) { byId[d.id] = d; });
+
+    var addBtn = document.getElementById('doc-add');
+    var fileInput = document.getElementById('doc-file');
+    if (addBtn) addBtn.addEventListener('click', function () { fileInput.click(); });
+    if (fileInput) fileInput.addEventListener('change', function (e) {
+      var f = e.target.files[0];
+      e.target.value = '';
+      if (!f) return;
+      if (f.size > DOC_MAX) {
+        alert('Ese archivo pesa ' + fileSize(f.size) + ' y el límite es 12 MB. Comprímelo o guarda solo las páginas que necesites.');
+        return;
+      }
+      var slot = document.getElementById('doc-form-slot');
+      slot.innerHTML = docFormHTML(f);
+      document.getElementById('doc-cancel').addEventListener('click', function () { slot.innerHTML = ''; });
+      document.getElementById('doc-save').addEventListener('click', function () {
+        var rec = {
+          id: 'doc-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+          name: f.name,
+          title: document.getElementById('doc-title').value.trim() || f.name,
+          kind: document.getElementById('doc-kind').value,
+          day: document.getElementById('doc-day').value ? +document.getElementById('doc-day').value : null,
+          key: document.getElementById('doc-key').checked,
+          type: f.type || '', size: f.size, blob: f, ts: Date.now()
+        };
+        docPut(rec).then(function () { renderMeDocs(); })
+          .catch(function () { alert('No se ha podido guardar el documento.'); });
+      });
+    });
+
+    document.querySelectorAll('[data-doc-view]').forEach(function (b) {
+      b.addEventListener('click', function () { openDocViewer(byId[b.dataset.docView]); });
+    });
+    document.querySelectorAll('[data-doc-dl]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var d = byId[b.dataset.docDl];
+        triggerDownload(d.blob, d.name);
+      });
+    });
+    document.querySelectorAll('[data-doc-del]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var d = byId[b.dataset.docDel];
+        if (!confirm('¿Eliminar «' + (d.title || d.name) + '»?')) return;
+        docDel(d.id).then(renderMeDocs);
+      });
+    });
+  }
+
+  function exportDocs(btn) {
+    btn.disabled = true;
+    btn.textContent = 'Reuniendo documentos…';
+    docsAll().then(function (list) {
+      if (!list.length) {
+        btn.disabled = false; btn.textContent = 'Exportar mis documentos (.zip)';
+        alert('Todavía no has guardado ningún documento.');
+        return;
+      }
+      var out = [], used = {}, chain = Promise.resolve();
+      list.forEach(function (d) {
+        chain = chain.then(function () {
+          return d.blob.arrayBuffer().then(function (buf) {
+            var base = (d.title || d.name).replace(/[\/\\?%*:|"<>]/g, '-').slice(0, 60);
+            var ext = (d.name.match(/\.[^.]+$/) || [''])[0];
+            if (base.slice(-ext.length) === ext) base = base.slice(0, -ext.length);
+            var n = base + ext;
+            used[n] = (used[n] || 0) + 1;
+            if (used[n] > 1) n = base + '-' + used[n] + ext;
+            out.push({ name: 'documentos/' + n, u8: new Uint8Array(buf) });
+          });
+        });
+      });
+      return chain.then(function () {
+        triggerDownload(zipStore(out), 'documentos.zip');
+        btn.disabled = false; btn.textContent = 'Exportar mis documentos (.zip)';
+      });
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = 'Exportar mis documentos (.zip)';
+    });
+  }
 
   // --- MAP ------------------------------------------------
   let mapInstance = null;
@@ -5163,6 +5465,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       { k: 'overview', l: 'Resumen' },
       { k: 'budget', l: 'Presupuesto' },
       { k: 'packing', l: 'Equipaje' },
+      { k: 'docs', l: 'Documentos' },
       { k: 'tools', l: 'Herramientas' }
     ];
 
@@ -5174,6 +5477,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       <div class="me-pane is-active" data-me-pane="overview"></div>
       <div class="me-pane" data-me-pane="budget"></div>
       <div class="me-pane" data-me-pane="packing"></div>
+      <div class="me-pane" data-me-pane="docs"></div>
       <div class="me-pane" data-me-pane="tools"></div>
     `;
 
@@ -5189,6 +5493,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     renderMeOverview();
     renderMeBudget();
     renderMePacking();
+    renderMeDocs();
     renderMeTools();
   }
 
