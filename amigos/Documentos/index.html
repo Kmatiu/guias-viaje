@@ -44,6 +44,11 @@
   .count { font-family:Georgia,serif; font-size:15px; font-weight:700; margin-right:auto; }
   .count b { color:var(--accent); font-size:20px; }
 
+.link-add { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:20px; }
+  .link-add__title { font-size:13.5px; font-weight:700; margin-bottom:10px; }
+  .link-add__row { display:grid; grid-template-columns:1.3fr 1fr auto; gap:8px; }
+  @media (max-width:620px){ .link-add__row { grid-template-columns:1fr; } }
+  .link-add__hint { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.5; }
   .doc { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
   .doc.is-key { border-left:4px solid var(--accent); }
   .doc__head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
@@ -93,6 +98,16 @@
     <input type="file" id="file-input" multiple style="display:none">
   </div>
 
+  <div class="link-add">
+    <div class="link-add__title">🔗 O añade un enlace externo</div>
+    <div class="link-add__row">
+      <input type="text" id="link-url" placeholder="https://www.auronzo.info/…">
+      <input type="text" id="link-title" placeholder="Nombre que verá el viajero">
+      <button class="btn-ghost" id="link-btn">Añadir enlace</button>
+    </div>
+    <div class="link-add__hint">Para webs de reservas, partes meteorológicos, horarios online o mapas de Komoot. Se abren en el navegador; no se descargan.</div>
+  </div>
+
   <div class="bar-actions">
     <div class="count"><b id="n">0</b> <span id="nlabel">documentos</span></div>
     <button class="btn-ghost" id="load-btn">Cargar guía (para los días)</button>
@@ -119,6 +134,8 @@
       <li>Si más adelante añades documentos, vuelve a pasar por aquí: el <code>index.json</code> debe listarlos todos, así que hay que regenerarlo entero.</li>
       <li>Pulsa <em>Cargar guía</em> y selecciona su <code>index.html</code> para poder asignar cada documento a un día concreto del viaje.</li>
       <li>Los nombres se limpian solos (sin acentos, espacios ni mayúsculas) porque GitHub Pages distingue mayúsculas y los espacios dan problemas en las URL.</li>
+      <li>Los enlaces externos no van dentro del zip: se guardan en el <code>index.json</code> y la guía los abre en el navegador. Si solo añades enlaces, descarga el <code>index.json</code> con el otro botón.</li>
+      <li>Todo lo que asignes a un día aparecerá también dentro de ese día en la guía, al final, justo antes de las notas.</li>
     </ul>
   </div>
 </div>
@@ -129,6 +146,8 @@
 
   var KINDS = [
     { k:'otro', l:'Otro' },
+    { k:'mapa', l:'Plano o mapa' },
+    { k:'ruta', l:'Ruta' },
     { k:'transporte', l:'Transporte' },
     { k:'entrada', l:'Entrada o bono' },
     { k:'reserva', l:'Reserva' },
@@ -148,7 +167,9 @@
     if (n < 1048576) return Math.round(n/1024) + ' KB';
     return (n/1048576).toFixed(1).replace('.',',') + ' MB';
   }
-  function icon(name){
+  function icon(d){
+    if (d.link) return '🔗';
+    var name = d.name || '';
     if (/\.pdf$/i.test(name)) return '📄';
     if (/\.(png|jpe?g|webp|gif)$/i.test(name)) return '🖼️';
     return '📎';
@@ -222,7 +243,8 @@
   function buildIndex(){
     return JSON.stringify({
       documentos: docs.map(function(d){
-        var o = { archivo: d.name, titulo: d.title };
+        var o = d.link ? { enlace: d.url, titulo: d.title }
+                       : { archivo: d.name, titulo: d.title };
         if (d.kind && d.kind !== 'otro') o.tipo = d.kind;
         if (d.day) o.dia = +d.day;
         if (d.key) o.imprescindible = true;
@@ -247,9 +269,9 @@
         return '<option value="'+x.day+'"'+(String(d.day)===String(x.day)?' selected':'')+'>Día '+x.day+(x.label?' · '+esc(x.label):'')+'</option>';
       }).join('');
       return '<div class="doc'+(d.key?' is-key':'')+'">'+
-        '<div class="doc__head"><span class="doc__icon">'+icon(d.name)+'</span>'+
-          '<span class="doc__file">documentos/'+esc(d.name)+'</span>'+
-          '<span class="doc__size">'+kb(d.file.size)+'</span></div>'+
+        '<div class="doc__head"><span class="doc__icon">'+icon(d)+'</span>'+
+          '<span class="doc__file">'+(d.link ? esc(d.url) : 'documentos/'+esc(d.name))+'</span>'+
+          '<span class="doc__size">'+(d.link ? 'enlace' : kb(d.file.size))+'</span></div>'+
         '<div class="doc__grid">'+
           '<div><label>Título</label><input type="text" data-f="title" data-i="'+i+'" value="'+esc(d.title)+'"></div>'+
           '<div><label>Tipo</label><select data-f="kind" data-i="'+i+'">'+
@@ -262,13 +284,16 @@
             '<input type="checkbox" data-f="key" data-i="'+i+'"'+(d.key?' checked':'')+'> Imprescindible</label>'+
           '<button class="btn-ghost btn-mini doc__rm" data-rm="'+i+'">Quitar</button>'+
         '</div>'+
-        (RISKY.test(d.title) || RISKY.test(d.file.name)
+        (RISKY.test(d.title) || RISKY.test(d.link ? d.url : d.file.name)
           ? '<div class="doc__warn">⚠️ El nombre sugiere que puede ser un documento personal. Si lleva tu nombre o un localizador, no lo subas al repositorio: guárdalo desde el móvil en la pestaña Documentos de la guía.</div>'
           : '')+
       '</div>';
     }).join('');
+    var nf = docs.filter(function(d){ return !d.link; }).length;
+    var nl = docs.length - nf;
     $('#n').textContent = docs.length;
-    $('#nlabel').textContent = docs.length === 1 ? 'documento' : 'documentos';
+    $('#nlabel').textContent = (docs.length === 1 ? 'elemento' : 'elementos') +
+      (nl ? ' (' + nf + (nf === 1 ? ' archivo' : ' archivos') + ' y ' + nl + (nl === 1 ? ' enlace' : ' enlaces') + ')' : '');
     $('#zip-btn').disabled = false;
     $('#json-btn').disabled = false;
   }
@@ -282,6 +307,17 @@
     });
     render();
   }
+
+  $('#link-btn').addEventListener('click', function(){
+    var u = $('#link-url').value.trim();
+    var t = $('#link-title').value.trim();
+    if (!u) { alert('Escribe la dirección del enlace.'); return; }
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    docs.push({ link:true, url:u, name:'', title: t || u.replace(/^https?:\/\//,'').split('/')[0],
+                kind:'otro', day:'', key:false, file:{ size:0 } });
+    $('#link-url').value = ''; $('#link-title').value = '';
+    render();
+  });
 
   $('#pick').addEventListener('click', function(){ $('#file-input').click(); });
   $('#file-input').addEventListener('change', function(e){ addFiles(e.target.files); e.target.value=''; });
@@ -325,7 +361,7 @@
     btn.disabled = true; btn.textContent = 'Preparando…';
     var entries = [{ name:'documentos/index.json', u8:new TextEncoder().encode(buildIndex()) }];
     var chain = Promise.resolve();
-    docs.forEach(function(d){
+    docs.filter(function(d){ return !d.link; }).forEach(function(d){
       chain = chain.then(function(){
         return d.file.arrayBuffer().then(function(buf){
           entries.push({ name:'documentos/'+d.name, u8:new Uint8Array(buf) });
