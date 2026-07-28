@@ -4291,6 +4291,8 @@ body.is-offline .offline-chip { display: inline-flex; }
   }
 
   function precacheForOffline(btn, bar) {
+    // Nos aseguramos de conocer los documentos compartidos antes de precachear
+    if (__repoDocs === null) { repoDocs().then(function () { precacheForOffline(btn, bar); }); return; }
     if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
       alert('La preparación sin conexión necesita que la guía esté abierta desde su enlace web (https), no como archivo descargado. Si acabas de abrirla, recárgala una vez y vuelve a intentarlo.');
       return;
@@ -4306,6 +4308,8 @@ body.is-offline .offline-chip { display: inline-flex; }
         });
       });
     });
+    urls.push(DOCS_DIR + 'index.json');
+    (__repoDocs || []).forEach(function (d) { urls.push(d.url); });
     var ch = new MessageChannel();
     bar.classList.add('on');
     btn.disabled = true;
@@ -4871,6 +4875,46 @@ body.is-offline .offline-chip { display: inline-flex; }
   })();
 
 
+  // --- DOCUMENTOS COMPARTIDOS DEL REPOSITORIO ----------------
+  // Se declaran en documentos/index.json, junto a los propios archivos.
+  // Son PÚBLICOS: cualquiera con el enlace de la guía puede abrirlos, así que
+  // aquí solo deben ir documentos sin datos personales (mapas, horarios,
+  // fichas informativas). Las entradas, bonos y reservas van en local.
+  const DOCS_DIR = 'documentos/';
+  var __repoDocs = null;
+
+  function repoDocs() {
+    if (__repoDocs) return Promise.resolve(__repoDocs);
+    return fetch(DOCS_DIR + 'index.json', { cache: 'no-cache' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        var list = [];
+        if (j) {
+          var arr = Array.isArray(j) ? j : (j.documentos || j.documents || []);
+          arr.forEach(function (d, i) {
+            if (!d || !d.archivo) return;
+            list.push({
+              id: 'repo-' + i,
+              repo: true,
+              file: d.archivo,
+              url: DOCS_DIR + d.archivo,
+              title: d.titulo || d.archivo,
+              kind: d.tipo || 'otro',
+              day: d.dia || d.day || null,
+              key: !!(d.imprescindible || d.key),
+              type: /\.pdf$/i.test(d.archivo) ? 'application/pdf'
+                  : (/\.(png|jpe?g|webp)$/i.test(d.archivo) ? 'image/*' : ''),
+              size: null,
+              ts: i
+            });
+          });
+        }
+        __repoDocs = list;
+        return list;
+      })
+      .catch(function () { __repoDocs = []; return []; });
+  }
+
   // --- DOCUMENTOS (entradas, bonos, reservas) ----------------
   // Van a IndexedDB, en su propio almacén: un PDF de reserva puede pesar
   // varios MB y localStorage solo admite unos 5 MB en total.
@@ -4933,7 +4977,7 @@ body.is-offline .offline-chip { display: inline-flex; }
   }
 
   function openDocViewer(rec) {
-    var url = URL.createObjectURL(rec.blob);
+    var url = rec.repo ? rec.url : URL.createObjectURL(rec.blob);
     var ov = document.createElement('div');
     ov.className = 'doc-viewer';
     var inner;
@@ -4952,9 +4996,15 @@ body.is-offline .offline-chip { display: inline-flex; }
         '<button data-a="close">Cerrar</button>' +
       '</div><div class="doc-viewer__body">' + inner + '</div>';
     document.body.appendChild(ov);
-    var close = function () { ov.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 1500); };
+    var close = function () {
+      ov.remove();
+      if (!rec.repo) setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    };
     ov.querySelector('[data-a="close"]').addEventListener('click', close);
-    ov.querySelector('[data-a="dl"]').addEventListener('click', function () { triggerDownload(rec.blob, rec.name); });
+    ov.querySelector('[data-a="dl"]').addEventListener('click', function () {
+      if (rec.repo) { var a = document.createElement('a'); a.href = rec.url; a.download = rec.file; a.click(); }
+      else triggerDownload(rec.blob, rec.name);
+    });
   }
 
   function docFormHTML(file) {
@@ -4980,9 +5030,12 @@ body.is-offline .offline-chip { display: inline-flex; }
   function renderMeDocs() {
     var pane = document.querySelector('[data-me-pane="docs"]');
     if (!pane) return;
-    docsAll().then(function (list) {
+    Promise.all([repoDocs(), docsAll().catch(function () { return []; })]).then(function (both) {
+      var list = (both[0] || []).concat(both[1] || []);
+      var nRepo = (both[0] || []).length;
       var intro = '<p class="doc-intro">Guarda aquí las entradas, bonos, reservas y seguros: los tendrás a mano sin rebuscar en el correo, y también sin cobertura. ' +
-        'Se guardan <strong>solo en este dispositivo</strong>, así que exporta el zip desde Herramientas antes de salir.</p>' +
+        'Los que añadas se guardan <strong>solo en este dispositivo</strong>, así que exporta el zip desde Herramientas antes de salir.' +
+        (nRepo ? ' Los marcados con 🌐 vienen con la guía y los ve todo el mundo.' : '') + '</p>' +
         '<div class="doc-add"><button class="btn btn--primary btn--sm" id="doc-add">+ Añadir documento</button>' +
         '<input type="file" id="doc-file" accept="application/pdf,image/*,.pdf,.png,.jpg,.jpeg,.webp" style="display:none"></div>' +
         '<div id="doc-form-slot"></div>';
@@ -5018,14 +5071,17 @@ body.is-offline .offline-chip { display: inline-flex; }
 
   function docCardHTML(d) {
     var kind = DOC_KINDS.filter(function (k) { return k.k === d.kind; })[0];
+    var meta = (kind ? esc(kind.l) : '') +
+      (d.repo ? (kind ? ' · ' : '') + '🌐 compartido'
+              : (d.size != null ? (kind ? ' · ' : '') + fileSize(d.size) + ' · 📱 solo en este móvil' : ''));
     return '<div class="doc-card' + (d.key ? ' doc-card--key' : '') + '">' +
       '<span class="doc-card__icon">' + docIcon(d.type) + '</span>' +
       '<div class="doc-card__body"><div class="doc-card__name">' + esc(d.title || d.name) + '</div>' +
-      '<div class="doc-card__meta">' + (kind ? esc(kind.l) + ' · ' : '') + fileSize(d.size) + '</div></div>' +
+      '<div class="doc-card__meta">' + meta + '</div></div>' +
       '<div class="doc-card__acts">' +
         '<button data-doc-view="' + d.id + '" aria-label="Ver">👁</button>' +
         '<button data-doc-dl="' + d.id + '" aria-label="Descargar">⬇</button>' +
-        '<button data-doc-del="' + d.id + '" aria-label="Eliminar">✕</button>' +
+        (d.repo ? '' : '<button data-doc-del="' + d.id + '" aria-label="Eliminar">✕</button>') +
       '</div></div>';
   }
 
@@ -5068,7 +5124,8 @@ body.is-offline .offline-chip { display: inline-flex; }
     document.querySelectorAll('[data-doc-dl]').forEach(function (b) {
       b.addEventListener('click', function () {
         var d = byId[b.dataset.docDl];
-        triggerDownload(d.blob, d.name);
+        if (d.repo) { var a = document.createElement('a'); a.href = d.url; a.download = d.file; a.click(); }
+        else triggerDownload(d.blob, d.name);
       });
     });
     document.querySelectorAll('[data-doc-del]').forEach(function (b) {
@@ -5083,7 +5140,8 @@ body.is-offline .offline-chip { display: inline-flex; }
   function exportDocs(btn) {
     btn.disabled = true;
     btn.textContent = 'Reuniendo documentos…';
-    docsAll().then(function (list) {
+    Promise.all([repoDocs(), docsAll().catch(function () { return []; })]).then(function (both) {
+      var list = (both[0] || []).concat(both[1] || []);
       if (!list.length) {
         btn.disabled = false; btn.textContent = 'Exportar mis documentos (.zip)';
         alert('Todavía no has guardado ningún documento.');
@@ -5092,9 +5150,11 @@ body.is-offline .offline-chip { display: inline-flex; }
       var out = [], used = {}, chain = Promise.resolve();
       list.forEach(function (d) {
         chain = chain.then(function () {
-          return d.blob.arrayBuffer().then(function (buf) {
-            var base = (d.title || d.name).replace(/[\/\\?%*:|"<>]/g, '-').slice(0, 60);
-            var ext = (d.name.match(/\.[^.]+$/) || [''])[0];
+          var src = d.repo ? fetch(d.url).then(function (r) { return r.arrayBuffer(); })
+                           : d.blob.arrayBuffer();
+          return src.then(function (buf) {
+            var base = (d.title || d.name || d.file).replace(/[\/\\?%*:|"<>]/g, '-').slice(0, 60);
+            var ext = ((d.name || d.file || '').match(/\.[^.]+$/) || [''])[0];
             if (base.slice(-ext.length) === ext) base = base.slice(0, -ext.length);
             var n = base + ext;
             used[n] = (used[n] || 0) + 1;
