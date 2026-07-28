@@ -648,6 +648,19 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .doc-card__name { font-weight: 600; font-size: 14px; word-break: break-word; }
 .doc-card__meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
 .doc-card__acts { display: flex; gap: 4px; flex-shrink: 0; }
+.day-docs { margin-top: 24px; }
+.day-docs__label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-muted); margin-bottom: 8px; }
+.day-doc { display: flex; align-items: center; gap: 11px; background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 11px 13px; margin-bottom: 7px; text-decoration: none; color: inherit; width: 100%;
+  font: inherit; text-align: left; cursor: pointer; }
+.day-doc:hover { border-color: var(--accent); }
+.day-doc__icon { font-size: 19px; flex-shrink: 0; }
+.day-doc__name { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; word-break: break-word; }
+.day-doc__go { color: var(--text-muted); font-size: 15px; flex-shrink: 0; }
+.doc-card__acts a.doc-card__open { display:inline-grid; place-items:center; text-decoration:none;
+  color:var(--accent); font-size:16px; padding:5px 8px; border-radius:8px; }
+.doc-card__acts a.doc-card__open:hover { background:rgba(127,127,127,0.14); }
 .doc-card__acts button { border: 0; background: transparent; cursor: pointer; font-size: 16px;
   padding: 5px 6px; border-radius: 8px; line-height: 1; }
 .doc-card__acts button:hover { background: rgba(127,127,127,0.14); }
@@ -3913,6 +3926,8 @@ body.is-offline .offline-chip { display: inline-flex; }
       ${altHTML}
       ${infoHTML}
 
+      <div id="day-docs"></div>
+
       <div class="day-notes">
         <div class="day-notes__label">📝 Tus notas del día</div>
         <textarea class="day-notes__textarea" id="note-input" placeholder="Impresiones, notas importantes, gastos del día…">${esc(noteVal)}</textarea>
@@ -3930,6 +3945,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     });
 
     initPlacePhotos(el('#page-day'));
+    renderDayDocs(d.day);
 
     el('#header-title').textContent = `Día ${d.day} · ${d.title}`;
   }
@@ -4309,7 +4325,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       });
     });
     urls.push(DOCS_DIR + 'index.json');
-    (__repoDocs || []).forEach(function (d) { urls.push(d.url); });
+    (__repoDocs || []).forEach(function (d) { if (!d.link) urls.push(d.url); });
     var ch = new MessageChannel();
     bar.classList.add('on');
     btn.disabled = true;
@@ -4875,6 +4891,33 @@ body.is-offline .offline-chip { display: inline-flex; }
   })();
 
 
+  // Documentos y enlaces asignados a un día concreto, al final de su ficha.
+  function renderDayDocs(dayNum) {
+    var slot = document.getElementById('day-docs');
+    if (!slot) return;
+    Promise.all([repoDocs(), docsAll().catch(function () { return []; })]).then(function (both) {
+      var all = (both[0] || []).concat(both[1] || []);
+      var mine = all.filter(function (d) { return String(d.day) === String(dayNum); });
+      if (!mine.length) { slot.innerHTML = ''; return; }
+      var byId = {};
+      mine.forEach(function (d) { byId[d.id] = d; });
+      slot.innerHTML = '<div class="day-docs"><div class="day-docs__label">📎 Documentos de este día</div>' +
+        mine.map(function (d) {
+          var name = esc(d.title || d.name || d.file);
+          return d.link
+            ? '<a class="day-doc" href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">' +
+              '<span class="day-doc__icon">🔗</span><span class="day-doc__name">' + name +
+              '</span><span class="day-doc__go">↗</span></a>'
+            : '<button class="day-doc" data-daydoc="' + d.id + '">' +
+              '<span class="day-doc__icon">' + docIcon(d.type) + '</span><span class="day-doc__name">' + name +
+              '</span><span class="day-doc__go">›</span></button>';
+        }).join('') + '</div>';
+      slot.querySelectorAll('[data-daydoc]').forEach(function (b) {
+        b.addEventListener('click', function () { openDocViewer(byId[b.dataset.daydoc]); });
+      });
+    }).catch(function () { slot.innerHTML = ''; });
+  }
+
   // --- DOCUMENTOS COMPARTIDOS DEL REPOSITORIO ----------------
   // Se declaran en documentos/index.json, junto a los propios archivos.
   // Son PÚBLICOS: cualquiera con el enlace de la guía puede abrirlos, así que
@@ -4892,18 +4935,24 @@ body.is-offline .offline-chip { display: inline-flex; }
         if (j) {
           var arr = Array.isArray(j) ? j : (j.documentos || j.documents || []);
           arr.forEach(function (d, i) {
-            if (!d || !d.archivo) return;
+            if (!d) return;
+            // Dos formas: un archivo subido al repositorio, o un enlace externo
+            var isLink = !d.archivo && (d.enlace || d.url);
+            if (!d.archivo && !isLink) return;
+            var href = isLink ? (d.enlace || d.url) : DOCS_DIR + d.archivo;
             list.push({
               id: 'repo-' + i,
               repo: true,
-              file: d.archivo,
-              url: DOCS_DIR + d.archivo,
-              title: d.titulo || d.archivo,
+              link: isLink,
+              file: d.archivo || '',
+              url: href,
+              title: d.titulo || d.archivo || href,
               kind: d.tipo || 'otro',
               day: d.dia || d.day || null,
               key: !!(d.imprescindible || d.key),
-              type: /\.pdf$/i.test(d.archivo) ? 'application/pdf'
-                  : (/\.(png|jpe?g|webp)$/i.test(d.archivo) ? 'image/*' : ''),
+              type: isLink ? 'link'
+                  : (/\.pdf$/i.test(d.archivo) ? 'application/pdf'
+                  : (/\.(png|jpe?g|webp)$/i.test(d.archivo) ? 'image/*' : '')),
               size: null,
               ts: i
             });
@@ -4925,6 +4974,8 @@ body.is-offline .offline-chip { display: inline-flex; }
     { k: 'entrada',   l: 'Entrada o bono' },
     { k: 'transporte',l: 'Transporte' },
     { k: 'seguro',    l: 'Seguro' },
+    { k: 'mapa',      l: 'Plano o mapa' },
+    { k: 'ruta',      l: 'Ruta' },
     { k: 'otro',      l: 'Otro' }
   ];
 
@@ -4966,6 +5017,7 @@ body.is-offline .offline-chip { display: inline-flex; }
   }
 
   function docIcon(type) {
+    if (type === 'link') return '🔗';
     if (/pdf/.test(type)) return '📄';
     if (/^image\//.test(type)) return '🖼️';
     return '📎';
@@ -5072,15 +5124,18 @@ body.is-offline .offline-chip { display: inline-flex; }
   function docCardHTML(d) {
     var kind = DOC_KINDS.filter(function (k) { return k.k === d.kind; })[0];
     var meta = (kind ? esc(kind.l) : '') +
-      (d.repo ? (kind ? ' · ' : '') + '🌐 compartido'
+      (d.link ? (kind ? ' · ' : '') + 'Enlace externo'
+              : d.repo ? (kind ? ' · ' : '') + '🌐 compartido'
               : (d.size != null ? (kind ? ' · ' : '') + fileSize(d.size) + ' · 📱 solo en este móvil' : ''));
     return '<div class="doc-card' + (d.key ? ' doc-card--key' : '') + '">' +
       '<span class="doc-card__icon">' + docIcon(d.type) + '</span>' +
       '<div class="doc-card__body"><div class="doc-card__name">' + esc(d.title || d.name) + '</div>' +
       '<div class="doc-card__meta">' + meta + '</div></div>' +
       '<div class="doc-card__acts">' +
-        '<button data-doc-view="' + d.id + '" aria-label="Ver">👁</button>' +
-        '<button data-doc-dl="' + d.id + '" aria-label="Descargar">⬇</button>' +
+        (d.link
+          ? '<a class="doc-card__open" href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer" aria-label="Abrir enlace">↗</a>'
+          : '<button data-doc-view="' + d.id + '" aria-label="Ver">👁</button>' +
+            '<button data-doc-dl="' + d.id + '" aria-label="Descargar">⬇</button>') +
         (d.repo ? '' : '<button data-doc-del="' + d.id + '" aria-label="Eliminar">✕</button>') +
       '</div></div>';
   }
@@ -5148,6 +5203,12 @@ body.is-offline .offline-chip { display: inline-flex; }
         return;
       }
       var out = [], used = {}, chain = Promise.resolve();
+      list = list.filter(function (d) { return !d.link; });   // un enlace no se empaqueta
+      if (!list.length) {
+        btn.disabled = false; btn.textContent = 'Exportar mis documentos (.zip)';
+        alert('Solo hay enlaces externos, que no se pueden guardar en un zip.');
+        return;
+      }
       list.forEach(function (d) {
         chain = chain.then(function () {
           var src = d.repo ? fetch(d.url).then(function (r) { return r.arrayBuffer(); })
