@@ -44,11 +44,6 @@
   .count { font-family:Georgia,serif; font-size:15px; font-weight:700; margin-right:auto; }
   .count b { color:var(--accent); font-size:20px; }
 
-.link-add { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:20px; }
-  .link-add__title { font-size:13.5px; font-weight:700; margin-bottom:10px; }
-  .link-add__row { display:grid; grid-template-columns:1.3fr 1fr auto; gap:8px; }
-  @media (max-width:620px){ .link-add__row { grid-template-columns:1fr; } }
-  .link-add__hint { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.5; }
   .doc { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
   .doc.is-key { border-left:4px solid var(--accent); }
   .doc__head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
@@ -98,25 +93,27 @@
     <input type="file" id="file-input" multiple style="display:none">
   </div>
 
-  <div class="link-add">
-    <div class="link-add__title">🔗 O añade un enlace externo</div>
-    <div class="link-add__row">
-      <input type="text" id="link-url" placeholder="https://www.auronzo.info/…">
-      <input type="text" id="link-title" placeholder="Nombre que verá el viajero">
-      <button class="btn-ghost" id="link-btn">Añadir enlace</button>
-    </div>
-    <div class="link-add__hint">Para webs de reservas, partes meteorológicos, horarios online o mapas de Komoot. Se abren en el navegador; no se descargan.</div>
-  </div>
-
   <div class="bar-actions">
     <div class="count"><b id="n">0</b> <span id="nlabel">documentos</span></div>
     <button class="btn-ghost" id="load-btn">Cargar guía (para los días)</button>
+    <button class="btn-ghost" id="index-btn">Cargar index.json existente</button>
+    <button class="btn-ghost" id="link-btn">Añadir enlace</button>
     <button class="btn-ghost" id="json-btn" disabled>Descargar solo index.json</button>
     <button class="btn-primary" id="zip-btn" disabled>Descargar documentos.zip</button>
     <input type="file" id="guide-input" accept=".html,text/html">
+    <input type="file" id="index-input" accept=".json,application/json">
   </div>
 
   <div id="list"></div>
+
+  <div class="note" id="ref-note" style="display:none">
+    <h2>Sobre los documentos que ya estaban</h2>
+    <p style="margin:0 0 8px">Los que aparecen con borde discontinuo vienen del <code>index.json</code> que has cargado
+    y <strong>ya están subidos al repositorio</strong>: el zip no los incluye, porque no hace falta volver a subirlos.
+    Lo que sí se regenera entero es el <code>index.json</code>, con los antiguos y los nuevos juntos.</p>
+    <p style="margin:0">Al descomprimir el zip sobre la carpeta <code>documentos/</code> del repositorio, se añaden los
+    archivos nuevos y se sobrescribe el índice. Los anteriores se quedan donde están.</p>
+  </div>
 
   <div class="note">
     <h2>Qué hacer después</h2>
@@ -131,11 +128,10 @@
     ├── index.json
     └── mapa-tre-cime.pdf</div>
     <ul>
-      <li>Si más adelante añades documentos, vuelve a pasar por aquí: el <code>index.json</code> debe listarlos todos, así que hay que regenerarlo entero.</li>
+      <li>Si más adelante añades documentos, vuelve por aquí y pulsa <em>Cargar index.json existente</em> antes de arrastrar los nuevos: así el índice sale completo, con los antiguos y los nuevos, y el zip trae solo los archivos que faltan por subir.</li>
+      <li><em>Añadir enlace</em> sirve para lo que no es un archivo: webcams de los remontes, vídeos, páginas de reserva o partes en tiempo real. Se guardan en el índice como <code>enlace</code> y en la guía se abren en el navegador. Es lo suyo para los tipos <strong>Vídeo</strong> y <strong>Web</strong>, porque un vídeo pesa demasiado para el repositorio y una web no es un archivo.</li>
       <li>Pulsa <em>Cargar guía</em> y selecciona su <code>index.html</code> para poder asignar cada documento a un día concreto del viaje.</li>
       <li>Los nombres se limpian solos (sin acentos, espacios ni mayúsculas) porque GitHub Pages distingue mayúsculas y los espacios dan problemas en las URL.</li>
-      <li>Los enlaces externos no van dentro del zip: se guardan en el <code>index.json</code> y la guía los abre en el navegador. Si solo añades enlaces, descarga el <code>index.json</code> con el otro botón.</li>
-      <li>Todo lo que asignes a un día aparecerá también dentro de ese día en la guía, al final, justo antes de las notas.</li>
     </ul>
   </div>
 </div>
@@ -151,11 +147,26 @@
     { k:'transporte', l:'Transporte' },
     { k:'entrada', l:'Entrada o bono' },
     { k:'reserva', l:'Reserva' },
-    { k:'seguro', l:'Seguro' }
+    { k:'seguro', l:'Seguro' },
+    { k:'video', l:'Vídeo' },
+    { k:'web', l:'Web' }
   ];
+  // Vídeo y Web casi siempre son enlaces externos: un vídeo no se sube al
+  // repositorio (pesa demasiado) y una web no es un archivo. Por eso la
+  // herramienta admite entradas de tipo enlace, sin fichero asociado.
+  var LINK_KINDS = { video:1, web:1 };
+  var CSS_REF = '.doc.is-ref { border-style: dashed; opacity: 0.92; }' +
+    '.doc.is-ref .doc__file { font-style: italic; }' +
+    '.doc__size { white-space: nowrap; }';
+  (function(){ var s = document.createElement('style'); s.textContent = CSS_REF; document.head.appendChild(s); })();
+
   var RISKY = /(billete|bono|reserva|entrada|ticket|boarding|tarjeta.?embarque|seguro|poliza|póliza|dni|pasaporte|passport|voucher|localizador)/i;
 
-  var docs = [];      // { file, name, title, kind, day, key }
+  // Tres clases de entrada, distinguidas por que campo llevan:
+  //   nuevo     -> file (va al zip y al index.json)
+  //   ya subido -> from:'index' (solo al index.json; el archivo ya esta en el repo)
+  //   enlace    -> url (solo al index.json)
+  var docs = [];      // { file?, url?, from?, name, title, kind, day, key }
   var DAYS = [];
   var destino = '';
 
@@ -168,8 +179,10 @@
     return (n/1048576).toFixed(1).replace('.',',') + ' MB';
   }
   function icon(d){
-    if (d.link) return '🔗';
-    var name = d.name || '';
+    if (d && d.kind === 'video') return '🎬';
+    if (d && d.kind === 'web') return '🌍';
+    var name = (d && d.name) || '';
+    if (d && d.url) return '🔗';
     if (/\.pdf$/i.test(name)) return '📄';
     if (/\.(png|jpe?g|webp|gif)$/i.test(name)) return '🖼️';
     return '📎';
@@ -183,12 +196,12 @@
     return base + ext;
   }
   function uniqueName(name, idx){
-    var taken = docs.filter(function(d,i){ return i !== idx && d.name === name; });
+    var taken = docs.filter(function(d,i){ return i !== idx && !d.url && d.name === name; });
     if (!taken.length) return name;
     var ext = (name.match(/\.[^.]+$/) || [''])[0];
     var base = name.slice(0, name.length - ext.length);
     var n = 2;
-    while (docs.filter(function(d,i){ return i !== idx && d.name === base + '-' + n + ext; }).length) n++;
+    while (docs.filter(function(d,i){ return i !== idx && !d.url && d.name === base + '-' + n + ext; }).length) n++;
     return base + '-' + n + ext;
   }
 
@@ -243,8 +256,8 @@
   function buildIndex(){
     return JSON.stringify({
       documentos: docs.map(function(d){
-        var o = d.link ? { enlace: d.url, titulo: d.title }
-                       : { archivo: d.name, titulo: d.title };
+        var o = d.url ? { enlace: d.url, titulo: d.title }
+                      : { archivo: d.name, titulo: d.title };
         if (d.kind && d.kind !== 'otro') o.tipo = d.kind;
         if (d.day) o.dia = +d.day;
         if (d.key) o.imprescindible = true;
@@ -260,6 +273,7 @@
       list.innerHTML = '';
       $('#n').textContent = '0';
       $('#nlabel').textContent = 'documentos';
+      $('#ref-note').style.display = 'none';
       $('#zip-btn').disabled = true;
       $('#json-btn').disabled = true;
       return;
@@ -268,10 +282,15 @@
       var dayOpts = '<option value="">Sin día</option>' + DAYS.map(function(x){
         return '<option value="'+x.day+'"'+(String(d.day)===String(x.day)?' selected':'')+'>Día '+x.day+(x.label?' · '+esc(x.label):'')+'</option>';
       }).join('');
-      return '<div class="doc'+(d.key?' is-key':'')+'">'+
+      var etiqueta = d.url ? esc(d.url)
+                           : 'documentos/'+esc(d.name);
+      var derecha  = d.url  ? 'enlace'
+                   : d.file ? kb(d.file.size)
+                            : 'ya en el repositorio';
+      return '<div class="doc'+(d.key?' is-key':'')+(d.file?'':' is-ref')+'">'+
         '<div class="doc__head"><span class="doc__icon">'+icon(d)+'</span>'+
-          '<span class="doc__file">'+(d.link ? esc(d.url) : 'documentos/'+esc(d.name))+'</span>'+
-          '<span class="doc__size">'+(d.link ? 'enlace' : kb(d.file.size))+'</span></div>'+
+          '<span class="doc__file">'+etiqueta+'</span>'+
+          '<span class="doc__size">'+derecha+'</span></div>'+
         '<div class="doc__grid">'+
           '<div><label>Título</label><input type="text" data-f="title" data-i="'+i+'" value="'+esc(d.title)+'"></div>'+
           '<div><label>Tipo</label><select data-f="kind" data-i="'+i+'">'+
@@ -284,17 +303,19 @@
             '<input type="checkbox" data-f="key" data-i="'+i+'"'+(d.key?' checked':'')+'> Imprescindible</label>'+
           '<button class="btn-ghost btn-mini doc__rm" data-rm="'+i+'">Quitar</button>'+
         '</div>'+
-        (RISKY.test(d.title) || RISKY.test(d.link ? d.url : d.file.name)
+        (RISKY.test(d.title) || RISKY.test(d.file ? d.file.name : d.name)
           ? '<div class="doc__warn">⚠️ El nombre sugiere que puede ser un documento personal. Si lleva tu nombre o un localizador, no lo subas al repositorio: guárdalo desde el móvil en la pestaña Documentos de la guía.</div>'
           : '')+
       '</div>';
     }).join('');
-    var nf = docs.filter(function(d){ return !d.link; }).length;
-    var nl = docs.length - nf;
+    var nuevos = docs.filter(function(d){ return d.file; }).length;
+    var yaHay  = docs.length - nuevos;
     $('#n').textContent = docs.length;
-    $('#nlabel').textContent = (docs.length === 1 ? 'elemento' : 'elementos') +
-      (nl ? ' (' + nf + (nf === 1 ? ' archivo' : ' archivos') + ' y ' + nl + (nl === 1 ? ' enlace' : ' enlaces') + ')' : '');
-    $('#zip-btn').disabled = false;
+    $('#nlabel').textContent = (docs.length === 1 ? 'documento' : 'documentos') +
+      (yaHay ? ' (' + nuevos + ' por subir, ' + yaHay + ' ya publicados)' : '');
+    $('#ref-note').style.display = yaHay ? '' : 'none';
+    $('#zip-btn').disabled = !nuevos;
+    $('#zip-btn').title = nuevos ? '' : 'No hay archivos nuevos que subir. Descarga solo el index.json.';
     $('#json-btn').disabled = false;
   }
 
@@ -307,17 +328,6 @@
     });
     render();
   }
-
-  $('#link-btn').addEventListener('click', function(){
-    var u = $('#link-url').value.trim();
-    var t = $('#link-title').value.trim();
-    if (!u) { alert('Escribe la dirección del enlace.'); return; }
-    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
-    docs.push({ link:true, url:u, name:'', title: t || u.replace(/^https?:\/\//,'').split('/')[0],
-                kind:'otro', day:'', key:false, file:{ size:0 } });
-    $('#link-url').value = ''; $('#link-title').value = '';
-    render();
-  });
 
   $('#pick').addEventListener('click', function(){ $('#file-input').click(); });
   $('#file-input').addEventListener('change', function(e){ addFiles(e.target.files); e.target.value=''; });
@@ -361,7 +371,10 @@
     btn.disabled = true; btn.textContent = 'Preparando…';
     var entries = [{ name:'documentos/index.json', u8:new TextEncoder().encode(buildIndex()) }];
     var chain = Promise.resolve();
-    docs.filter(function(d){ return !d.link; }).forEach(function(d){
+    // Solo entran los archivos que se han añadido en esta sesión. Los que ya
+    // estaban en el repositorio siguen ahí y no hay que volver a subirlos; el
+    // index.json, en cambio, se regenera entero con todos.
+    docs.filter(function(d){ return d.file; }).forEach(function(d){
       chain = chain.then(function(){
         return d.file.arrayBuffer().then(function(buf){
           entries.push({ name:'documentos/'+d.name, u8:new Uint8Array(buf) });
@@ -373,6 +386,62 @@
       btn.textContent = 'Descargar documentos.zip';
       btn.disabled = false;
     });
+  });
+
+  // ---------- cargar un index.json ya existente ----------
+  // Permite añadir documentos a una carpeta que ya está publicada sin perder
+  // los que había: se cargan como referencias y el índice se regenera entero.
+  $('#index-btn').addEventListener('click', function(){ $('#index-input').click(); });
+  $('#index-input').addEventListener('change', function(e){
+    var f = e.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      var j;
+      try { j = JSON.parse(String(r.result)); }
+      catch (err) { alert('Ese archivo no es un JSON válido.'); return; }
+      var lista = j && j.documentos;
+      if (!Array.isArray(lista)) {
+        alert('El JSON no tiene una lista "documentos". ¿Seguro que es el index.json de una guía?');
+        return;
+      }
+      var añadidos = 0, repetidos = 0;
+      lista.forEach(function(o){
+        if (!o || (!o.archivo && !o.enlace)) return;
+        var yaEsta = docs.some(function(d){
+          return o.enlace ? d.url === o.enlace : (!d.url && d.name === o.archivo);
+        });
+        if (yaEsta) { repetidos++; return; }
+        docs.push({
+          from: 'index',
+          url:   o.enlace || null,
+          name:  o.archivo || '',
+          title: o.titulo || (o.archivo || o.enlace || '').replace(/\.[^.]+$/,''),
+          kind:  o.tipo || 'otro',
+          day:   o.dia != null ? String(o.dia) : '',
+          key:   !!o.imprescindible
+        });
+        añadidos++;
+      });
+      render();
+      alert('Índice cargado: ' + añadidos + (añadidos === 1 ? ' documento' : ' documentos') +
+            ' ya publicados' + (repetidos ? ' (' + repetidos + ' estaban repetidos y se han omitido)' : '') +
+            '.\n\nAhora puedes añadir los nuevos. El zip traerá solo los nuevos y el index.json completo.');
+    };
+    r.readAsText(f);
+    e.target.value = '';
+  });
+
+  // ---------- añadir un enlace externo ----------
+  $('#link-btn').addEventListener('click', function(){
+    var url = prompt('Dirección del enlace (webcam, vídeo, página de reserva…):', 'https://');
+    if (!url) return;
+    url = url.trim();
+    if (!/^https?:\/\//i.test(url)) { alert('El enlace debe empezar por http:// o https://'); return; }
+    if (docs.some(function(d){ return d.url === url; })) { alert('Ese enlace ya está en la lista.'); return; }
+    var titulo = prompt('Título del enlace:', '') || url.replace(/^https?:\/\//,'').split('/')[0];
+    docs.push({ url:url, name:'', title:titulo.trim(), kind:'web', day:'', key:false });
+    render();
   });
 
   $('#load-btn').addEventListener('click', function(){ $('#guide-input').click(); });
