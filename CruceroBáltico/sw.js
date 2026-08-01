@@ -3,12 +3,18 @@
    repositorio y los tiles del mapa que se hayan visitado.
    Sube este archivo junto al index.html, en la misma carpeta. */
 
-var CACHE = 'guia-v1';
+var CACHE = 'guia-v2';
 var CORE = ['./', './index.html'];
 var TILE_LIMIT = 700;
 
 function isLiveData(url) {
   return /open-meteo\.com|er-api\.com|exchangerate/.test(url);
+}
+/* Índices que el autor actualiza: deben pedirse siempre a la red primero.
+   Con caché primero, subir documentos nuevos al repositorio no servía de nada:
+   el navegador seguía mostrando el index.json que ya tenía guardado. */
+function isIndex(url) {
+  return /\/documentos\/index\.json(\?|$)/.test(url);
 }
 function isTile(url) {
   return /tile\.openstreetmap\.org|tile\.opentopomap\.org|basemaps\.cartocdn\.com/.test(url);
@@ -74,13 +80,20 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
-  /* La página: red primero para recoger actualizaciones, caché si no hay cobertura. */
-  if (req.mode === 'navigate') {
+  /* La página y el índice de documentos: red primero para recoger
+     actualizaciones, caché si no hay cobertura. */
+  if (req.mode === 'navigate' || isIndex(url)) {
     e.respondWith(
       fetch(req).then(function (r) { return putInCache(req, r); })
                 .catch(function () {
                   return caches.match(req).then(function (m) {
-                    return m || caches.match('./index.html') || caches.match('./');
+                    if (m) return m;
+                    if (isIndex(url)) {
+                      // Sin cobertura y sin copia: lista vacía en vez de romper
+                      return new Response('{"documentos":[]}',
+                        { headers: { 'Content-Type': 'application/json' } });
+                    }
+                    return caches.match('./index.html') || caches.match('./');
                   });
                 })
     );
