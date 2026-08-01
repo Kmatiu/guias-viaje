@@ -490,13 +490,33 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   font-size: 14px;
   box-shadow: var(--shadow-sm);
 }
-.tl-item__head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.tl-item__head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; align-items: center; }
+.tl-item__when { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; min-width: 0; }
 .tl-item__time {
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 700;
   color: var(--accent);
   letter-spacing: 0.02em;
+}
+/* Chip de duracion: cuanto dura la parada o cuanto se tarda en el trayecto */
+.tl-item__dur {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11.5px; font-weight: 600; line-height: 1;
+  padding: 3px 8px; border-radius: 999px;
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+.tl-item__dur--move {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 34%, transparent);
+}
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  .tl-item__dur { background: rgba(128,128,128,0.12); }
+  .tl-item__dur--move { background: rgba(128,128,128,0.18); }
 }
 .tl-item__check {
   width: 22px;
@@ -618,7 +638,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   .pr-meta { font-size: 9pt; color: #444; margin-bottom: 8px; }
   .pr-tl { margin: 0 0 4px; padding-left: 0; list-style: none; }
   .pr-tl li { margin-bottom: 5px; padding-left: 16mm; text-indent: -16mm; break-inside: avoid; }
-  .pr-tl .pr-time { display: inline-block; width: 14mm; font-weight: 700; }
+  .pr-tl .pr-dur { color: #555; font-size: 10.5px; font-weight: 600; }
+.pr-time { display: inline-block; width: 14mm; font-weight: 700; }
   .pr-place { border-left: 2pt solid #000; padding-left: 8px; margin-bottom: 10px; break-inside: avoid; }
   .pr-kv { font-size: 9.5pt; color: #222; margin: 1px 0; }
   .pr-notes { border: 1pt dashed #000; padding: 8px 10px; margin-top: 8px; break-inside: avoid; }
@@ -706,6 +727,27 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .ics-sheet input:focus { border-color: var(--accent); outline: none; }
 .ics-sheet__row { display: flex; gap: 8px; margin-top: 16px; }
 .ics-sheet__row .btn { flex: 1; }
+/* Filtro de dias: fila de chips bajo el mapa. Se usan chips en lugar de un
+   boton que rote entre estados porque con siete dias harian falta hasta ocho
+   toques para llegar al ultimo, y asi se ve de un vistazo cual esta activo. */
+.map-days {
+  position: absolute; left: 10px; right: 10px; bottom: 8px; z-index: 500;
+  display: flex; gap: 6px; overflow-x: auto; padding: 6px;
+  border-radius: 999px; background: var(--bg-card);
+  border: 1px solid var(--line); box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.map-days::-webkit-scrollbar { display: none; }
+.map-days button {
+  flex: 0 0 auto; border: 1px solid var(--line); background: transparent;
+  color: var(--text-muted); font-size: 12px; font-weight: 700;
+  padding: 5px 11px; border-radius: 999px; cursor: pointer; line-height: 1;
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.map-days__dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+.map-days button.is-on { color: #fff; border-color: transparent; }
+.map-days button.is-on .map-days__dot { background: rgba(255,255,255,0.92) !important; }
 .map-toggle { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex;
   background: var(--bg-card); border: 1px solid var(--line); border-radius: 999px; padding: 3px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
@@ -740,6 +782,7 @@ body.is-offline .offline-chip { display: inline-flex; }
 .place-photos { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
 .place-photos__head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .place-photos__label { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.place-photos__legend { font-size: 10.5px; color: var(--text-muted); opacity: 0.75; letter-spacing: 0.04em; cursor: help; }
 .place-photos__status { font-size: 11.5px; color: var(--text-muted); margin-left: auto; }
 .place-photos__add { cursor: pointer; margin-left: auto; }
 .place-photos__status:not(:empty) + .place-photos__add { margin-left: 8px; }
@@ -763,11 +806,34 @@ body.is-offline .offline-chip { display: inline-flex; }
 .photo-list__row code { font-size: 11.5px; word-break: break-all; }
 .photo-list__name { margin-left: auto; color: var(--text-muted); font-size: 11px; text-align: right; flex-shrink: 1; }
 .photo-lightbox { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.93); display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 14px; padding: 16px; }
+  align-items: center; justify-content: center; gap: 14px; padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
 .photo-lightbox img { max-width: 100%; max-height: 76vh; border-radius: 10px; }
 .photo-lightbox__bar { display: flex; gap: 10px; }
 .photo-lightbox__btn { padding: 9px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.32);
   background: rgba(255,255,255,0.14); color: #fff; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+/* --- Carrusel: varias fotos del mismo lugar se pasan sin cerrar --- */
+.photo-lightbox__stage { position: relative; display: flex; align-items: center; justify-content: center;
+  width: 100%; max-width: 900px; touch-action: pan-y; }
+.photo-lightbox__stage img { user-select: none; -webkit-user-drag: none; }
+.photo-lightbox__nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.30); background: rgba(0,0,0,0.48);
+  color: #fff; font-size: 26px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.photo-lightbox__nav:hover { background: rgba(255,255,255,0.22); }
+.photo-lightbox__nav--prev { left: 6px; padding-right: 3px; }
+.photo-lightbox__nav--next { right: 6px; padding-left: 3px; }
+.photo-lightbox__count { color: rgba(255,255,255,0.82); font-size: 12.5px; font-weight: 600; letter-spacing: 0.04em; }
+.photo-lightbox__dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 70vw; }
+.photo-lightbox__dot { width: 7px; height: 7px; border-radius: 50%; border: 0; padding: 0; cursor: pointer;
+  background: rgba(255,255,255,0.34); }
+.photo-lightbox__dot.is-on { background: #fff; transform: scale(1.28); }
+.place-photo__n { position: absolute; left: 5px; bottom: 5px; font-size: 10px; font-weight: 700;
+  padding: 1px 6px; border-radius: 999px; background: rgba(0,0,0,0.55); color: #fff; letter-spacing: 0.03em; }
 .day-notes { margin-top: 24px; background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
 .day-notes__label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; }
 .day-notes__textarea {
@@ -808,24 +874,19 @@ body.is-offline .offline-chip { display: inline-flex; }
 /* =========================================================
    MAPA
    ========================================================= */
-#map-container { position: relative; height: calc(100dvh - var(--tabbar-height) - var(--safe-bottom) - var(--safe-top) - 120px); min-height: 300px; max-height: 700px; margin: 0 -20px; border-radius: 0; }
+#map-container { padding-bottom: 46px; position: relative; height: calc(100dvh - var(--tabbar-height) - var(--safe-bottom) - var(--safe-top) - 210px); min-height: 300px; max-height: 640px; margin: 0 -20px; border-radius: 0; }
 @supports not (height: 100dvh) {
-  #map-container { height: calc(100vh - var(--tabbar-height) - var(--safe-bottom) - 140px); }
+  #map-container { height: calc(100vh - var(--tabbar-height) - var(--safe-bottom) - 230px); }
 }
 #map { height: 100%; width: 100%; }
 .map-legend {
-  position: absolute;
-  bottom: 14px;
-  left: 14px;
-  right: 14px;
-  z-index: 500;
-  background: color-mix(in srgb, var(--bg-card) 95%, transparent);
-  backdrop-filter: blur(8px);
+  margin: 12px 0 0;
+  background: var(--bg-card);
   border-radius: var(--radius);
-  padding: 10px 12px;
+  padding: 11px 13px;
   font-size: 12px;
+  line-height: 1.55;
   color: var(--text-soft);
-  box-shadow: var(--shadow);
   border: 1px solid var(--line);
 }
 .leaflet-popup-content-wrapper { border-radius: var(--radius) !important; }
@@ -1051,6 +1112,7 @@ body.is-offline .offline-chip { display: inline-flex; }
 .weather-day__icon { font-size: 26px; margin: 4px 0; }
 .weather-day__temp { font-family: var(--font-display); font-size: 14px; font-weight: 700; }
 .weather-day__temp-min { color: var(--text-muted); font-weight: 400; }
+.weather-day--hist { border-style: dashed; opacity: 0.82; }
 
 /* =========================================================
    MODAL DE BÚSQUEDA
@@ -1148,8 +1210,8 @@ body.is-offline .offline-chip { display: inline-flex; }
   <h2 class="section-title" style="margin-top:0">Mapa del viaje</h2>
   <div id="map-container">
     <div id="map"></div>
-    <div class="map-legend">Toca un marcador para ver detalles. Los números indican el día de visita.</div>
   </div>
+  <div class="map-legend">Las líneas unen las paradas de cada día en el orden del itinerario. Son trazos rectos, no rutas de carretera: sirven para leer la forma del día, no para navegar. Con «Todos» se ven discontinuas y numeradas por día. Al elegir un día concreto pasan a continuas y los números indican el orden de las paradas. El 🛏 marca el alojamiento del que se sale esa mañana y el ✈️, el punto donde termina el viaje.</div>
 </main>
 
 <!-- CONSEJOS -->
@@ -1286,30 +1348,36 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "icon": "🏡",
-        "title": "Base en el Comelico",
-        "text": "El B&B Il Sogno, en Località Mas entre San Pietro y Santo Stefano di Cadore, no sale en ninguna guía: valle tranquilo, 4,7 de valoración y 337,60 € por cuatro noches. A 50 min del Sorapis, 1 h 35 min de las Tre Cime y 1 h 30 min de las Cinque Torri. La alternativa sensata a dormir en Cortina."
+        "title": "Dos bases, cada una con su ficha",
+        "text": "El apartamento de Bolzano las dos primeras noches (231 €) y el B&B Il Sogno, en el Comelico, las cuatro siguientes (337,60 €). Los dos están en el mapa y en su día, con la dirección a mano para llegar de noche."
       },
       {
         "icon": "🍺",
         "title": "Dos cocinas, una montaña",
         "text": "Knödel, Schlutzkrapfen y Gewürztraminer en Bolzano; polenta, casunziei y estofado de venado en el Comelico. El mismo macizo, dos tradiciones culinarias que no se parecen en nada."
+      },
+      {
+        "icon": "🔄",
+        "title": "Un círculo que empieza y acaba en Bérgamo",
+        "text": "Ida y vuelta por el mismo aeropuerto, así que el mapa se cierra sobre sí mismo: BGY, el Garda, el Alto Adigio, el Comelico y de nuevo BGY. El filtro por día deja ver cada jornada por separado."
       }
     ]
   },
   "overview_map": {
     "center": {
-      "lat": 46.35,
-      "lng": 11.75
+      "lat": 46.3,
+      "lng": 11.4
     },
     "zoom": 8,
     "markers": [
       {
         "day": 1,
-        "name": "Aeropuerto Milán-Bérgamo (BGY)",
+        "name": "Aeropuerto de Milán-Bérgamo (BGY)",
         "coords": {
           "lat": 45.669,
           "lng": 9.7074
-        }
+        },
+        "origin": true
       },
       {
         "day": 1,
@@ -1329,18 +1397,10 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 1,
-        "name": "Lago di Carezza",
+        "name": "Lago di Carezza (Karersee)",
         "coords": {
           "lat": 46.4092,
           "lng": 11.5751
-        }
-      },
-      {
-        "day": 1,
-        "name": "Bolzano (alojamiento)",
-        "coords": {
-          "lat": 46.4983,
-          "lng": 11.3552
         }
       },
       {
@@ -1352,8 +1412,25 @@ body.is-offline .offline-chip { display: inline-flex; }
         }
       },
       {
+        "day": 1,
+        "name": "Apartamento en Bolzano (AirBnB)",
+        "coords": {
+          "lat": 46.4983,
+          "lng": 11.3548
+        }
+      },
+      {
         "day": 2,
-        "name": "Parking Cristauta-Praplan",
+        "name": "Bolzano — alojamiento",
+        "coords": {
+          "lat": 46.4983,
+          "lng": 11.3548
+        },
+        "origin": true
+      },
+      {
+        "day": 2,
+        "name": "Parking Cristauta–Praplan (Santa Cristina)",
         "coords": {
           "lat": 46.5664,
           "lng": 11.7249
@@ -1369,7 +1446,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 2,
-        "name": "Chiesa di San Valentino",
+        "name": "Chiesa di San Valentino (Siusi allo Sciliar)",
         "coords": {
           "lat": 46.5497,
           "lng": 11.563
@@ -1377,15 +1454,32 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 2,
-        "name": "Alpe di Siusi – Compatsch P2",
+        "name": "Alpe di Siusi — Compatsch (P2)",
         "coords": {
           "lat": 46.5399,
           "lng": 11.6174
         }
       },
       {
+        "day": 2,
+        "name": "Bolzano — Piazza delle Erbe y centro histórico",
+        "coords": {
+          "lat": 46.4988,
+          "lng": 11.354
+        }
+      },
+      {
         "day": 3,
-        "name": "Parking Malga Zannes (P1)",
+        "name": "Bolzano — alojamiento",
+        "coords": {
+          "lat": 46.4988,
+          "lng": 11.354
+        },
+        "origin": true
+      },
+      {
+        "day": 3,
+        "name": "Parking Malga Zannes (P1) — Val di Funes",
         "coords": {
           "lat": 46.6354,
           "lng": 11.7637
@@ -1393,7 +1487,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 3,
-        "name": "Rifugio Odle (Geisleralm)",
+        "name": "Rifugio Odle / Geisleralm (1.996 m)",
         "coords": {
           "lat": 46.621,
           "lng": 11.7495
@@ -1409,7 +1503,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 3,
-        "name": "Chiesa di Santa Maddalena",
+        "name": "Chiesa di Santa Maddalena — mirador del Magdalenaweg",
         "coords": {
           "lat": 46.6447,
           "lng": 11.7194
@@ -1425,7 +1519,16 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 4,
-        "name": "Passo Tre Croci – inicio Sorapis",
+        "name": "B&B Il Sogno — alojamiento",
+        "coords": {
+          "lat": 46.563,
+          "lng": 12.5734
+        },
+        "origin": true
+      },
+      {
+        "day": 4,
+        "name": "Lago Sorapis (sendero 215, desde Passo Tre Croci)",
         "coords": {
           "lat": 46.5561,
           "lng": 12.1983
@@ -1441,7 +1544,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 4,
-        "name": "Lago di Dobbiaco",
+        "name": "Lago di Dobbiaco (Toblacher See)",
         "coords": {
           "lat": 46.703,
           "lng": 12.2193
@@ -1449,7 +1552,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 4,
-        "name": "Lago di Braies",
+        "name": "Lago di Braies (Pragser Wildsee)",
         "coords": {
           "lat": 46.6943,
           "lng": 12.0854
@@ -1457,7 +1560,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 5,
-        "name": "Passo Pordoi – Piz Boè",
+        "name": "Passo Pordoi (2.239 m) y Piz Boè (3.152 m)",
         "coords": {
           "lat": 46.4881,
           "lng": 11.8105
@@ -1473,18 +1576,18 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 6,
-        "name": "Rifugio Auronzo – Tre Cime",
+        "name": "Cadini di Misurina — mirador (sendero 117)",
         "coords": {
-          "lat": 46.6122,
-          "lng": 12.2962
+          "lat": 46.6009,
+          "lng": 12.2954
         }
       },
       {
         "day": 6,
-        "name": "Cadini di Misurina – mirador",
+        "name": "Tre Cime di Lavaredo — giro completo (senderos 101 y 105)",
         "coords": {
-          "lat": 46.6009,
-          "lng": 12.2954
+          "lat": 46.6122,
+          "lng": 12.2962
         }
       },
       {
@@ -1505,15 +1608,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 7,
-        "name": "Rifugio Col Gallina (parking)",
-        "coords": {
-          "lat": 46.5197,
-          "lng": 12.0173
-        }
-      },
-      {
-        "day": 7,
-        "name": "Cinque Torri",
+        "name": "Cinque Torri y Museo all'Aperto della Grande Guerra",
         "coords": {
           "lat": 46.5082,
           "lng": 12.0547
@@ -1521,11 +1616,20 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 7,
-        "name": "Passo Giau",
+        "name": "Passo Giau (2.233 m)",
         "coords": {
           "lat": 46.4831,
           "lng": 12.0542
         }
+      },
+      {
+        "day": 7,
+        "name": "Aeropuerto de Milán-Bérgamo (BGY)",
+        "coords": {
+          "lat": 45.669,
+          "lng": 9.7074
+        },
+        "finish": true
       }
     ]
   },
@@ -1535,21 +1639,21 @@ body.is-offline .offline-chip { display: inline-flex; }
       "date": "2027-06-23",
       "weekday": "miércoles",
       "title": "BGY → Punta San Vigilio → Madonna della Corona → Carezza → Bolzano",
-      "summary": "Llegada a Bérgamo a las 11:00 y coche a las 12:00. Punta San Vigilio (dron y comida), parada rápida de solo dron en el Santuario de la Madonna della Corona, Lago di Carezza y llegada al Decathlon de Bolzano a las 19:25 para comprar bastones antes de que cierre. 5 h 20 min de coche."
+      "summary": "Llegada a Bérgamo a las 11:00 y coche a las 12:00. Punta San Vigilio (dron y comida), parada rápida de solo dron en el Santuario de la Madonna della Corona, Lago di Carezza y Decathlon de Bolzano a las 19:25 para los bastones. Noche en el apartamento de Bolzano. 5 h 20 min de coche."
     },
     {
       "day": 2,
       "date": "2027-06-24",
       "weekday": "jueves",
       "title": "Seceda a pie desde Cristauta, San Valentino y Alpe di Siusi",
-      "summary": "Parking Cristauta a las 7:30 y subida a pie a Seceda (12,3 km, 900 m, 5 h). Chiesa di San Valentino con el Sciliar de fondo. Alpe di Siusi a partir de las 17:00 (única franja permitida) con la mejor toma de dron del día. 2 h 30 min de coche."
+      "summary": "Parking Cristauta a las 7:30 y subida a pie a Seceda (12,3 km, 900 m, 5 h). Chiesa di San Valentino con el Sciliar de fondo. Alpe di Siusi a partir de las 17:00, la única franja permitida, con la mejor toma de dron del día. Cierre en el centro de Bolzano. 2 h 30 min de coche."
     },
     {
       "day": 3,
       "date": "2027-06-25",
       "weekday": "viernes",
       "title": "Rifugio Odle, San Giovanni, Santa Maddalena → B&B Il Sogno",
-      "summary": "Checkout de Bolzano. Circular al Rifugio Odle por el Adolf Munkel Weg (2 h 30 min). Las dos iglesias más fotografiadas de la Val di Funes. Traslado de 2 h 25 min al B&B Il Sogno, en el Comelico. 3 h 50 min de coche."
+      "summary": "Checkout de Bolzano. Circular al Rifugio Odle por el Adolf Munkel Weg (2 h 30 min). Las dos iglesias más fotografiadas de la Val di Funes. Traslado de 2 h 25 min al B&B Il Sogno, en el Comelico, base de las cuatro noches siguientes. 3 h 50 min de coche."
     },
     {
       "day": 4,
@@ -1577,7 +1681,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       "date": "2027-06-29",
       "weekday": "martes",
       "title": "Cinque Torri, Passo Giau y regreso a Bérgamo",
-      "summary": "Madrugón para las Cinque Torri desde Col Gallina (7,16 km, 2 h 27 min) y el museo al aire libre de la Gran Guerra. Carretera serpenteante del Passo Giau. 4 h 15 min hasta BGY para devolver el coche a las 17:00 y volar a las 20:10."
+      "summary": "Madrugón para las Cinque Torri desde Col Gallina (7,16 km, 2 h 27 min) y el museo al aire libre de la Gran Guerra. Carretera serpenteante del Passo Giau. 4 h 15 min hasta Bérgamo, donde el viaje cierra el círculo: devolución del coche a las 17:00 y vuelo a las 20:10."
     }
   ],
   "history": {
@@ -1636,7 +1740,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "icon": "🚗",
           "title": "Recogida del coche y salida",
           "description": "Objetivo: estar en carretera a las 12:00. Mejor revisar el coche con el móvil antes de salir (fotos de los cuatro laterales, techo y llantas) y conviene comprobar que el depósito coincide con el contrato. Lo mejor es poner rumbo este por la A4 hacia Brescia y Verona.",
-          "type": "checkin",
+          "type": "transport",
           "duration_min": 30
         },
         {
@@ -1713,7 +1817,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Check-in en el apartamento de Bolzano",
           "description": "Lo mejor es dejar el equipaje y conviene organizar la mochila del día siguiente: mañana salís a las 6:15 y el trekking de Seceda son cinco horas. OJO con la compra: los supermercados de Bolzano cierran también sobre las 19:30–20:00, así que hoy no vais a llegar. Merece la pena mirar si el centro comercial del Decathlon tiene supermercado y resolverlo ahí; si no, comprar algo para el desayuno en el propio Decathlon (barritas, frutos secos) y merece la pena dejar la compra grande para la parada de Castelrotto de mañana por la tarde.",
           "type": "checkin",
-          "duration_min": 55
+          "duration_min": 55,
+          "place_id": "alojamiento-bolzano"
         },
         {
           "time": "21:00",
@@ -1780,6 +1885,20 @@ body.is-offline .offline-chip { display: inline-flex; }
           "tips": "Llegáis a las 19:25 y cierran a las 20:00: mejor ir directamente a la planta de montaña sin dar vueltas. El centro comercial tiene aparcamiento subterráneo con las dos primeras horas gratuitas. Conviene comprobar si el mismo centro tiene supermercado, porque hoy no os va a dar tiempo a otro.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.4863,11.3356",
           "verified_at": "2027-06-01"
+        },
+        {
+          "id": "alojamiento-bolzano",
+          "name": "Apartamento en Bolzano (AirBnB)",
+          "coords": {
+            "lat": 46.4983,
+            "lng": 11.3548
+          },
+          "review": "Las dos primeras noches, en el centro de Bolzano: 231 € en total, unos 115 € por noche para dos. Dormir aquí y no en Val Gardena es lo que hace viable el día 1, que llega tarde y con cinco horas de coche encima, y el día 2, que arranca a las 6:15 hacia Ortisei. Bolzano además tiene supermercados, restaurantes abiertos hasta tarde y el Decathlon donde compráis el material.",
+          "hours": "Noches del 23 y 24 de junio. Entrada el día 1 sobre las 20:05.",
+          "price": "231 € las dos noches, ya reservado.",
+          "tips": "Confirmad con el anfitrión cómo se recoge la llave, porque llegáis pasadas las 20:00 y muchos AirBnB de Bolzano funcionan con caja de códigos. Conviene preguntar también por el aparcamiento: el centro histórico es zona de tráfico restringido y conviene saber dónde dejar el coche antes de llegar. Las coordenadas apuntan al centro, no al portal exacto.",
+          "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.4983,11.3548",
+          "verified_at": null
         }
       ],
       "restaurants": [
@@ -1862,7 +1981,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "icon": "🅿️",
           "title": "Llegada al Parking Cristauta (1.753 m)",
           "description": "La barrera abre a las 8:00, así que llegar a las 7:30 os garantiza sitio y salida puntual. Es el mejor aparcamiento para atacar Seceda a pie. Acepta tarjeta. Conviene aprovechar para calzaros bien y repartir peso.",
-          "type": "checkin",
+          "type": "activity",
           "duration_min": 30
         },
         {
@@ -2014,6 +2133,20 @@ body.is-offline .offline-chip { display: inline-flex; }
           "tips": "SE PUEDE VOLAR EL DRON en zona amplia. Interesa reservar el parking con antelación (la reserva genera automáticamente la autorización para el checkpoint de San Valentino) y conviene llevar el QR descargado, porque hay que escanearlo al entrar y al salir. La mejor toma está a 1 h andando hacia el Sporthotel Sonne.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.5399,11.6174",
           "verified_at": "2027-06-01"
+        },
+        {
+          "id": "bolzano-centro",
+          "name": "Bolzano — Piazza delle Erbe y centro histórico",
+          "coords": {
+            "lat": 46.4988,
+            "lng": 11.354
+          },
+          "review": "El cierre del día 2, ya de vuelta del Alpe di Siusi. Piazza delle Erbe tiene el mercado al aire libre más antiguo de la ciudad, y alrededor quedan las arcadas medievales y el Duomo gótico. Es el único rato urbano del viaje y viene bien después de dos días de montaña.",
+          "hours": "El mercado de Piazza delle Erbe funciona de lunes a sábado por la mañana. Los restaurantes del centro sirven hasta las 22:00.",
+          "price": "Gratuito.",
+          "tips": "Volvéis sobre las 21:00, así que el mercado ya estará cerrado: esto es paseo y cena. Si queréis ver el mercado, hay que hacerlo el día 1 al llegar o dejarlo para otro viaje. Los vinos del Alto Adigio de las vinotecas de las arcadas son el mejor souvenir líquido de la zona.",
+          "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.4988,11.354",
+          "verified_at": null
         }
       ],
       "restaurants": [
@@ -2093,7 +2226,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "icon": "🅿️",
           "title": "Parking Malga Zannes (P1) — 1.685 m",
           "description": "Abierto 24 h y con un semáforo a la entrada que indica si quedan plazas libres antes de subir. Unos 10–12 € el día. Ojo: varias máquinas solo aceptan monedas, así que interesa llevar efectivo suelto por si acaso. Es el punto de partida de todas las rutas del fondo de la Val di Funes.",
-          "type": "checkin",
+          "type": "activity",
           "duration_min": 25
         },
         {
@@ -2178,7 +2311,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Check-in en el B&B Il Sogno y compra",
           "description": "Base para las cuatro noches siguientes (337,60 € en total). Località Mas 32, zona muy tranquila y con vistas abiertas; los huéspedes destacan el desayuno y el trato de la propietaria. Santo Stefano di Cadore está a 5 min en coche y ahí tenéis supermercado y bares. Merece la pena reponer provisiones para los desayunos y los picnics de los tres días siguientes: mañana salís a las 6:40 hacia el Sorapis.",
           "type": "checkin",
-          "duration_min": 60
+          "duration_min": 60,
+          "place_id": "alojamiento-ilsogno"
         },
         {
           "time": "20:00",
@@ -2244,6 +2378,20 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Aparcamiento gratuito en el centro del pueblo. Mirador gratuito.",
           "tips": "SE PUEDE VOLAR EL DRON. Interesa aparcar junto al parque de bomberos o al centro de visitantes del Puez-Odle y conviene coger el Magdalenaweg: 20–25 min en subida constante hasta el banco. Podéis seguir hasta las dos curvas siguientes para ángulos algo más abiertos. La hora mágica es el atardecer, con enrosadira sobre las Odle.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.6447,11.7194",
+          "verified_at": null
+        },
+        {
+          "id": "alojamiento-ilsogno",
+          "name": "B&B Il Sogno (Santo Stefano di Cadore)",
+          "coords": {
+            "lat": 46.563,
+            "lng": 12.5734
+          },
+          "review": "Cuatro noches en Località Mas, entre San Pietro y Santo Stefano di Cadore, por 337,60 € en total: unos 84 € la noche para dos. Valoración de 4,7, con el desayuno y el trato de la propietaria como lo más repetido en las reseñas. Es la decisión que sostiene el presupuesto del viaje: a 50 min del Sorapis, 1 h 35 min de las Tre Cime y 1 h 30 min de las Cinque Torri, por una fracción de lo que cuesta dormir en Cortina.",
+          "hours": "Noches del 25 al 28 de junio. Entrada el día 3 sobre las 18:15.",
+          "price": "337,60 € las cuatro noches, ya reservado.",
+          "tips": "Está en una zona tranquila con vistas abiertas, a unos 5 min en coche de Santo Stefano, que es donde tenéis supermercado y bares. Avisad de que los tres días siguientes salís antes de las 7:00 por si el desayuno tiene hora fija: en un B&B pequeño suelen adaptarse si se pide. Comprad provisiones al llegar, porque las tiendas del valle cierran sobre las 19:00.",
+          "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.563,12.5734",
           "verified_at": null
         }
       ],
@@ -2565,7 +2713,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "icon": "🅿️",
           "title": "Passo Pordoi (2.239 m) — parking junto a la telecabina",
           "description": "Gran aparcamiento delante de la estación del teleférico, a 1,5 € la hora. Junto al parking están el monumento a Fausto Coppi y el osario de la Gran Guerra, que guarda los restos de casi 9.000 soldados. Merece dos minutos antes de arrancar.",
-          "type": "checkin",
+          "type": "activity",
           "duration_min": 20
         },
         {
@@ -2749,7 +2897,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "icon": "🅿️",
           "title": "Peaje y parking del Rifugio Auronzo (2.333 m)",
           "description": "Unos 40 € por turismo, con RESERVA ONLINE OBLIGATORIA en pass.auronzo.info y matrícula. El ticket vale 12 h desde la hora de acceso reservada. La carretera abre a las 7:00. El aparcamiento es enorme pero en temporada se llena antes de las 9:00: por eso salís tan pronto.",
-          "type": "checkin",
+          "type": "activity",
           "duration_min": 20
         },
         {
@@ -2997,7 +3145,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "icon": "🅿️",
           "title": "Parking del Rifugio Col Gallina — gratuito",
           "description": "Aparcamiento gratuito y a esta hora prácticamente vacío. Es el mejor punto de partida hacia las Cinque Torri: menos desnivel que las otras opciones y sendero bien señalizado.",
-          "type": "checkin",
+          "type": "activity",
           "duration_min": 10
         },
         {
@@ -3051,14 +3199,6 @@ body.is-offline .offline-chip { display: inline-flex; }
           "duration_min": 255
         },
         {
-          "time": "12:00",
-          "icon": "🛣️",
-          "title": "Passo Giau → Milán-Bérgamo (4 h 15 min de conducción)",
-          "description": "El tramo largo: bajada a Caprile o Cortina, valle del Piave o Val Pusteria hacia la A27/A22 y luego A4 oeste hasta Bérgamo. Con el vuelo a las 20:10 y la devolución del coche a las 17:00, el margen es cómodo: podéis salir a las 12:00 sin agobio y permitiros una parada de comida en condiciones.",
-          "type": "transport",
-          "duration_min": 255
-        },
-        {
           "time": "14:15",
           "icon": "🍝",
           "title": "Comida tranquila y repostaje en ruta",
@@ -3095,7 +3235,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "icon": "🛫",
           "title": "Vuelo de regreso a Valencia",
           "description": "Despegue a las 20:10. Siete días, cuatro trekkings serios, más de 60 km a pie, unos 3.500 m de desnivel acumulado y las tarjetas de memoria llenas. Buen viaje de vuelta.",
-          "type": "transport"
+          "type": "transport",
+          "duration_min": 120
         }
       ],
       "places": [
@@ -3212,6 +3353,10 @@ body.is-offline .offline-chip { display: inline-flex; }
         {
           "subtitle": "La víspera · guía sin conexión y copia de seguridad",
           "text": "Con wifi, lo mejor es abrir la guía y pulsar «Preparar para usar sin conexión» en Yo → Herramientas: descarga la guía y las fotos compartidas para que funcione en modo avión, que es como la vais a usar en el Comelico y en los pasos. Mejor descargar también los mapas offline de Google Maps y de Komoot para las zonas del Garda, Val Gardena, Val di Funes y Cortina-Comelico-Misurina."
+        },
+        {
+          "subtitle": "La víspera · documentos compartidos",
+          "text": "Si vais a subir mapas y horarios al repositorio con docs_tool.html, mejor hacerlo antes de salir y pulsar después «Preparar para usar sin conexión» en Yo → Herramientas: así quedan descargados. Los que asignéis a un día aparecen al final de la ficha de ese día, que es donde hacen falta."
         }
       ]
     },
@@ -3242,6 +3387,10 @@ body.is-offline .offline-chip { display: inline-flex; }
         {
           "subtitle": "Extras de acceso que NO están en el presupuesto",
           "text": "Dos gastos opcionales que conviene tener en la cabeza: la naveta de la Madonna della Corona (unos 3,50 € ida y vuelta por persona, evitable bajando y subiendo a pie) y la entrada al prado de San Giovanni in Ranui (4–5 € por persona, evitable desde la plataforma gratuita). Entre los dos, unos 15–20 € para los dos si decidís pagarlos."
+        },
+        {
+          "subtitle": "Comprobar cada día en el mapa antes de salir",
+          "text": "El mapa de la guía tiene un filtro por día bajo el mapa. Al elegir una jornada, la línea pasa a continua y los números indican el orden de las paradas, así que se ve de un vistazo si el día avanza o da rodeos. Los días 1 y 3 son los de traslado largo y se leen como una línea que avanza; los días 4, 5, 6 y 7 salen y vuelven a la misma base, así que dibujan ida y vuelta. El 🛏 marca de dónde se sale esa mañana."
         }
       ]
     },
@@ -3608,7 +3757,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     "schema_version": "1.2",
     "claude_model": "Claude Opus 4.6",
     "web_search_count": 10,
-    "verification_note": "PRESUPUESTO con importes reales facilitados por el viajero: vuelos 288 € (ida y vuelta, dos personas, maleta de cabina incluida), alojamientos 568,60 € (231 € Bolzano + 337,60 € B&B Il Sogno), transporte local 450 € (coche 350 € con seguro premium + 100 € de combustible), comida 200 €, compras 80 €. La partida de parkings y peajes (186 €) está calculada sumando los importes del itinerario: 135 € de aparcamientos y 51 € estimados de peajes de autopista. Aparece en el visor bajo la etiqueta 'Parkings/Peajes'. Coordenadas GPS de los 27 puntos verificadas una a una contra Google Places, incluido el B&B Il Sogno (Località Mas 32, Santo Stefano di Cadore). Verificados por búsqueda: horario de la Madonna della Corona (7:00–19:00) y precio de la naveta; parking Cristauta-Praplan (5–8 €/día, tarjeta admitida); Alpe di Siusi P2 Compatsch (30 €/día, reserva online obligatoria desde el 29 de junio de 2026, hasta 6 días antes, con matrícula; carretera cerrada 9:00–17:00); parking Malga Zannes (10–12 €); Rifugio Odle/Geisleralm (10:00–17:00, cerrado los lunes); San Giovanni in Ranui (acceso al prado 4–5 €, plataforma exterior gratuita); peaje Tre Cime (40 €/turismo, reserva obligatoria en pass.auronzo.info, ticket válido 12 h); ruta Piz Boè por senderos 627 y 638; ruta Cinque Torri desde Col Gallina por el 424; aeropuerto BGY (mostradores de alquiler en la terminal de llegadas); Decathlon Bolzano, Via Galilei 20, abierto de 9:00 a 20:00 todos los días. NO verificados para 2027: importes exactos de peajes y parkings (estimados sobre tarifas 2025–2026) y horarios de refugios. Las restricciones de vuelo de dron proceden de la investigación previa del viajero y deben reconfirmarse en D-Flight antes de cada despegue."
+    "verification_note": "Guía regenerada con el template v1.19: alojamientos como lugares con ficha propia, tiempos de trayecto en el itinerario y mapa encadenado con salida y fin en Milán-Bérgamo. PRESUPUESTO con importes reales facilitados por el viajero: vuelos 288 € (ida y vuelta, dos personas, maleta de cabina incluida), alojamientos 568,60 € (231 € Bolzano + 337,60 € B&B Il Sogno), transporte local 450 € (coche 350 € con seguro premium + 100 € de combustible), comida 200 €, compras 80 €. La partida de parkings y peajes (186 €) está calculada sumando los importes del itinerario: 135 € de aparcamientos y 51 € estimados de peajes de autopista. Aparece en el visor bajo la etiqueta 'Parkings/Peajes'. Coordenadas GPS de los 27 puntos verificadas una a una contra Google Places, incluido el B&B Il Sogno (Località Mas 32, Santo Stefano di Cadore). Verificados por búsqueda: horario de la Madonna della Corona (7:00–19:00) y precio de la naveta; parking Cristauta-Praplan (5–8 €/día, tarjeta admitida); Alpe di Siusi P2 Compatsch (30 €/día, reserva online obligatoria desde el 29 de junio de 2026, hasta 6 días antes, con matrícula; carretera cerrada 9:00–17:00); parking Malga Zannes (10–12 €); Rifugio Odle/Geisleralm (10:00–17:00, cerrado los lunes); San Giovanni in Ranui (acceso al prado 4–5 €, plataforma exterior gratuita); peaje Tre Cime (40 €/turismo, reserva obligatoria en pass.auronzo.info, ticket válido 12 h); ruta Piz Boè por senderos 627 y 638; ruta Cinque Torri desde Col Gallina por el 424; aeropuerto BGY (mostradores de alquiler en la terminal de llegadas); Decathlon Bolzano, Via Galilei 20, abierto de 9:00 a 20:00 todos los días. NO verificados para 2027: importes exactos de peajes y parkings (estimados sobre tarifas 2025–2026) y horarios de refugios. Las restricciones de vuelo de dron proceden de la investigación previa del viajero y deben reconfirmarse en D-Flight antes de cada despegue."
   }
 }
 </script>
@@ -3805,6 +3954,17 @@ body.is-offline .offline-chip { display: inline-flex; }
     `;
   }
 
+  // Minutos -> "1 h 27 min" / "45 min". Devuelve '' si no hay dato.
+  function fmtDur(min) {
+    var m = Number(min);
+    if (!isFinite(m) || m <= 0) return '';
+    m = Math.round(m);
+    var h = Math.floor(m / 60), r = m % 60;
+    if (h && r) return h + ' h ' + r + ' min';
+    if (h) return h + ' h';
+    return r + ' min';
+  }
+
   // --- DAY DETAIL -----------------------------------------
   function renderDay(dayNum) {
     const d = DATA.days.find(x => x.day === dayNum);
@@ -3814,10 +3974,16 @@ body.is-offline .offline-chip { display: inline-flex; }
       const key = `d${d.day}_t${idx}`;
       const done = !!store.checklist[key];
       const place = t.place_id ? (d.places || []).find(p => p.id === t.place_id) : null;
+      // Los hitos de tipo transporte muestran el tiempo de trayecto; el resto, cuanto dura la parada
+      const isMove = t.type === 'transport';
+      const durTxt = fmtDur(t.duration_min);
+      const durHTML = durTxt
+        ? `<span class="tl-item__dur ${isMove ? 'tl-item__dur--move' : ''}" title="${isMove ? 'Tiempo de trayecto' : 'Duración aproximada'}">${isMove ? '🚙' : '⏱'} ${esc(durTxt)}</span>`
+        : '';
       return `
         <div class="tl-item ${done ? 'is-done' : ''}" data-icon="${esc(t.icon || '•')}" data-key="${key}">
           <div class="tl-item__head">
-            <span class="tl-item__time">${esc(t.time)}</span>
+            <span class="tl-item__when"><span class="tl-item__time">${esc(t.time)}</span>${durHTML}</span>
             <button class="tl-item__check" onclick="window.__actions.toggleChecklist('${key}')"></button>
           </div>
           <div class="tl-item__title">${esc(t.title)}</div>
@@ -3860,6 +4026,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           <div class="place-photos" data-place="${esc(p.id)}">
             <div class="place-photos__head">
               <span class="place-photos__label">📷 Fotos</span>
+              <span class="place-photos__legend" title="🌐 compartidas por el autor · 📱 guardadas solo en este dispositivo">🌐 / 📱</span>
               <span class="place-photos__status"></span>
               <label class="btn btn--ghost btn--sm place-photos__add">+ Añadir
                 <input type="file" accept="image/*" multiple hidden>
@@ -4048,22 +4215,108 @@ body.is-offline .offline-chip { display: inline-flex; }
     });
   }
 
-  function openPhotoLightbox(url, onDelete) {
+  // Visor a pantalla completa con carrusel: recibe la lista completa de fotos
+  // del lugar y el indice por el que se abre, de modo que se pasan de una a
+  // otra sin cerrar. Admite flechas, teclado, deslizar el dedo y puntos.
+  // Cada elemento es { url, del } donde del es null si la foto es del repositorio.
+  function openPhotoLightbox(items, startIdx) {
+    if (!Array.isArray(items)) items = [{ url: items, del: arguments[1] || null }];
+    if (!items.length) return;
+    var i = Math.max(0, Math.min(startIdx || 0, items.length - 1));
+
     const ov = document.createElement('div');
     ov.className = 'photo-lightbox';
-    const img = document.createElement('img'); img.src = url; img.alt = 'Foto del lugar';
+
+    const stage = document.createElement('div'); stage.className = 'photo-lightbox__stage';
+    const img = document.createElement('img'); img.alt = 'Foto del lugar';
+    const prev = document.createElement('button');
+    prev.type = 'button'; prev.className = 'photo-lightbox__nav photo-lightbox__nav--prev';
+    prev.setAttribute('aria-label', 'Foto anterior'); prev.textContent = '\u2039';
+    const next = document.createElement('button');
+    next.type = 'button'; next.className = 'photo-lightbox__nav photo-lightbox__nav--next';
+    next.setAttribute('aria-label', 'Foto siguiente'); next.textContent = '\u203a';
+    stage.appendChild(prev); stage.appendChild(img); stage.appendChild(next);
+
+    const count = document.createElement('div'); count.className = 'photo-lightbox__count';
+    const dots = document.createElement('div'); dots.className = 'photo-lightbox__dots';
+
     const bar = document.createElement('div'); bar.className = 'photo-lightbox__bar';
-    const bClose = document.createElement('button'); bClose.type = 'button'; bClose.className = 'photo-lightbox__btn'; bClose.textContent = 'Cerrar';
-    const bDel = document.createElement('button'); bDel.type = 'button'; bDel.className = 'photo-lightbox__btn'; bDel.textContent = 'Eliminar';
-    bar.appendChild(bClose); if (onDelete) bar.appendChild(bDel);
-    ov.appendChild(img); ov.appendChild(bar);
-    function close() { ov.remove(); }
+    const bClose = document.createElement('button');
+    bClose.type = 'button'; bClose.className = 'photo-lightbox__btn'; bClose.textContent = 'Cerrar';
+    const bDel = document.createElement('button');
+    bDel.type = 'button'; bDel.className = 'photo-lightbox__btn'; bDel.textContent = 'Eliminar';
+    bar.appendChild(bClose); bar.appendChild(bDel);
+
+    ov.appendChild(stage); ov.appendChild(count); ov.appendChild(dots); ov.appendChild(bar);
+
+    function buildDots() {
+      dots.innerHTML = '';
+      if (items.length < 2) return;
+      items.forEach(function (_, k) {
+        const d = document.createElement('button');
+        d.type = 'button'; d.className = 'photo-lightbox__dot' + (k === i ? ' is-on' : '');
+        d.setAttribute('aria-label', 'Ir a la foto ' + (k + 1));
+        d.addEventListener('click', function (e) { e.stopPropagation(); i = k; paint(); });
+        dots.appendChild(d);
+      });
+    }
+    function paint() {
+      const multi = items.length > 1;
+      img.src = items[i].url;
+      prev.style.display = multi ? '' : 'none';
+      next.style.display = multi ? '' : 'none';
+      count.style.display = multi ? '' : 'none';
+      count.textContent = (i + 1) + ' / ' + items.length;
+      bDel.style.display = items[i].del ? '' : 'none';
+      buildDots();
+    }
+    function go(step) {
+      if (items.length < 2) return;
+      i = (i + step + items.length) % items.length;
+      paint();
+    }
+    function close() {
+      document.removeEventListener('keydown', onKey);
+      ov.remove();
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowRight') go(1);
+      else if (e.key === 'ArrowLeft') go(-1);
+    }
+
+    prev.addEventListener('click', function (e) { e.stopPropagation(); go(-1); });
+    next.addEventListener('click', function (e) { e.stopPropagation(); go(1); });
     bClose.addEventListener('click', close);
     ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+    document.addEventListener('keydown', onKey);
+
+    // Deslizar el dedo en movil
+    var x0 = null, y0 = null;
+    stage.addEventListener('touchstart', function (e) {
+      if (e.touches.length !== 1) return;
+      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+    }, { passive: true });
+    stage.addEventListener('touchend', function (e) {
+      if (x0 === null) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - x0, dy = t.clientY - y0;
+      x0 = y0 = null;
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+    }, { passive: true });
+
     bDel.addEventListener('click', function () {
+      const d = items[i].del;
+      if (!d) return;
       if (!confirm('¿Eliminar esta foto?')) return;
-      onDelete(); close();
+      d();
+      items.splice(i, 1);
+      if (!items.length) { close(); return; }
+      if (i >= items.length) i = items.length - 1;
+      paint();
     });
+
+    paint();
     document.body.appendChild(ov);
   }
 
@@ -4074,21 +4327,39 @@ body.is-offline .offline-chip { display: inline-flex; }
     ]).then(function (both) {
       const repo = both[0] || [], list = both[1] || [];
       grid.innerHTML = '';
-      // 1) Fotos del repositorio: las ve todo el mundo
+      // Lista unica compartidas + locales: es lo que recorre el carrusel
+      const carousel = [];
+      // El bloque no se oculta nunca: el boton «+ Anadir» tiene que estar
+      // disponible aunque el lugar no tenga ninguna foto compartida todavia.
       var box = grid.closest ? grid.closest('.place-photos') : null;
-      if (box) box.style.display = (!repo.length && !list.length && !AUTHOR_MODE) ? 'none' : '';
-      repo.forEach(function (url) { grid.appendChild(makeRepoTile(url)); });
+      if (box) box.style.display = '';
+      // 1) Fotos del repositorio: las ve todo el mundo
+      repo.forEach(function (url) {
+        const idx = carousel.length;
+        carousel.push({ url: url, del: null });
+        grid.appendChild(makeRepoTile(url, carousel, idx));
+      });
       // 2) Solo en modo autor: hueco con el nombre de archivo que debe subirse
       if (!repo.length && AUTHOR_MODE) grid.appendChild(makeEmptyTile(placeId));
+      // 2 bis) Sin ninguna foto: invitacion a guardar las propias en el movil
+      if (!repo.length && !list.length && !AUTHOR_MODE) {
+        var hint = document.createElement('div');
+        hint.className = 'place-photos__empty';
+        hint.innerHTML = 'Todavía no hay fotos de este lugar. Con <strong>+ Añadir</strong> puedes guardar las tuyas: se quedan en este dispositivo (📱) y no se suben a ninguna parte.';
+        grid.appendChild(hint);
+      }
       // 3) Fotos locales de este dispositivo
       list.forEach(function (rec) {
         const url = URL.createObjectURL(rec.blob);
         __photoURLs.add(url);
+        const idx = carousel.length;
+        carousel.push({
+          url: url,
+          del: function () { photoDel(rec.id).then(function () { paintPhotoGrid(placeId, grid); }); }
+        });
         const fig = document.createElement('div'); fig.className = 'place-photo';
         const img = document.createElement('img'); img.src = url; img.alt = 'Foto del lugar'; img.loading = 'lazy';
-        img.addEventListener('click', function () {
-          openPhotoLightbox(url, function () { photoDel(rec.id).then(function () { paintPhotoGrid(placeId, grid); }); });
-        });
+        img.addEventListener('click', function () { openPhotoLightbox(carousel, idx); });
         const del = document.createElement('button');
         del.type = 'button'; del.className = 'place-photo__del'; del.setAttribute('aria-label', 'Eliminar foto'); del.textContent = '×';
         del.addEventListener('click', function (ev) {
@@ -4100,6 +4371,15 @@ body.is-offline .offline-chip { display: inline-flex; }
         bdg.className = 'place-photo__badge'; bdg.textContent = '📱';
         fig.appendChild(img); fig.appendChild(bdg); fig.appendChild(del); grid.appendChild(fig);
       });
+      // Numerito de posicion cuando hay mas de una foto, para que se vea que hay carrusel
+      if (carousel.length > 1) {
+        var tiles = grid.querySelectorAll('.place-photo:not(.place-photo--empty)');
+        for (var n = 0; n < tiles.length; n++) {
+          var sp = document.createElement('span');
+          sp.className = 'place-photo__n'; sp.textContent = (n + 1) + '/' + carousel.length;
+          tiles[n].appendChild(sp);
+        }
+      }
     }).catch(function () {
       grid.innerHTML = '<div class="place-photos__empty">No se han podido cargar las fotos en este navegador.</div>';
     });
@@ -4206,10 +4486,13 @@ body.is-offline .offline-chip { display: inline-flex; }
     }
   }
 
-  function makeRepoTile(url) {
+  function makeRepoTile(url, carousel, idx) {
     const fig = document.createElement('div'); fig.className = 'place-photo';
     const img = document.createElement('img'); img.src = url; img.alt = 'Foto compartida'; img.loading = 'lazy';
-    img.addEventListener('click', function () { openPhotoLightbox(url, null); });
+    img.addEventListener('click', function () {
+      if (carousel) openPhotoLightbox(carousel, idx);
+      else openPhotoLightbox([{ url: url, del: null }], 0);
+    });
     const b = document.createElement('span'); b.className = 'place-photo__badge'; b.textContent = '🌐';
     fig.appendChild(img); fig.appendChild(b);
     return fig;
@@ -4582,8 +4865,10 @@ body.is-offline .offline-chip { display: inline-flex; }
       parts.push('<div class="pr-h4">Itinerario</div><ul class="pr-tl">');
       d.timeline.forEach(function (t, i) {
         var done = store.checklist['day' + d.day + '_tl' + i] ? '☑' : '☐';
+        var dur = fmtDur(t.duration_min);
+        var durTxt = dur ? ' <span class="pr-dur">(' + (t.type === 'transport' ? 'trayecto ' : '') + pe(dur) + ')</span>' : '';
         parts.push('<li><span class="pr-time">' + pe(t.time) + '</span>' + done + ' <strong>' +
-          pe(t.title) + '</strong>. ' + pe(t.description) + '</li>');
+          pe(t.title) + '</strong>' + durTxt + '. ' + pe(t.description) + '</li>');
       });
       parts.push('</ul>');
     }
@@ -4983,6 +5268,8 @@ body.is-offline .offline-chip { display: inline-flex; }
     { k: 'seguro',    l: 'Seguro' },
     { k: 'mapa',      l: 'Plano o mapa' },
     { k: 'ruta',      l: 'Ruta' },
+    { k: 'video',     l: 'Vídeo' },
+    { k: 'web',       l: 'Web' },
     { k: 'otro',      l: 'Otro' }
   ];
 
@@ -5023,7 +5310,9 @@ body.is-offline .offline-chip { display: inline-flex; }
     });
   }
 
-  function docIcon(type) {
+  function docIcon(type, kind) {
+    if (kind === 'video') return '🎬';
+    if (kind === 'web') return '🌍';
     if (type === 'link') return '🔗';
     if (/pdf/.test(type)) return '📄';
     if (/^image\//.test(type)) return '🖼️';
@@ -5135,7 +5424,7 @@ body.is-offline .offline-chip { display: inline-flex; }
               : d.repo ? (kind ? ' · ' : '') + '🌐 compartido'
               : (d.size != null ? (kind ? ' · ' : '') + fileSize(d.size) + ' · 📱 solo en este móvil' : ''));
     return '<div class="doc-card' + (d.key ? ' doc-card--key' : '') + '">' +
-      '<span class="doc-card__icon">' + docIcon(d.type) + '</span>' +
+      '<span class="doc-card__icon">' + docIcon(d.type, d.kind) + '</span>' +
       '<div class="doc-card__body"><div class="doc-card__name">' + esc(d.title || d.name) + '</div>' +
       '<div class="doc-card__meta">' + meta + '</div></div>' +
       '<div class="doc-card__acts">' +
@@ -5243,6 +5532,18 @@ body.is-offline .offline-chip { display: inline-flex; }
   // --- MAP ------------------------------------------------
   let mapInstance = null;
   let mapLoadAttempts = 0;
+  // Un color por dia: en la vista de todos los dias es lo que permite
+  // distinguir a simple vista que linea pertenece a cada jornada.
+  var DAY_COLORS = ['#2E7D6F', '#C2410C', '#1D4ED8', '#B45309', '#7C3AED',
+                    '#0E7490', '#BE123C', '#4D7C0F', '#9333EA', '#0369A1'];
+  function dayColor(n) { return DAY_COLORS[(Math.max(1, n | 0) - 1) % DAY_COLORS.length]; }
+  function accentColor() {
+    return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2E7D6F';
+  }
+  // Filtro de dias del mapa. No se guarda en localStorage a proposito: al abrir
+  // la guia siempre se ve la ruta completa, y desde ahi se baja al detalle.
+  var mapDayFilter = 'all';
+
   function renderMap() {
     if (!window.L) {
       mapLoadAttempts++;
@@ -5270,7 +5571,7 @@ body.is-offline .offline-chip { display: inline-flex; }
         tg.className = 'map-toggle';
         tg.innerHTML = '<button data-mapmode="day">Días</button><button data-mapmode="photo">Fotos</button>';
         tg.querySelectorAll('button').forEach(function (b) {
-          b.classList.toggle('is-on', b.dataset.mapmode === mapPhotoMode);
+          b.setAttribute('type', 'button');
           b.addEventListener('click', function () {
             if (b.dataset.mapmode === mapPhotoMode) return;
             mapPhotoMode = b.dataset.mapmode;
@@ -5281,41 +5582,164 @@ body.is-offline .offline-chip { display: inline-flex; }
         mapEl.parentNode.appendChild(tg);
       }
 
+      // El sombreado se sincroniza SIEMPRE, no solo al crear el conmutador:
+      // de lo contrario se queda marcada la opcion anterior tras cada cambio.
+      var tgNow = mapEl && mapEl.parentNode.querySelector('.map-toggle');
+      if (tgNow) {
+        tgNow.querySelectorAll('button').forEach(function (b) {
+          var on = b.dataset.mapmode === mapPhotoMode;
+          b.classList.toggle('is-on', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      }
+
       mapInstance = L.map('map', { zoomControl: true, attributionControl: true })
         .setView([om.center.lat, om.center.lng], om.zoom || 8);
+      mapInstance.whenReady(function () { try { mapInstance.invalidateSize(); } catch (e) {} });
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
       }).addTo(mapInstance);
 
-      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+      // --- Marcadores agrupados por dia, en orden de visita -------------
+      // El orden de om.markers[] reproduce el de days[].places[], que es el
+      // orden real del itinerario: es lo que permite unir los puntos.
+      var porDia = {}, diasOrden = [];
+      (om.markers || []).forEach(function (m) {
+        if (!porDia[m.day]) { porDia[m.day] = []; diasOrden.push(m.day); }
+        porDia[m.day].push(m);
+      });
+      diasOrden.sort(function (a, b) { return a - b; });
 
-      (om.markers || []).forEach(m => {
-        const pid = placeIdForMarker(m);
-        const numIcon = () => L.divIcon({
-          className: 'custom-marker',
-          html: `<div style="width:30px;height:30px;background:${accent};color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff">${m.day}</div>`,
-          iconSize: [30, 30], iconAnchor: [15, 15]
+      // --- Filtro de dias -----------------------------------------------
+      var cont = mapEl.parentNode;
+      var chips = cont.querySelector('.map-days');
+      if (!chips && diasOrden.length > 1) {
+        chips = document.createElement('div');
+        chips.className = 'map-days';
+        var btns = '<button data-mapday="all">Todos</button>';
+        diasOrden.forEach(function (d) {
+          btns += '<button data-mapday="' + d + '"><span class="map-days__dot" style="background:' +
+                  dayColor(d) + '"></span>Día ' + d + '</button>';
         });
-        const mk = L.marker([m.coords.lat, m.coords.lng], { icon: numIcon() }).addTo(mapInstance);
-        mk.bindPopup(`<strong>${esc(m.name)}</strong><br><small>Día ${m.day}</small><br><a href="#" onclick="window.__nav.goDay(${m.day});return false;">Ver día →</a>`);
+        chips.innerHTML = btns;
+        chips.querySelectorAll('button').forEach(function (b) {
+          b.setAttribute('type', 'button');
+          b.addEventListener('click', function () {
+            if (b.dataset.mapday === mapDayFilter) return;
+            mapDayFilter = b.dataset.mapday;
+            renderMap();
+          });
+        });
+        cont.appendChild(chips);
+      }
+      if (chips) {
+        chips.querySelectorAll('button').forEach(function (b) {
+          var on = b.dataset.mapday === mapDayFilter;
+          b.classList.toggle('is-on', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+          b.style.background = on
+            ? (b.dataset.mapday === 'all' ? accentColor() : dayColor(+b.dataset.mapday))
+            : '';
+        });
+        var act = chips.querySelector('button.is-on');
+        if (act && act.scrollIntoView) {
+          try { act.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {}
+        }
+      }
 
-        if (!pid) return;
-        // La foto (repositorio o dispositivo) se resuelve en segundo plano:
-        // el mapa se dibuja al instante y los marcadores se enriquecen después.
-        firstPhotoFor(pid).then(function (url) {
-          if (!url) return;
-          mk.bindPopup(`<img class="map-pop__img" src="${url}" alt=""><strong>${esc(m.name)}</strong><br><small>Día ${m.day}</small><br><a href="#" onclick="window.__nav.goDay(${m.day});return false;">Ver día →</a>`);
-          if (mapPhotoMode === 'photo') {
-            mk.setIcon(L.divIcon({
-              className: 'custom-marker',
-              html: `<div class="marker-photo" style="position:relative"><img src="${url}" alt=""><span class="marker-photo__day">${m.day}</span></div>`,
-              iconSize: [46, 46], iconAnchor: [23, 23]
-            }));
-          }
+      var visibles = (mapDayFilter === 'all')
+        ? diasOrden
+        : diasOrden.filter(function (d) { return String(d) === String(mapDayFilter); });
+
+      // --- Ruta del dia: lineas rectas entre paradas consecutivas --------
+      // No son rutas de carretera reales: eso exigiria un servicio externo de
+      // enrutado, dejaria de funcionar sin cobertura y anadiria una dependencia.
+      // La recta basta para leer de un vistazo el orden y la forma del dia.
+      // Un marcador con "route": false queda fuera de la linea, para que las
+      // paradas opcionales o fuera de ruta no deformen el trazo.
+      var puntos = [];
+      visibles.forEach(function (d) {
+        var latlngs = porDia[d]
+          .filter(function (m) { return m.route !== false; })
+          .map(function (m) { return [m.coords.lat, m.coords.lng]; });
+        porDia[d].forEach(function (m) {
+          // El punto de salida no cuenta para el encuadre en la vista general:
+          // ya lo aporta el dia anterior y encoger el mapa por el no aporta nada.
+          // El de fin de viaje si cuenta siempre: cierra el recorrido.
+          if (mapDayFilter === 'all' && m.origin) return;
+          puntos.push([m.coords.lat, m.coords.lng]);
+        });
+        if (latlngs.length > 1) {
+          L.polyline(latlngs, {
+            color: dayColor(d), weight: 3, opacity: 0.78,
+            lineJoin: 'round', lineCap: 'round',
+            dashArray: (mapDayFilter === 'all' ? '6 6' : null)
+          }).addTo(mapInstance);
+        }
+      });
+
+      visibles.forEach(function (d) {
+        var lista = porDia[d];
+        var col = dayColor(d);
+        // Ni el punto de salida ni el de fin de viaje son paradas visitables:
+        // no se numeran ni entran en el recuento del dia.
+        var esTransito = function (m) { return !!(m.origin || m.finish); };
+        var nParadas = lista.filter(function (m) { return !esTransito(m); }).length;
+        var cuenta = 0;
+        lista.forEach(function (m) {
+          const pid = placeIdForMarker(m);
+          // En la vista general el punto de salida se omite: es el mismo lugar
+          // donde termino el dia anterior y se pintarian dos marcadores encima.
+          // El de fin de viaje se muestra siempre: no duplica nada y cierra la ruta.
+          if (m.origin && mapDayFilter === 'all') return;
+          if (!esTransito(m)) cuenta++;
+          // Con un dia seleccionado el numero pasa a ser el orden de la parada,
+          // que es lo que hace legible la ruta. Con «Todos», el numero del dia.
+          var etiqueta = m.origin ? '🛏' : (m.finish ? '✈️' : ((mapDayFilter === 'all') ? m.day : cuenta));
+          var pieza = m.origin
+            ? 'Salida · alojamiento de la noche anterior'
+            : (m.finish
+                ? 'Fin del viaje'
+                : ((mapDayFilter === 'all')
+                    ? 'Día ' + m.day
+                    : 'Parada ' + cuenta + ' de ' + nParadas + ' · Día ' + m.day));
+          const numIcon = () => L.divIcon({
+            className: 'custom-marker',
+            html: esTransito(m)
+              ? `<div style="width:28px;height:28px;background:var(--bg-card);color:${col};border-radius:50%;display:grid;place-items:center;font-size:14px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px dashed ${col}">${etiqueta}</div>`
+              : `<div style="width:30px;height:30px;background:${col};color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff">${etiqueta}</div>`,
+            iconSize: esTransito(m) ? [28, 28] : [30, 30], iconAnchor: esTransito(m) ? [14, 14] : [15, 15]
+          });
+          const mk = L.marker([m.coords.lat, m.coords.lng], { icon: numIcon() }).addTo(mapInstance);
+          mk.bindPopup(`<strong>${esc(m.name)}</strong><br><small>${esc(pieza)}</small><br><a href="#" onclick="window.__nav.goDay(${m.day});return false;">Ver día →</a>`);
+
+          if (!pid) return;
+          // La foto (repositorio o dispositivo) se resuelve en segundo plano:
+          // el mapa se dibuja al instante y los marcadores se enriquecen despues.
+          firstPhotoFor(pid).then(function (url) {
+            if (!url) return;
+            mk.bindPopup(`<img class="map-pop__img" src="${url}" alt=""><strong>${esc(m.name)}</strong><br><small>${esc(pieza)}</small><br><a href="#" onclick="window.__nav.goDay(${m.day});return false;">Ver día →</a>`);
+            if (mapPhotoMode === 'photo' && !esTransito(m)) {
+              mk.setIcon(L.divIcon({
+                className: 'custom-marker',
+                html: `<div class="marker-photo" style="position:relative"><img src="${url}" alt=""><span class="marker-photo__day" style="background:${col}">${etiqueta}</span></div>`,
+                iconSize: [46, 46], iconAnchor: [23, 23]
+              }));
+            }
+          });
         });
       });
+
+      // Encuadre ajustado a lo que se esta mostrando
+      if (puntos.length > 1) {
+        try {
+          mapInstance.fitBounds(L.latLngBounds(puntos), { padding: [34, 46], maxZoom: 14 });
+        } catch (e) {}
+      } else if (puntos.length === 1) {
+        mapInstance.setView(puntos[0], 13);
+      }
     } catch (err) {
       console.error('Error al inicializar el mapa:', err);
       el('#map').innerHTML = `<div class="empty-state" style="padding:40px 20px">
@@ -5684,18 +6108,18 @@ body.is-offline .offline-chip { display: inline-flex; }
     const w = document.getElementById('weather-content');
     if (!w) return;
     const om = DATA.overview_map;
-    if (!om) { w.textContent = 'Sin coordenadas.'; return; }
+    if (!om || !om.center) { w.textContent = 'Sin coordenadas.'; return; }
 
     const start = DATA.meta.dates.start;
     const end   = DATA.meta.dates.end;
     const lat   = om.center.lat;
     const lng   = om.center.lng;
-
-    const today     = new Date(); today.setHours(0,0,0,0);
-    const tripStart = new Date(start + 'T00:00:00');
-    const tripEnd   = new Date(end   + 'T00:00:00');
-    const daysUntilStart = Math.round((tripStart - today) / 86400000);
-    const FORECAST_WINDOW = 14; // días que Open-Meteo garantiza con fiabilidad
+    const DAILY = 'weather_code,temperature_2m_max,temperature_2m_min';
+    const FC    = 'https://api.open-meteo.com/v1/forecast';
+    const AR    = 'https://archive-api.open-meteo.com/v1/archive';
+    // Open-Meteo sirve prevision hasta 15 dias por delante de hoy. Mas alla
+    // devuelve error, asi que ese tramo se cubre con el historico.
+    const FORECAST_DAYS = 15;
 
     const codes = {
       0:'☀️', 1:'🌤', 2:'⛅', 3:'☁️', 45:'🌫', 48:'🌫',
@@ -5704,76 +6128,96 @@ body.is-offline .offline-chip { display: inline-flex; }
       95:'⛈', 96:'⛈', 99:'⛈'
     };
 
-    function renderGrid(days, label) {
-      const html = days.map(d => `
-        <div class="weather-day">
-          <div class="weather-day__date">${fmtDate(d.date, { weekday: 'short', day: 'numeric' })}</div>
-          <div class="weather-day__icon">${d.icon}</div>
-          <div class="weather-day__temp">${d.max}° <span class="weather-day__temp-min">${d.min}°</span></div>
-        </div>`).join('');
-      const note = label ? `<p style="font-size:11px;color:var(--text-muted);margin:8px 0 0;text-align:center">${label}</p>` : '';
-      w.outerHTML = `<div id="weather-content">${note}<div class="weather-grid">${html}</div></div>`;
+    // Formato local: toISOString() convierte a UTC y en España restaria un dia
+    function iso(d) {
+      return d.getFullYear() + '-' +
+             String(d.getMonth() + 1).padStart(2, '0') + '-' +
+             String(d.getDate()).padStart(2, '0');
     }
+    function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+    function shiftYear(s, n) { return s.replace(/^(\d{4})/, function (y) { return String(parseInt(y, 10) + n); }); }
 
-    // ── CASO 1: viaje ya pasó ────────────────────────────────────────────
+    const today     = new Date(); today.setHours(0, 0, 0, 0);
+    const tripStart = new Date(start + 'T00:00:00');
+    const tripEnd   = new Date(end   + 'T00:00:00');
+
     if (tripEnd < today) {
       w.innerHTML = '<span style="color:var(--text-muted);font-size:13px">El viaje ya ha finalizado.</span>';
       return;
     }
 
-    // ── CASO 2: viaje dentro del rango de previsión (≤14 días) ──────────
-    if (daysUntilStart <= FORECAST_WINDOW) {
-      try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&start_date=${start}&end_date=${end}`;
-        const r = await fetch(url);
-        if (!r.ok) throw new Error(r.status);
-        const j = await r.json();
-        if (!j.daily || !j.daily.time.length) throw new Error('sin datos');
-        const days = j.daily.time.map((t, i) => ({
-          date: t,
-          icon: codes[j.daily.weather_code[i]] || '🌡',
-          max:  Math.round(j.daily.temperature_2m_max[i]),
-          min:  Math.round(j.daily.temperature_2m_min[i])
-        }));
-        renderGrid(days, null);
-        return;
-      } catch (e) {
-        w.textContent = 'Error al obtener la previsión. Comprueba tu conexión.';
-        return;
-      }
-    }
-
-    // ── CASO 3: viaje a más de 14 días → datos históricos del año anterior
-    // Calculamos las mismas fechas del año pasado para obtener el clima típico
-    const lastYearStart = start.replace(/^(\d{4})/, y => String(parseInt(y) - 1));
-    const lastYearEnd   = end.replace(/^(\d{4})/, y => String(parseInt(y) - 1));
-    const availableFrom = new Date(tripStart);
-    availableFrom.setDate(availableFrom.getDate() - FORECAST_WINDOW);
-    const availableFromStr = availableFrom.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-
-    try {
-      const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&start_date=${lastYearStart}&end_date=${lastYearEnd}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
+    async function grab(base, a, b, hist) {
+      const url = base + '?latitude=' + lat + '&longitude=' + lng +
+                  '&daily=' + DAILY + '&timezone=auto&start_date=' + a + '&end_date=' + b;
       const r = await fetch(url);
       if (!r.ok) throw new Error(r.status);
       const j = await r.json();
-      if (!j.daily || !j.daily.time.length) throw new Error('sin datos');
-      const days = j.daily.time.map((t, i) => ({
-        date: t.replace(/^(\d{4})/, y => String(parseInt(y) + 1)), // mostrar con fecha real del viaje
-        icon: codes[j.daily.weather_code[i]] || '🌡',
-        max:  Math.round(j.daily.temperature_2m_max[i]),
-        min:  Math.round(j.daily.temperature_2m_min[i])
-      }));
-      renderGrid(days,
-        `📅 Previsión disponible aprox. el ${availableFromStr} · Datos: mismo periodo del año anterior`
-      );
-    } catch (e) {
-      // Fallback: mensaje claro sin datos históricos
-      w.innerHTML = `<span style="font-size:13px;color:var(--text-muted)">
-        La previsión meteorológica estará disponible aprox. el <strong>${availableFromStr}</strong>.
-        El viaje empieza en ${daysUntilStart} días, fuera del rango de previsión (${FORECAST_WINDOW} días).
-        Vuelve más cerca de la fecha para ver el tiempo real.
-      </span>`;
+      if (!j.daily || !j.daily.time || !j.daily.time.length) throw new Error('sin datos');
+      return j.daily.time.map(function (t, i) {
+        return {
+          date: hist ? shiftYear(t, 1) : t,
+          icon: codes[j.daily.weather_code[i]] || '🌡',
+          max:  Math.round(j.daily.temperature_2m_max[i]),
+          min:  Math.round(j.daily.temperature_2m_min[i]),
+          hist: !!hist
+        };
+      });
     }
+
+    const lastForecast = addDays(today, FORECAST_DAYS);
+    const fcFrom = tripStart < today ? today : tripStart;
+    const fcTo   = tripEnd > lastForecast ? lastForecast : tripEnd;
+
+    let days = [];
+    if (fcFrom <= fcTo) {
+      try { days = await grab(FC, iso(fcFrom), iso(fcTo), false); } catch (e) { days = []; }
+    }
+
+    // Lo que no cubre la prevision se completa con el mismo periodo del año pasado
+    const restFrom = days.length
+      ? addDays(new Date(days[days.length - 1].date + 'T00:00:00'), 1)
+      : (tripStart < today ? today : tripStart);
+    let faltan = false;
+    if (restFrom <= tripEnd) {
+      try {
+        days = days.concat(await grab(AR, shiftYear(iso(restFrom), -1), shiftYear(iso(tripEnd), -1), true));
+      } catch (e) { faltan = true; }
+    }
+
+    if (!days.length) {
+      const disponible = addDays(tripStart, -FORECAST_DAYS)
+        .toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+      w.innerHTML = '<span style="font-size:13px;color:var(--text-muted)">' +
+        'No se ha podido cargar el tiempo. Si el viaje aún queda lejos, la previsión real aparecerá hacia el <strong>' +
+        disponible + '</strong>. Comprueba también la conexión.</span>';
+      return;
+    }
+
+    const nHist = days.filter(function (d) { return d.hist; }).length;
+    let nota = '';
+    if (nHist && nHist < days.length) {
+      nota = 'Los ' + nHist + (nHist === 1 ? ' último día es del' : ' últimos días son del') +
+             ' mismo periodo del año pasado (borde discontinuo). La previsión real irá apareciendo según se acerque la fecha.';
+    } else if (nHist) {
+      nota = 'Datos del mismo periodo del año anterior. La previsión real estará disponible hacia el ' +
+             addDays(tripStart, -FORECAST_DAYS).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) + '.';
+    }
+    if (faltan) {
+      nota = (nota ? nota + ' ' : '') + 'No se han podido recuperar los últimos días.';
+    }
+
+    const html = days.map(function (d) {
+      return '<div class="weather-day' + (d.hist ? ' weather-day--hist' : '') + '"' +
+             (d.hist ? ' title="Dato del mismo día del año pasado, no es una previsión"' : '') + '>' +
+             '<div class="weather-day__date">' + fmtDate(d.date, { weekday: 'short', day: 'numeric' }) + '</div>' +
+             '<div class="weather-day__icon">' + d.icon + '</div>' +
+             '<div class="weather-day__temp">' + d.max + '° <span class="weather-day__temp-min">' + d.min + '°</span></div>' +
+             '</div>';
+    }).join('');
+    const notaHTML = nota
+      ? '<p style="font-size:11px;color:var(--text-muted);margin:8px 0 0;text-align:center;line-height:1.45">' + nota + '</p>'
+      : '';
+    w.outerHTML = '<div id="weather-content"><div class="weather-grid">' + html + '</div>' + notaHTML + '</div>';
   }
 
   function renderMeBudget() {
