@@ -1211,7 +1211,7 @@ body.is-offline .offline-chip { display: inline-flex; }
   <div id="map-container">
     <div id="map"></div>
   </div>
-  <div class="map-legend">Las líneas unen las paradas de cada día en el orden del itinerario. Son trazos rectos, no rutas de carretera: sirven para leer la forma del día, no para navegar. Con «Todos» se ven discontinuas y numeradas por día. Al elegir un día concreto pasan a continuas y los números indican el orden de las paradas. El 🛏 marca el alojamiento del que se sale esa mañana y el ✈️, el punto donde termina el viaje.</div>
+  <div class="map-legend">Las líneas unen las paradas de cada día en el orden del itinerario. Son trazos rectos, no rutas de carretera: sirven para leer la forma del día, no para navegar. Con «Todos» se ven discontinuas y numeradas por día. Al elegir un día concreto pasan a continuas y los números indican el orden de las paradas. El 🛏 marca los alojamientos: cada día arranca en el de la noche anterior y termina en el de esa noche. El ✈️ señala el aeropuerto, principio y fin del viaje.</div>
 </main>
 
 <!-- CONSEJOS -->
@@ -1358,8 +1358,8 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "icon": "🔄",
-        "title": "Un círculo que empieza y acaba en Bérgamo",
-        "text": "Ida y vuelta por el mismo aeropuerto, así que el mapa se cierra sobre sí mismo: BGY, el Garda, el Alto Adigio, el Comelico y de nuevo BGY. El filtro por día deja ver cada jornada por separado."
+        "title": "Un mapa que se lee de principio a fin",
+        "text": "Ida y vuelta por el mismo aeropuerto, así que el recorrido se cierra sobre sí mismo. Cada día arranca en el alojamiento del que se sale y termina en el de esa noche, de modo que al filtrar por jornada se ve la ruta real completa, no solo las paradas sueltas."
       }
     ]
   },
@@ -1462,18 +1462,19 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 2,
-        "name": "Bolzano — Piazza delle Erbe y centro histórico",
+        "name": "Bolzano — alojamiento",
         "coords": {
-          "lat": 46.4988,
-          "lng": 11.354
-        }
+          "lat": 46.4983,
+          "lng": 11.3548
+        },
+        "stay": true
       },
       {
         "day": 3,
         "name": "Bolzano — alojamiento",
         "coords": {
-          "lat": 46.4988,
-          "lng": 11.354
+          "lat": 46.4983,
+          "lng": 11.3548
         },
         "origin": true
       },
@@ -1559,6 +1560,24 @@ body.is-offline .offline-chip { display: inline-flex; }
         }
       },
       {
+        "day": 4,
+        "name": "B&B Il Sogno — alojamiento",
+        "coords": {
+          "lat": 46.563,
+          "lng": 12.5734
+        },
+        "stay": true
+      },
+      {
+        "day": 5,
+        "name": "B&B Il Sogno — alojamiento",
+        "coords": {
+          "lat": 46.563,
+          "lng": 12.5734
+        },
+        "origin": true
+      },
+      {
         "day": 5,
         "name": "Passo Pordoi (2.239 m) y Piz Boè (3.152 m)",
         "coords": {
@@ -1573,6 +1592,24 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.5369,
           "lng": 12.1357
         }
+      },
+      {
+        "day": 5,
+        "name": "B&B Il Sogno — alojamiento",
+        "coords": {
+          "lat": 46.563,
+          "lng": 12.5734
+        },
+        "stay": true
+      },
+      {
+        "day": 6,
+        "name": "B&B Il Sogno — alojamiento",
+        "coords": {
+          "lat": 46.563,
+          "lng": 12.5734
+        },
+        "origin": true
       },
       {
         "day": 6,
@@ -1605,6 +1642,24 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.5826,
           "lng": 12.2544
         }
+      },
+      {
+        "day": 6,
+        "name": "B&B Il Sogno — alojamiento",
+        "coords": {
+          "lat": 46.563,
+          "lng": 12.5734
+        },
+        "stay": true
+      },
+      {
+        "day": 7,
+        "name": "B&B Il Sogno — alojamiento",
+        "coords": {
+          "lat": 46.563,
+          "lng": 12.5734
+        },
+        "origin": true
       },
       {
         "day": 7,
@@ -1646,7 +1701,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       "date": "2027-06-24",
       "weekday": "jueves",
       "title": "Seceda a pie desde Cristauta, San Valentino y Alpe di Siusi",
-      "summary": "Parking Cristauta a las 7:30 y subida a pie a Seceda (12,3 km, 900 m, 5 h). Chiesa di San Valentino con el Sciliar de fondo. Alpe di Siusi a partir de las 17:00, la única franja permitida, con la mejor toma de dron del día. Cierre en el centro de Bolzano. 2 h 30 min de coche."
+      "summary": "Parking Cristauta a las 7:30 y subida a pie a Seceda (12,3 km, 900 m, 5 h). Chiesa di San Valentino con el Sciliar de fondo. Alpe di Siusi a partir de las 17:00, la única franja permitida, con la mejor toma de dron del día. Vuelta a Bolzano a cenar y dormir. 2 h 30 min de coche."
     },
     {
       "day": 3,
@@ -2072,7 +2127,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "time": "21:00",
           "icon": "🍽️",
           "title": "Última cena en Bolzano",
-          "description": "Cena tardía y a dormir: mañana hay checkout y otro trekking.",
+          "description": "Volvéis pasadas las 21:00 con el día largo encima, así que la cena es de trámite: algo cerca del apartamento y a dormir. Mañana hay checkout y otro trekking, y se sale a las 6:45.",
           "type": "meal",
           "duration_min": 75
         }
@@ -2133,20 +2188,6 @@ body.is-offline .offline-chip { display: inline-flex; }
           "tips": "SE PUEDE VOLAR EL DRON en zona amplia. Interesa reservar el parking con antelación (la reserva genera automáticamente la autorización para el checkpoint de San Valentino) y conviene llevar el QR descargado, porque hay que escanearlo al entrar y al salir. La mejor toma está a 1 h andando hacia el Sporthotel Sonne.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.5399,11.6174",
           "verified_at": "2027-06-01"
-        },
-        {
-          "id": "bolzano-centro",
-          "name": "Bolzano — Piazza delle Erbe y centro histórico",
-          "coords": {
-            "lat": 46.4988,
-            "lng": 11.354
-          },
-          "review": "El cierre del día 2, ya de vuelta del Alpe di Siusi. Piazza delle Erbe tiene el mercado al aire libre más antiguo de la ciudad, y alrededor quedan las arcadas medievales y el Duomo gótico. Es el único rato urbano del viaje y viene bien después de dos días de montaña.",
-          "hours": "El mercado de Piazza delle Erbe funciona de lunes a sábado por la mañana. Los restaurantes del centro sirven hasta las 22:00.",
-          "price": "Gratuito.",
-          "tips": "Volvéis sobre las 21:00, así que el mercado ya estará cerrado: esto es paseo y cena. Si queréis ver el mercado, hay que hacerlo el día 1 al llegar o dejarlo para otro viaje. Los vinos del Alto Adigio de las vinotecas de las arcadas son el mejor souvenir líquido de la zona.",
-          "gmaps_url": "https://www.google.com/maps/search/?api=1&query=46.4988,11.354",
-          "verified_at": null
         }
       ],
       "restaurants": [
@@ -5680,12 +5721,15 @@ body.is-offline .offline-chip { display: inline-flex; }
         }
       });
 
+      // En la vista general, varias noches seguidas en el mismo alojamiento
+      // apilarian marcadores identicos: se pinta solo la primera vez.
+      var ultimoTransito = null;
       visibles.forEach(function (d) {
         var lista = porDia[d];
         var col = dayColor(d);
         // Ni el punto de salida ni el de fin de viaje son paradas visitables:
         // no se numeran ni entran en el recuento del dia.
-        var esTransito = function (m) { return !!(m.origin || m.finish); };
+        var esTransito = function (m) { return !!(m.origin || m.stay || m.finish); };
         var nParadas = lista.filter(function (m) { return !esTransito(m); }).length;
         var cuenta = 0;
         lista.forEach(function (m) {
@@ -5694,17 +5738,25 @@ body.is-offline .offline-chip { display: inline-flex; }
           // donde termino el dia anterior y se pintarian dos marcadores encima.
           // El de fin de viaje se muestra siempre: no duplica nada y cierra la ruta.
           if (m.origin && mapDayFilter === 'all') return;
+          if (m.stay && mapDayFilter === 'all') {
+            var cl = m.coords.lat + ',' + m.coords.lng;
+            if (cl === ultimoTransito) return;
+            ultimoTransito = cl;
+          }
+          if (m.stay && mapDayFilter !== 'all') ultimoTransito = m.coords.lat + ',' + m.coords.lng;
           if (!esTransito(m)) cuenta++;
           // Con un dia seleccionado el numero pasa a ser el orden de la parada,
           // que es lo que hace legible la ruta. Con «Todos», el numero del dia.
-          var etiqueta = m.origin ? '🛏' : (m.finish ? '✈️' : ((mapDayFilter === 'all') ? m.day : cuenta));
+          var etiqueta = (m.origin || m.stay) ? '🛏' : (m.finish ? '✈️' : ((mapDayFilter === 'all') ? m.day : cuenta));
           var pieza = m.origin
             ? 'Salida · alojamiento de la noche anterior'
-            : (m.finish
-                ? 'Fin del viaje'
-                : ((mapDayFilter === 'all')
-                    ? 'Día ' + m.day
-                    : 'Parada ' + cuenta + ' de ' + nParadas + ' · Día ' + m.day));
+            : (m.stay
+                ? 'Llegada · alojamiento de esta noche'
+                : (m.finish
+                    ? 'Fin del viaje'
+                    : ((mapDayFilter === 'all')
+                        ? 'Día ' + m.day
+                        : 'Parada ' + cuenta + ' de ' + nParadas + ' · Día ' + m.day)));
           const numIcon = () => L.divIcon({
             className: 'custom-marker',
             html: esTransito(m)
