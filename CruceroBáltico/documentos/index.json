@@ -1,0 +1,56 @@
+{
+  "documentos": [
+    {
+      "archivo": "plano-de-la-red-de-rostock.pdf",
+      "titulo": "Plano de la red de Rostock",
+      "tipo": "transporte",
+      "dia": 3
+    },
+    {
+      "enlace": "https://www.skm.pkp.pl/",
+      "titulo": "Web transporte Gdansk",
+      "tipo": "transporte",
+      "dia": 4
+    },
+    {
+      "archivo": "mapa-gdansk.pdf",
+      "titulo": "Mapa Gdansk",
+      "tipo": "mapa",
+      "dia": 4
+    },
+    {
+      "enlace": "https://keltas.lt/en/timetable/",
+      "titulo": "Horarios y tarifas del ferry a Smiltynė",
+      "tipo": "web",
+      "dia": 5
+    },
+    {
+      "enlace": "https://klaipedatravel.lt/en/ferries-to-smiltyne/",
+      "titulo": "Oficina de turismo Klaipeda - Ferrys",
+      "tipo": "web",
+      "dia": 5
+    },
+    {
+      "archivo": "riga.pdf",
+      "titulo": "Riga",
+      "dia": 6
+    },
+    {
+      "archivo": "old-town-map-tallin.pdf",
+      "titulo": "Old Town map Tallin",
+      "tipo": "mapa",
+      "dia": 7
+    },
+    {
+      "enlace": "https://www.hsl.fi/en/travelling/visitors/suomenlinna",
+      "titulo": "Instrucciones y zonas del billete HSL",
+      "tipo": "transporte",
+      "dia": 8
+    },
+    {
+      "archivo": "recursos-documentales.md",
+      "titulo": "recursos-documentales",
+      "imprescindible": true
+    }
+  ]
+}
