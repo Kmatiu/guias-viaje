@@ -41,6 +41,12 @@
       "titulo": "Plano del Parque Memorial de la Paz",
       "tipo": "mapa",
       "dia": 13
+    },
+    {
+      "enlace": "https://kichikichi.com/reservation-guides/",
+      "titulo": "Restaurante Kichi Kichi",
+      "tipo": "reserva",
+      "dia": 8
     }
   ]
 }
