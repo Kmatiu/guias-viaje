@@ -1,0 +1,46 @@
+{
+  "documentos": [
+    {
+      "enlace": "https://fujikyu-railway.jp",
+      "titulo": "Horario de la Fujikyu Railway (Otsuki–Shimoyoshida)",
+      "tipo": "web",
+      "dia": 6
+    },
+    {
+      "enlace": "https://www.yamanashi-kankou.jp/fujisanwatcher/sp/en/index.html",
+      "titulo": "Webcams MonteFuji",
+      "tipo": "web",
+      "dia": 6
+    },
+    {
+      "enlace": "https://fuji-san.info/en/index.html",
+      "titulo": "Nubosidad Monte Fuji",
+      "tipo": "web",
+      "dia": 6
+    },
+    {
+      "archivo": "eng202503-omote-web.pdf",
+      "titulo": "Mapa de líneas de bus de Kioto",
+      "tipo": "transporte",
+      "dia": 8,
+      "imprescindible": true
+    },
+    {
+      "enlace": "https://kwseweb.com/guide-request/fushimi-inari-taisha-shrine-course%EF%BC%83-kvwc-02/fushimi-inari-taisha-shrine-main-spots/",
+      "titulo": "Web Fushimi Inari",
+      "tipo": "web"
+    },
+    {
+      "enlace": "https://es.tideschart.com/Japan/Hiroshima/Hatsukaichi--shi/Miyajima/",
+      "titulo": "Web mareas Miyajima",
+      "tipo": "web",
+      "dia": 13
+    },
+    {
+      "archivo": "104643.png",
+      "titulo": "Plano del Parque Memorial de la Paz",
+      "tipo": "mapa",
+      "dia": 13
+    }
+  ]
+}
