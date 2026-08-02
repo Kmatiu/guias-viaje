@@ -22,13 +22,13 @@
       "archivo": "eng202503-omote-web.pdf",
       "titulo": "Mapa de líneas de bus de Kioto",
       "tipo": "transporte",
-      "dia": 8,
-      "imprescindible": true
+      "dia": 8
     },
     {
       "enlace": "https://kwseweb.com/guide-request/fushimi-inari-taisha-shrine-course%EF%BC%83-kvwc-02/fushimi-inari-taisha-shrine-main-spots/",
       "titulo": "Web Fushimi Inari",
-      "tipo": "web"
+      "tipo": "web",
+      "dia": 8
     },
     {
       "enlace": "https://es.tideschart.com/Japan/Hiroshima/Hatsukaichi--shi/Miyajima/",
