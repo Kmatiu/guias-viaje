@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Política de privacidad · Guías de viaje a medida</title>
+<meta name="description" content="Cómo se tratan los datos personales del cuestionario de guías de viaje a medida.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!--
+  ══════════════════════════════════════════════════════════════
+  ANTES DE PUBLICAR HAY QUE COMPLETAR LOS CAMPOS ENTRE CORCHETES.
+  Busca "[[" en este archivo: son seis huecos.
+
+    [[NOMBRE Y APELLIDOS]]   responsable del tratamiento
+    [[NIF]]                  documento fiscal
+    [[DIRECCIÓN POSTAL]]     domicilio a efectos de notificaciones
+    [[CORREO DE CONTACTO]]   dirección para ejercer derechos (aparece 3 veces)
+    [[NOMBRE DE LA AGENCIA]] solo si el cuestionario lo distribuye una agencia;
+                             si no, elimina entera la sección 3.b
+    [[FECHA]]                fecha de la última actualización
+
+  Cuando el cuestionario pase a distribuirlo la agencia y sea ella quien
+  recoja los datos, el papel cambia: la agencia sería responsable del
+  tratamiento y tú, encargado. Ese escenario exige un contrato del
+  artículo 28 del RGPD y una redacción distinta de la sección 2.
+  Este texto está escrito para el escenario actual: tú, responsable.
+  ══════════════════════════════════════════════════════════════
+-->
+
+<style>
+:root{
+  --tinta:#16233B; --tinta-70:#4A5568; --papel:#F1F3F0; --alto:#FFFFFF;
+  --mapa:#0E7C66; --mapa-claro:#E3F0EC; --ocre:#C98A15; --linea:#D5DAD4;
+  --r:10px; --paso:clamp(1rem,4vw,1.5rem);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--tinta); background-color:var(--papel);
+  background-image:
+    repeating-linear-gradient(0deg,rgba(22,35,59,.035) 0 1px,transparent 1px 28px),
+    repeating-linear-gradient(90deg,rgba(22,35,59,.035) 0 1px,transparent 1px 28px);
+  line-height:1.62; font-size:16px;
+}
+.envoltorio{max-width:660px;margin:0 auto;padding:0 var(--paso) 5rem}
+.cabecera{padding:1.75rem 0 .5rem}
+.cabecera__marca{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-70)}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.8rem,6vw,2.4rem);line-height:1.15;margin:.6rem 0 .4rem;letter-spacing:-.01em}
+h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.2rem,4.5vw,1.45rem);line-height:1.25;margin:2.4rem 0 .5rem;letter-spacing:-.01em}
+h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .3rem}
+p,li{color:var(--tinta);margin:0 0 .9rem}
+.sumario{color:var(--tinta-70);font-size:1.02rem;margin-bottom:1.5rem}
+.fecha{font-family:"IBM Plex Mono",monospace;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-70)}
+a{color:var(--mapa)}
+ul{padding-left:1.15rem;margin:0 0 1rem}
+li{margin-bottom:.45rem}
+.recuadro{background:var(--alto);border:1px solid var(--linea);border-radius:var(--r);padding:1rem 1.1rem;margin:1.3rem 0}
+.recuadro--nota{background:var(--mapa-claro);border-color:#C4E0D8}
+.recuadro--ojo{background:#FBF1DC;border-color:#EDD9AC}
+.recuadro p:last-child,.recuadro ul:last-child{margin-bottom:0}
+.tabla{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.93rem;background:var(--alto);
+  border:1px solid var(--linea);border-radius:var(--r);overflow:hidden}
+.tabla th,.tabla td{text-align:left;padding:.65rem .8rem;border-bottom:1px solid var(--linea);vertical-align:top}
+.tabla th{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-70);font-family:"IBM Plex Mono",monospace;font-weight:500}
+.tabla tr:last-child td{border-bottom:0}
+.indice{background:var(--alto);border:1px solid var(--linea);border-radius:var(--r);padding:1rem 1.1rem;margin:1.8rem 0}
+.indice ol{margin:0;padding-left:1.2rem}
+.indice li{margin-bottom:.3rem;font-size:.95rem}
+.volver{display:inline-block;margin-top:2.5rem;padding:.7rem 1.3rem;border:1px solid var(--linea);
+  border-radius:var(--r);color:var(--tinta);text-decoration:none;font-weight:500;background:var(--alto)}
+.volver:hover{border-color:var(--mapa);color:var(--mapa)}
+.pie{margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--linea);font-size:.82rem;color:var(--tinta-70)}
+</style>
+</head>
+<body>
+<div class="envoltorio">
+
+  <header class="cabecera">
+    <span class="cabecera__marca">Guías de viaje a medida</span>
+    <h1>Política de privacidad</h1>
+    <p class="fecha">Última actualización: [[FECHA]]</p>
+  </header>
+
+  <p class="sumario">Este texto explica qué datos se piden en el cuestionario, para qué se usan, quién los ve y cómo se pueden borrar. Está escrito para que se entienda a la primera, sin fórmulas innecesarias.</p>
+
+  <div class="recuadro recuadro--nota">
+    <p><strong>En tres líneas:</strong> los datos del cuestionario se usan únicamente para preparar la guía de viaje encargada. No se venden, no se ceden con fines comerciales y no se envía publicidad. Se conservan un año desde la entrega y después se borran. Se pueden consultar, corregir o eliminar en cualquier momento escribiendo a <a href="mailto:[[CORREO DE CONTACTO]]">[[CORREO DE CONTACTO]]</a>.</p>
+  </div>
+
+  <nav class="indice" aria-label="Índice">
+    <ol>
+      <li><a href="#responsable">Quién trata los datos</a></li>
+      <li><a href="#datos">Qué datos se recogen</a></li>
+      <li><a href="#salud">Datos de salud y alimentación</a></li>
+      <li><a href="#finalidad">Para qué se usan y con qué base legal</a></li>
+      <li><a href="#plazo">Cuánto tiempo se conservan</a></li>
+      <li><a href="#terceros">Quién más interviene</a></li>
+      <li><a href="#guia">La guía publicada y sus enlaces</a></li>
+      <li><a href="#almacenamiento">Almacenamiento en tu navegador</a></li>
+      <li><a href="#nopedimos">Lo que nunca se pide</a></li>
+      <li><a href="#derechos">Tus derechos</a></li>
+      <li><a href="#menores">Datos de menores</a></li>
+      <li><a href="#cambios">Cambios en esta política</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="responsable">1. Quién trata los datos</h2>
+  <table class="tabla">
+    <tr><th>Responsable</th><td>[[NOMBRE Y APELLIDOS]]</td></tr>
+    <tr><th>NIF</th><td>[[NIF]]</td></tr>
+    <tr><th>Dirección</th><td>[[DIRECCIÓN POSTAL]]</td></tr>
+    <tr><th>Contacto</th><td><a href="mailto:[[CORREO DE CONTACTO]]">[[CORREO DE CONTACTO]]</a></td></tr>
+  </table>
+  <p>No hay delegado de protección de datos designado, porque la actividad no alcanza el volumen ni la naturaleza que lo exigen. Cualquier consulta sobre privacidad se atiende en esa dirección de correo.</p>
+
+  <h2 id="datos">2. Qué datos se recogen</h2>
+  <p>Solo lo que hace falta para escribir la guía. En concreto:</p>
+  <ul>
+    <li><strong>De contacto:</strong> nombre y apellidos, correo electrónico y, si se facilita, teléfono. Sirven para entregar la guía y para consultar dudas sobre el cuestionario.</li>
+    <li><strong>Del viaje:</strong> destino, fechas, número de viajeros y edades de los menores, medios de transporte y horarios, alojamientos, actividades ya reservadas y presupuesto aproximado.</li>
+    <li><strong>De preferencias:</strong> intereses, ritmo, tipo de restaurantes, qué se prefiere evitar y los comentarios libres que se escriban.</li>
+    <li><strong>Referencia de expediente</strong> de la agencia, si se ha facilitado.</li>
+  </ul>
+  <p>Todos los campos son voluntarios, aunque catorce de ellos son necesarios para poder elaborar la guía: sin destino, fechas o número de viajeros no hay nada que preparar.</p>
+
+  <h2 id="salud">3. Datos de salud y alimentación</h2>
+  <div class="recuadro recuadro--ojo">
+    <p>El cuestionario pregunta por <strong>limitaciones de movilidad, de salud o miedos</strong> y por <strong>alergias o restricciones alimentarias</strong>. Esa información puede revelar datos de salud, que el Reglamento europeo protege de forma reforzada.</p>
+    <p>Se pregunta por una razón práctica: sin saberlo, la guía podría proponer una torre de cuatrocientos escalones a quien no puede subirla o un restaurante inviable para alguien celíaco. Contestarlo es <strong>enteramente voluntario</strong> y en ambas preguntas existe la opción de indicar que no hay nada que reseñar.</p>
+    <p>Al marcar la casilla de aceptación del cuestionario y facilitar esa información, se presta <strong>consentimiento explícito</strong> a su tratamiento con esa única finalidad, conforme al artículo 9.2.a del RGPD. Ese consentimiento se puede retirar en cualquier momento, sin que ello afecte a la licitud del tratamiento anterior.</p>
+    <p>Estos datos <strong>no se publican en la guía</strong>, no se comparten con restaurantes ni proveedores y se borran junto con el resto del cuestionario.</p>
+  </div>
+
+  <h2 id="finalidad">4. Para qué se usan y con qué base legal</h2>
+  <table class="tabla">
+    <tr><th>Finalidad</th><th>Base legal</th></tr>
+    <tr><td>Elaborar y entregar la guía de viaje solicitada</td><td>Ejecución de un contrato o de medidas precontractuales (art. 6.1.b del RGPD)</td></tr>
+    <tr><td>Resolver dudas sobre el cuestionario y atender los cambios incluidos</td><td>Ejecución del contrato (art. 6.1.b)</td></tr>
+    <tr><td>Adaptar la guía a limitaciones de salud o restricciones alimentarias</td><td>Consentimiento explícito (art. 9.2.a)</td></tr>
+    <tr><td>Conservar el encargo para atender reclamaciones</td><td>Interés legítimo y cumplimiento de obligaciones legales (arts. 6.1.f y 6.1.c)</td></tr>
+  </table>
+  <p><strong>No se envían comunicaciones comerciales.</strong> El cuestionario no incluye ninguna casilla de suscripción y no se elaboran perfiles ni se toman decisiones automatizadas sobre las personas.</p>
+
+  <h2 id="plazo">5. Cuánto tiempo se conservan</h2>
+  <ul>
+    <li>Los datos del cuestionario se conservan <strong>durante la elaboración de la guía y hasta un año después de su entrega</strong>, plazo pensado para poder atender correcciones o reclamaciones posteriores al viaje.</li>
+    <li>Pasado ese plazo se eliminan, salvo los datos que la normativa fiscal obligue a conservar en la facturación, que no incluyen preferencias ni datos de salud.</li>
+    <li>En la herramienta de recepción de formularios los envíos permanecen visibles <strong>treinta días</strong> y después se eliminan automáticamente de su sistema.</li>
+    <li>Si se retira el consentimiento o se solicita la supresión, el borrado se hace sin demora.</li>
+  </ul>
+
+  <h2 id="terceros">6. Quién más interviene</h2>
+  <p>Los datos no se ceden a terceros con fines comerciales. Sí intervienen los siguientes proveedores, estrictamente para que el servicio funcione:</p>
+  <table class="tabla">
+    <tr><th>Proveedor</th><th>Para qué</th><th>Dónde</th></tr>
+    <tr><td>Formspree</td><td>Recibir el cuestionario y remitirlo por correo</td><td>Estados Unidos</td></tr>
+    <tr><td>GitHub Pages</td><td>Alojar el cuestionario y la guía</td><td>Estados Unidos</td></tr>
+    <tr><td>Google Fonts</td><td>Cargar las tipografías de la página</td><td>Estados Unidos</td></tr>
+    <tr><td>Proveedor de correo electrónico</td><td>Recibir el aviso y responder</td><td>Unión Europea o Estados Unidos según el proveedor</td></tr>
+  </table>
+  <p><strong>Transferencias internacionales.</strong> Los tres primeros son proveedores estadounidenses, de modo que existe una transferencia de datos fuera del Espacio Económico Europeo. Se ampara en las garantías previstas en el capítulo V del RGPD, principalmente las cláusulas contractuales tipo aprobadas por la Comisión Europea y, cuando el proveedor está adherido, el marco de privacidad de datos entre la Unión Europea y Estados Unidos.</p>
+  <p>En el caso de las tipografías, la simple visita a esta página comunica la dirección IP del navegador a los servidores de Google. Si se prefiere evitarlo, basta con no cargar la página; el cuestionario también puede rellenarse por teléfono o por correo escribiendo a <a href="mailto:[[CORREO DE CONTACTO]]">[[CORREO DE CONTACTO]]</a>.</p>
+
+  <h3 id="agencia">6.b Si el cuestionario llega a través de una agencia</h3>
+  <p>Cuando el cuestionario se facilita a través de [[NOMBRE DE LA AGENCIA]], esa agencia y el responsable indicado en el apartado 1 intercambian los datos estrictamente necesarios para preparar y entregar la guía contratada, al amparo de un contrato de encargado del tratamiento suscrito conforme al artículo 28 del RGPD.</p>
+
+  <h2 id="guia">7. La guía publicada y sus enlaces</h2>
+  <p>La guía se publica como una página web con una dirección propia y difícil de adivinar, que se comunica únicamente a quien la ha encargado. Sobre ella conviene saber tres cosas:</p>
+  <ul>
+    <li>La guía <strong>no incluye nombres, teléfonos, correos ni datos de salud</strong> de los viajeros. Contiene el itinerario, los lugares, los horarios y los consejos, nada más.</li>
+    <li>Lleva instrucciones para los buscadores que impiden su indexación, de modo que no aparece en resultados de búsqueda. Aun así, <strong>quien disponga del enlace puede abrirla</strong>: conviene compartirlo con la misma prudencia que cualquier otro enlace privado.</li>
+    <li>Las notas, los gastos y las fotografías que el viajero añada dentro de la guía <strong>se guardan solo en su propio dispositivo</strong> y no se transmiten a ningún servidor.</li>
+  </ul>
+
+  <h2 id="almacenamiento">8. Almacenamiento en tu navegador</h2>
+  <p>Esta web <strong>no utiliza cookies</strong> ni herramientas de analítica o publicidad. El cuestionario sí guarda tus respuestas en el almacenamiento local del propio navegador, para que puedas dejarlo a medias y retomarlo después.</p>
+  <p>Esa información no sale del dispositivo, no se comparte con nadie y se elimina automáticamente al enviar el cuestionario. También se puede borrar en cualquier momento desde las opciones del navegador. Al tratarse de un almacenamiento imprescindible para prestar un servicio expresamente solicitado, no requiere consentimiento previo conforme al artículo 22.2 de la Ley 34/2002.</p>
+
+  <h2 id="nopedimos">9. Lo que nunca se pide</h2>
+  <p>Por diseño, el cuestionario <strong>no solicita en ningún caso</strong>:</p>
+  <ul>
+    <li>Localizadores de reserva ni números de billete.</li>
+    <li>Números de pasaporte o de documento de identidad.</li>
+    <li>Datos de tarjeta bancaria ni de cuenta.</li>
+    <li>La dirección del domicilio.</li>
+  </ul>
+  <p>No hacen falta para escribir una guía y guardarlos supondría un riesgo innecesario. Si algún formulario que dice representar a este servicio los solicita, conviene desconfiar y avisar a <a href="mailto:[[CORREO DE CONTACTO]]">[[CORREO DE CONTACTO]]</a>.</p>
+
+  <h2 id="derechos">10. Tus derechos</h2>
+  <p>Cualquier persona puede ejercer los siguientes derechos escribiendo al correo indicado en el apartado 1, adjuntando algún medio que permita verificar su identidad:</p>
+  <ul>
+    <li><strong>Acceso:</strong> saber qué datos suyos se están tratando y obtener una copia.</li>
+    <li><strong>Rectificación:</strong> corregir los que sean inexactos o estén incompletos.</li>
+    <li><strong>Supresión:</strong> pedir que se borren cuando ya no sean necesarios.</li>
+    <li><strong>Limitación:</strong> pedir que se conserven pero no se usen mientras se resuelve una discrepancia.</li>
+    <li><strong>Oposición:</strong> oponerse a un tratamiento basado en interés legítimo.</li>
+    <li><strong>Portabilidad:</strong> recibir los datos en un formato estructurado y de uso común.</li>
+    <li><strong>Retirar el consentimiento</strong> prestado para los datos de salud o alimentación, en cualquier momento y sin necesidad de justificarlo.</li>
+  </ul>
+  <p>La respuesta se da en el plazo máximo de un mes. Si la respuesta no resulta satisfactoria, existe el derecho a presentar una reclamación ante la <strong>Agencia Española de Protección de Datos</strong> (<a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a>), sin coste alguno.</p>
+
+  <h2 id="menores">11. Datos de menores</h2>
+  <p>El cuestionario lo rellena una persona adulta. Cuando en el viaje participan menores, únicamente se pide su <strong>edad</strong>, y solo para ajustar el ritmo del itinerario y proponer planes adecuados. No se piden nombres, ni fotografías, ni ningún otro dato de los menores, y quien facilita esa información declara ser su progenitor, tutor o estar autorizado para hacerlo.</p>
+
+  <h2 id="cambios">12. Cambios en esta política</h2>
+  <p>Si cambia algo relevante —un proveedor, un plazo, una finalidad— se actualizará este texto y su fecha de encabezado. Cuando el cambio afecte a datos ya recogidos, se avisará por correo electrónico a las personas afectadas.</p>
+
+  <a class="volver" href="formulario.html">← Volver al cuestionario</a>
+
+  <footer class="pie">
+    <p>Texto redactado conforme al Reglamento (UE) 2016/679, de protección de datos, y a la Ley Orgánica 3/2018, de protección de datos personales y garantía de los derechos digitales.</p>
+  </footer>
+
+</div>
+</body>
+</html>
