@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentos compartidos · Preparar para el repositorio</title>
+<style>
+  :root {
+    --bg:#FAF4E8; --card:#FFFFFF; --line:#E4D9C6; --accent:#C65D3A; --accent-dark:#A34A2C;
+    --text:#2C2A26; --soft:#6B6459; --muted:#9A9184; --ok:#4A7C59; --warn:#B3261E;
+  }
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg);
+    color:var(--text); margin:0; padding:24px 16px 64px; line-height:1.55; }
+  .wrap { max-width:900px; margin:0 auto; }
+  h1 { font-family:Georgia,serif; font-size:28px; margin:0 0 4px; letter-spacing:-0.01em; }
+  .sub { color:var(--soft); font-size:14px; margin:0 0 20px; }
+  .sub strong { color:var(--text); }
+
+  .warn-box { background:#FDF0EE; border:1px solid #E9C4BE; border-left:4px solid var(--warn);
+    border-radius:12px; padding:14px 16px; margin-bottom:20px; font-size:13.5px; line-height:1.55; }
+  .warn-box strong { color:var(--warn); }
+  .warn-box ul { margin:8px 0 0; padding-left:20px; }
+  .warn-box li { margin-bottom:3px; }
+
+  .drop { border:2px dashed var(--line); border-radius:14px; padding:30px 20px; text-align:center;
+    color:var(--muted); font-size:14px; background:var(--card); margin-bottom:20px; transition:border-color .15s,background .15s; }
+  .drop.is-over { border-color:var(--accent); background:#FEFAF3; }
+  .drop b { color:var(--accent); }
+
+  button { font-family:inherit; font-size:13.5px; font-weight:600; padding:9px 16px; border-radius:999px;
+    border:1.5px solid transparent; cursor:pointer; transition:background .15s,color .15s; }
+  button:active { transform:scale(0.97); }
+  button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .btn-primary { background:var(--accent); color:#fff; }
+  .btn-primary:hover { background:var(--accent-dark); }
+  .btn-primary:disabled { background:#D9CDB9; cursor:not-allowed; }
+  .btn-ghost { background:transparent; color:var(--accent); border-color:var(--accent); }
+  .btn-ghost:hover { background:#FDF1EA; }
+  .btn-mini { font-size:12px; padding:5px 11px; }
+
+  .bar-actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:22px;
+    position:sticky; top:10px; z-index:20; background:var(--bg); padding:8px 0; }
+  .count { font-family:Georgia,serif; font-size:15px; font-weight:700; margin-right:auto; }
+  .count b { color:var(--accent); font-size:20px; }
+
+  .doc { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
+  .doc.is-key { border-left:4px solid var(--accent); }
+  .doc__head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .doc__icon { font-size:22px; }
+  .doc__file { font-family:'SF Mono',Menlo,Consolas,monospace; font-size:12px; color:var(--soft);
+    background:#F7F1E6; border-radius:6px; padding:2px 7px; word-break:break-all; }
+  .doc__size { font-size:11.5px; color:var(--muted); margin-left:auto; white-space:nowrap; }
+  .doc__grid { display:grid; grid-template-columns:1fr 150px 150px; gap:10px; }
+  @media (max-width:620px){ .doc__grid { grid-template-columns:1fr; } }
+  label { display:block; font-size:11px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.07em; color:var(--muted); margin-bottom:4px; }
+  input[type=text], select { width:100%; padding:8px 10px; border:1px solid var(--line);
+    border-radius:8px; background:var(--bg); color:var(--text); font:inherit; font-size:14px; }
+  .doc__foot { display:flex; align-items:center; gap:14px; margin-top:12px; }
+  .doc__check { display:flex; align-items:center; gap:7px; font-size:13.5px; }
+  .doc__rm { margin-left:auto; }
+  .doc__warn { font-size:12px; color:var(--warn); margin-top:8px; }
+
+  .note { background:#F5EFE2; border:1px solid var(--line); border-radius:14px; padding:16px 18px;
+    font-size:13.5px; color:var(--soft); margin-top:28px; }
+  .note h2 { font-family:Georgia,serif; font-size:16px; color:var(--text); margin:0 0 8px; }
+  .note code { font-family:'SF Mono',Menlo,Consolas,monospace; font-size:12.5px; background:#EFE7D8; padding:1px 5px; border-radius:5px; }
+  .note ul { margin:8px 0 0; padding-left:20px; }
+  .note li { margin-bottom:5px; }
+  .tree { font-family:'SF Mono',Menlo,Consolas,monospace; font-size:12px; line-height:1.7;
+    background:#EFE7D8; border-radius:8px; padding:12px 14px; margin-top:10px; white-space:pre; overflow-x:auto; }
+  #guide-input { display:none; }
+  @media (prefers-reduced-motion:reduce){ * { transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Documentos compartidos</h1>
+  <p class="sub">Prepara la carpeta <code>documentos/</code> de <strong id="dest">tu guía</strong>: arrastra los archivos, ponles título y la herramienta genera el <code>index.json</code> y el zip listo para subir. Nada sale de tu ordenador.</p>
+
+  <div class="warn-box">
+    <strong>⚠️ Estos archivos serán públicos.</strong> Cualquiera con el enlace de la guía puede abrirlos: GitHub Pages no tiene contraseña y borrar un archivo no lo quita del historial.
+    <ul>
+      <li><strong>Sí:</strong> mapas de rutas, horarios y tarifas, fichas de parques, normativa, folletos.</li>
+      <li><strong>No:</strong> entradas nominativas, bonos, reservas de hotel o vuelo, seguros, DNI o pasaporte. Esos van en la guía desde el móvil, en la pestaña Documentos.</li>
+    </ul>
+  </div>
+
+  <div class="drop" id="drop">
+    Arrastra aquí los documentos o <button class="btn-ghost btn-mini" id="pick">elige archivos</button><br>
+    <span style="font-size:12.5px">PDF e imágenes se ven dentro de la guía. Otros formatos solo se pueden descargar.</span>
+    <input type="file" id="file-input" multiple style="display:none">
+  </div>
+
+  <div class="bar-actions">
+    <div class="count"><b id="n">0</b> <span id="nlabel">documentos</span></div>
+    <button class="btn-ghost" id="load-btn">Cargar guía (para los días)</button>
+    <button class="btn-ghost" id="index-btn">Cargar index.json existente</button>
+    <button class="btn-ghost" id="link-btn">Añadir enlace</button>
+    <button class="btn-ghost" id="json-btn" disabled>Descargar solo index.json</button>
+    <button class="btn-primary" id="zip-btn" disabled>Descargar documentos.zip</button>
+    <input type="file" id="guide-input" accept=".html,text/html">
+    <input type="file" id="index-input" accept=".json,application/json">
+  </div>
+
+  <div id="list"></div>
+
+  <div class="note" id="ref-note" style="display:none">
+    <h2>Sobre los documentos que ya estaban</h2>
+    <p style="margin:0 0 8px">Los que aparecen con borde discontinuo vienen del <code>index.json</code> que has cargado
+    y <strong>ya están subidos al repositorio</strong>: el zip no los incluye, porque no hace falta volver a subirlos.
+    Lo que sí se regenera entero es el <code>index.json</code>, con los antiguos y los nuevos juntos.</p>
+    <p style="margin:0">Al descomprimir el zip sobre la carpeta <code>documentos/</code> del repositorio, se añaden los
+    archivos nuevos y se sobrescribe el índice. Los anteriores se quedan donde están.</p>
+  </div>
+
+  <div class="note">
+    <h2>Qué hacer después</h2>
+    <ul>
+      <li>El zip trae la carpeta <code>documentos/</code> ya montada, con los archivos y el <code>index.json</code>. Descomprímelo y sube esa carpeta al repositorio, junto al <code>index.html</code>:</li>
+    </ul>
+    <div class="tree">mi-guia/
+├── index.html
+├── sw.js
+├── fotos/
+└── documentos/      ← esta carpeta
+    ├── index.json
+    └── mapa-tre-cime.pdf</div>
+    <ul>
+      <li>Si más adelante añades documentos, vuelve por aquí y pulsa <em>Cargar index.json existente</em> antes de arrastrar los nuevos: así el índice sale completo, con los antiguos y los nuevos, y el zip trae solo los archivos que faltan por subir.</li>
+      <li><em>Añadir enlace</em> sirve para lo que no es un archivo: webcams de los remontes, vídeos, páginas de reserva o partes en tiempo real. Se guardan en el índice como <code>enlace</code> y en la guía se abren en el navegador. Es lo suyo para los tipos <strong>Vídeo</strong> y <strong>Web</strong>, porque un vídeo pesa demasiado para el repositorio y una web no es un archivo.</li>
+      <li>Pulsa <em>Cargar guía</em> y selecciona su <code>index.html</code> para poder asignar cada documento a un día concreto del viaje.</li>
+      <li>Los nombres se limpian solos (sin acentos, espacios ni mayúsculas) porque GitHub Pages distingue mayúsculas y los espacios dan problemas en las URL.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var KINDS = [
+    { k:'otro', l:'Otro' },
+    { k:'mapa', l:'Plano o mapa' },
+    { k:'ruta', l:'Ruta' },
+    { k:'transporte', l:'Transporte' },
+    { k:'entrada', l:'Entrada o bono' },
+    { k:'reserva', l:'Reserva' },
+    { k:'seguro', l:'Seguro' },
+    { k:'video', l:'Vídeo' },
+    { k:'web', l:'Web' }
+  ];
+  // Vídeo y Web casi siempre son enlaces externos: un vídeo no se sube al
+  // repositorio (pesa demasiado) y una web no es un archivo. Por eso la
+  // herramienta admite entradas de tipo enlace, sin fichero asociado.
+  var LINK_KINDS = { video:1, web:1 };
+  var CSS_REF = '.doc.is-ref { border-style: dashed; opacity: 0.92; }' +
+    '.doc.is-ref .doc__file { font-style: italic; }' +
+    '.doc__size { white-space: nowrap; }';
+  (function(){ var s = document.createElement('style'); s.textContent = CSS_REF; document.head.appendChild(s); })();
+
+  var RISKY = /(billete|bono|reserva|entrada|ticket|boarding|tarjeta.?embarque|seguro|poliza|póliza|dni|pasaporte|passport|voucher|localizador)/i;
+
+  // Tres clases de entrada, distinguidas por que campo llevan:
+  //   nuevo     -> file (va al zip y al index.json)
+  //   ya subido -> from:'index' (solo al index.json; el archivo ya esta en el repo)
+  //   enlace    -> url (solo al index.json)
+  var docs = [];      // { file?, url?, from?, name, title, kind, day, key }
+  var DAYS = [];
+  var destino = '';
+
+  function $(s){ return document.querySelector(s); }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function kb(n){
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return Math.round(n/1024) + ' KB';
+    return (n/1048576).toFixed(1).replace('.',',') + ' MB';
+  }
+  function icon(d){
+    if (d && d.kind === 'video') return '🎬';
+    if (d && d.kind === 'web') return '🌍';
+    var name = (d && d.name) || '';
+    if (d && d.url) return '🔗';
+    if (/\.pdf$/i.test(name)) return '📄';
+    if (/\.(png|jpe?g|webp|gif)$/i.test(name)) return '🖼️';
+    return '📎';
+  }
+  // GitHub Pages distingue mayúsculas y los espacios complican las URL
+  function safeName(name){
+    var ext = (name.match(/\.[^.]+$/) || [''])[0].toLowerCase();
+    var base = name.slice(0, name.length - ext.length);
+    base = base.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+               .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,50) || 'documento';
+    return base + ext;
+  }
+  function uniqueName(name, idx){
+    var taken = docs.filter(function(d,i){ return i !== idx && !d.url && d.name === name; });
+    if (!taken.length) return name;
+    var ext = (name.match(/\.[^.]+$/) || [''])[0];
+    var base = name.slice(0, name.length - ext.length);
+    var n = 2;
+    while (docs.filter(function(d,i){ return i !== idx && !d.url && d.name === base + '-' + n + ext; }).length) n++;
+    return base + '-' + n + ext;
+  }
+
+  // ---------- ZIP (método store, sin compresión) ----------
+  var CRC = (function(){
+    var t = new Uint32Array(256), n, c, k;
+    for (n=0;n<256;n++){ c=n; for(k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1); t[n]=c>>>0; }
+    return t;
+  })();
+  function crc32(u8){
+    var c = 0xFFFFFFFF;
+    for (var i=0;i<u8.length;i++) c = CRC[(c^u8[i])&0xFF] ^ (c>>>8);
+    return (c^0xFFFFFFFF)>>>0;
+  }
+  function buildZip(entries){
+    var parts=[], central=[], offset=0, now=new Date();
+    var tt=(now.getHours()<<11)|(now.getMinutes()<<5)|((now.getSeconds()/2)|0);
+    var dd=((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate();
+    var enc=new TextEncoder();
+    entries.forEach(function(e){
+      var nb=enc.encode(e.name), crc=crc32(e.u8), size=e.u8.length;
+      var lh=new DataView(new ArrayBuffer(30));
+      lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true);
+      lh.setUint16(8,0,true); lh.setUint16(10,tt,true); lh.setUint16(12,dd,true);
+      lh.setUint32(14,crc,true); lh.setUint32(18,size,true); lh.setUint32(22,size,true);
+      lh.setUint16(26,nb.length,true); lh.setUint16(28,0,true);
+      parts.push(new Uint8Array(lh.buffer), nb, e.u8);
+      var cd=new DataView(new ArrayBuffer(46));
+      cd.setUint32(0,0x02014b50,true); cd.setUint16(4,20,true); cd.setUint16(6,20,true);
+      cd.setUint16(8,0x0800,true); cd.setUint16(10,0,true); cd.setUint16(12,tt,true);
+      cd.setUint16(14,dd,true); cd.setUint32(16,crc,true); cd.setUint32(20,size,true);
+      cd.setUint32(24,size,true); cd.setUint16(28,nb.length,true); cd.setUint16(30,0,true);
+      cd.setUint16(32,0,true); cd.setUint16(34,0,true); cd.setUint16(36,0,true);
+      cd.setUint32(38,0,true); cd.setUint32(42,offset,true);
+      central.push(new Uint8Array(cd.buffer), nb);
+      offset += 30 + nb.length + size;
+    });
+    var cdSize = central.reduce(function(s,a){ return s+a.length; },0);
+    var eo=new DataView(new ArrayBuffer(22));
+    eo.setUint32(0,0x06054b50,true); eo.setUint16(4,0,true); eo.setUint16(6,0,true);
+    eo.setUint16(8,entries.length,true); eo.setUint16(10,entries.length,true);
+    eo.setUint32(12,cdSize,true); eo.setUint32(16,offset,true); eo.setUint16(20,0,true);
+    return new Blob(parts.concat(central,[new Uint8Array(eo.buffer)]), { type:'application/zip' });
+  }
+  function download(blob, name){
+    var u=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(u); }, 5000);
+  }
+
+  // ---------- index.json ----------
+  function buildIndex(){
+    return JSON.stringify({
+      documentos: docs.map(function(d){
+        var o = d.url ? { enlace: d.url, titulo: d.title }
+                      : { archivo: d.name, titulo: d.title };
+        if (d.kind && d.kind !== 'otro') o.tipo = d.kind;
+        if (d.day) o.dia = +d.day;
+        if (d.key) o.imprescindible = true;
+        return o;
+      })
+    }, null, 2);
+  }
+
+  // ---------- render ----------
+  function render(){
+    var list = $('#list');
+    if (!docs.length){
+      list.innerHTML = '';
+      $('#n').textContent = '0';
+      $('#nlabel').textContent = 'documentos';
+      $('#ref-note').style.display = 'none';
+      $('#zip-btn').disabled = true;
+      $('#json-btn').disabled = true;
+      return;
+    }
+    list.innerHTML = docs.map(function(d,i){
+      var dayOpts = '<option value="">Sin día</option>' + DAYS.map(function(x){
+        return '<option value="'+x.day+'"'+(String(d.day)===String(x.day)?' selected':'')+'>Día '+x.day+(x.label?' · '+esc(x.label):'')+'</option>';
+      }).join('');
+      var etiqueta = d.url ? esc(d.url)
+                           : 'documentos/'+esc(d.name);
+      var derecha  = d.url  ? 'enlace'
+                   : d.file ? kb(d.file.size)
+                            : 'ya en el repositorio';
+      return '<div class="doc'+(d.key?' is-key':'')+(d.file?'':' is-ref')+'">'+
+        '<div class="doc__head"><span class="doc__icon">'+icon(d)+'</span>'+
+          '<span class="doc__file">'+etiqueta+'</span>'+
+          '<span class="doc__size">'+derecha+'</span></div>'+
+        '<div class="doc__grid">'+
+          '<div><label>Título</label><input type="text" data-f="title" data-i="'+i+'" value="'+esc(d.title)+'"></div>'+
+          '<div><label>Tipo</label><select data-f="kind" data-i="'+i+'">'+
+            KINDS.map(function(k){ return '<option value="'+k.k+'"'+(d.kind===k.k?' selected':'')+'>'+k.l+'</option>'; }).join('')+
+          '</select></div>'+
+          '<div><label>Día</label><select data-f="day" data-i="'+i+'"'+(DAYS.length?'':' disabled')+'>'+dayOpts+'</select></div>'+
+        '</div>'+
+        '<div class="doc__foot">'+
+          '<label class="doc__check" style="text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:400;color:var(--text);margin:0">'+
+            '<input type="checkbox" data-f="key" data-i="'+i+'"'+(d.key?' checked':'')+'> Imprescindible</label>'+
+          '<button class="btn-ghost btn-mini doc__rm" data-rm="'+i+'">Quitar</button>'+
+        '</div>'+
+        (RISKY.test(d.title) || RISKY.test(d.file ? d.file.name : d.name)
+          ? '<div class="doc__warn">⚠️ El nombre sugiere que puede ser un documento personal. Si lleva tu nombre o un localizador, no lo subas al repositorio: guárdalo desde el móvil en la pestaña Documentos de la guía.</div>'
+          : '')+
+      '</div>';
+    }).join('');
+    var nuevos = docs.filter(function(d){ return d.file; }).length;
+    var yaHay  = docs.length - nuevos;
+    $('#n').textContent = docs.length;
+    $('#nlabel').textContent = (docs.length === 1 ? 'documento' : 'documentos') +
+      (yaHay ? ' (' + nuevos + ' por subir, ' + yaHay + ' ya publicados)' : '');
+    $('#ref-note').style.display = yaHay ? '' : 'none';
+    $('#zip-btn').disabled = !nuevos;
+    $('#zip-btn').title = nuevos ? '' : 'No hay archivos nuevos que subir. Descarga solo el index.json.';
+    $('#json-btn').disabled = false;
+  }
+
+  // ---------- eventos ----------
+  function addFiles(files){
+    Array.prototype.slice.call(files).forEach(function(f){
+      var n = safeName(f.name);
+      docs.push({ file:f, name:n, title:f.name.replace(/\.[^.]+$/,''), kind:'otro', day:'', key:false });
+      docs[docs.length-1].name = uniqueName(n, docs.length-1);
+    });
+    render();
+  }
+
+  $('#pick').addEventListener('click', function(){ $('#file-input').click(); });
+  $('#file-input').addEventListener('change', function(e){ addFiles(e.target.files); e.target.value=''; });
+
+  var drop = $('#drop');
+  drop.addEventListener('dragover', function(e){ e.preventDefault(); drop.classList.add('is-over'); });
+  drop.addEventListener('dragleave', function(){ drop.classList.remove('is-over'); });
+  drop.addEventListener('drop', function(e){
+    e.preventDefault(); drop.classList.remove('is-over');
+    if (e.dataTransfer && e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  });
+  document.addEventListener('dragover', function(e){ e.preventDefault(); });
+  document.addEventListener('drop', function(e){ e.preventDefault(); });
+
+  $('#list').addEventListener('input', function(e){
+    var t = e.target, i = t.dataset.i;
+    if (i === undefined) return;
+    var f = t.dataset.f;
+    if (f === 'key') docs[i].key = t.checked;
+    else docs[i][f] = t.value;
+    if (f === 'key' || f === 'title') render();
+  });
+  $('#list').addEventListener('change', function(e){
+    var t = e.target;
+    if (t.dataset.i === undefined) return;
+    if (t.dataset.f === 'day' || t.dataset.f === 'kind') docs[t.dataset.i][t.dataset.f] = t.value;
+  });
+  $('#list').addEventListener('click', function(e){
+    var b = e.target.closest('[data-rm]');
+    if (!b) return;
+    docs.splice(+b.dataset.rm, 1);
+    render();
+  });
+
+  $('#json-btn').addEventListener('click', function(){
+    download(new Blob([buildIndex()], { type:'application/json' }), 'index.json');
+  });
+
+  $('#zip-btn').addEventListener('click', function(){
+    var btn = this;
+    btn.disabled = true; btn.textContent = 'Preparando…';
+    var entries = [{ name:'documentos/index.json', u8:new TextEncoder().encode(buildIndex()) }];
+    var chain = Promise.resolve();
+    // Solo entran los archivos que se han añadido en esta sesión. Los que ya
+    // estaban en el repositorio siguen ahí y no hay que volver a subirlos; el
+    // index.json, en cambio, se regenera entero con todos.
+    docs.filter(function(d){ return d.file; }).forEach(function(d){
+      chain = chain.then(function(){
+        return d.file.arrayBuffer().then(function(buf){
+          entries.push({ name:'documentos/'+d.name, u8:new Uint8Array(buf) });
+        });
+      });
+    });
+    chain.then(function(){
+      download(buildZip(entries), 'documentos.zip');
+      btn.textContent = 'Descargar documentos.zip';
+      btn.disabled = false;
+    });
+  });
+
+  // ---------- cargar un index.json ya existente ----------
+  // Permite añadir documentos a una carpeta que ya está publicada sin perder
+  // los que había: se cargan como referencias y el índice se regenera entero.
+  $('#index-btn').addEventListener('click', function(){ $('#index-input').click(); });
+  $('#index-input').addEventListener('change', function(e){
+    var f = e.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      var j;
+      try { j = JSON.parse(String(r.result)); }
+      catch (err) { alert('Ese archivo no es un JSON válido.'); return; }
+      var lista = j && j.documentos;
+      if (!Array.isArray(lista)) {
+        alert('El JSON no tiene una lista "documentos". ¿Seguro que es el index.json de una guía?');
+        return;
+      }
+      var añadidos = 0, repetidos = 0;
+      lista.forEach(function(o){
+        if (!o || (!o.archivo && !o.enlace)) return;
+        var yaEsta = docs.some(function(d){
+          return o.enlace ? d.url === o.enlace : (!d.url && d.name === o.archivo);
+        });
+        if (yaEsta) { repetidos++; return; }
+        docs.push({
+          from: 'index',
+          url:   o.enlace || null,
+          name:  o.archivo || '',
+          title: o.titulo || (o.archivo || o.enlace || '').replace(/\.[^.]+$/,''),
+          kind:  o.tipo || 'otro',
+          day:   o.dia != null ? String(o.dia) : '',
+          key:   !!o.imprescindible
+        });
+        añadidos++;
+      });
+      render();
+      alert('Índice cargado: ' + añadidos + (añadidos === 1 ? ' documento' : ' documentos') +
+            ' ya publicados' + (repetidos ? ' (' + repetidos + ' estaban repetidos y se han omitido)' : '') +
+            '.\n\nAhora puedes añadir los nuevos. El zip traerá solo los nuevos y el index.json completo.');
+    };
+    r.readAsText(f);
+    e.target.value = '';
+  });
+
+  // ---------- añadir un enlace externo ----------
+  $('#link-btn').addEventListener('click', function(){
+    var url = prompt('Dirección del enlace (webcam, vídeo, página de reserva…):', 'https://');
+    if (!url) return;
+    url = url.trim();
+    if (!/^https?:\/\//i.test(url)) { alert('El enlace debe empezar por http:// o https://'); return; }
+    if (docs.some(function(d){ return d.url === url; })) { alert('Ese enlace ya está en la lista.'); return; }
+    var titulo = prompt('Título del enlace:', '') || url.replace(/^https?:\/\//,'').split('/')[0];
+    docs.push({ url:url, name:'', title:titulo.trim(), kind:'web', day:'', key:false });
+    render();
+  });
+
+  $('#load-btn').addEventListener('click', function(){ $('#guide-input').click(); });
+  $('#guide-input').addEventListener('change', function(e){
+    var f = e.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      var m = String(r.result).match(/id="guide-data">([\s\S]*?)<\/script>/);
+      if (!m) { alert('Ese archivo no parece una guía: no encuentro sus datos dentro.'); return; }
+      try {
+        var g = JSON.parse(m[1]);
+        DAYS = (g.days || []).map(function(d){
+          return { day:d.day, label:(d.title || '').slice(0,32) };
+        });
+        destino = (g.meta && g.meta.destination && g.meta.destination.name) || '';
+        if (destino) $('#dest').textContent = destino;
+        render();
+        if (!DAYS.length) alert('La guía se ha leído, pero no tiene días definidos.');
+      } catch (err) { alert('No he podido leer los datos de esa guía.'); }
+    };
+    r.readAsText(f);
+    e.target.value = '';
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
