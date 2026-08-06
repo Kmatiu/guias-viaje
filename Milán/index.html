@@ -1291,12 +1291,31 @@ body.is-offline .offline-chip { display: inline-flex; }
     theme: null          // "light" | "dark" | null (= auto)
   };
 
+  // Gastos ya pagados antes de salir, declarados en meta.budget.prepaid.
+  // Se siembran una sola vez, en la primera apertura de la guía: a partir de ahí
+  // son gastos normales y el viajero puede editarlos o borrarlos.
+  function seedExpenses() {
+    const pre = (DATA.meta && DATA.meta.budget && DATA.meta.budget.prepaid) || [];
+    const BD = ['flights','accommodation','transport','food','activities','shopping','other'];
+    return pre
+      .filter(p => Number(p.amount) > 0)
+      .map((p, i) => ({
+        id: 'pre-' + i,
+        day: Number.isInteger(p.day) ? p.day : null,
+        category: BD.indexOf(p.category) > -1 ? p.category : 'other',
+        desc: p.desc || 'Pagado antes de salir',
+        amount: Number(p.amount),
+        date: p.date || (DATA.meta.dates && DATA.meta.dates.start) || '',
+        prepaid: true
+      }));
+  }
+
   function loadStore() {
     try {
       const raw = localStorage.getItem(STORE_KEY);
-      if (!raw) return { ...defaultStore };
+      if (!raw) return { ...defaultStore, expenses: seedExpenses() };
       return { ...defaultStore, ...JSON.parse(raw) };
-    } catch (e) { return { ...defaultStore }; }
+    } catch (e) { return { ...defaultStore, expenses: seedExpenses() }; }
   }
   function saveStore() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {}
