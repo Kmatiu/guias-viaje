@@ -51,6 +51,13 @@
       "archivo": "recursos-documentales.md",
       "titulo": "recursos-documentales",
       "imprescindible": true
+    },
+    {
+      "archivo": "msc-magnifica-deckplan.pdf",
+      "titulo": "MSC MAGNIFICA DECK PLAN",
+      "tipo": "transporte",
+      "dia": 2,
+      "imprescindible": true
     }
   ]
 }
