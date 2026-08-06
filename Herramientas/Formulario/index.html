@@ -46,6 +46,7 @@ body{
 @media (prefers-reduced-motion:reduce){.paso{animation:none}.ruta__avance{transition:none}}
 h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.7rem,6vw,2.3rem);line-height:1.15;margin:.4rem 0 .6rem;letter-spacing:-.01em}
 h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.35rem,5vw,1.7rem);line-height:1.2;margin:.6rem 0 .35rem;letter-spacing:-.01em}
+h3{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mapa);margin:1.8rem 0 .7rem;font-weight:500}
 .entradilla{color:var(--tinta-70);margin:0 0 1.6rem}
 .campo{margin:0 0 1.35rem}
 .campo>label,.grupo__titulo{display:block;font-weight:600;font-size:.97rem;margin:0 0 .3rem}
@@ -62,13 +63,16 @@ textarea.grande{min-height:170px}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--mapa);box-shadow:0 0 0 3px var(--mapa-claro)}
 input.mal,select.mal,textarea.mal{border-color:var(--error);box-shadow:0 0 0 3px rgba(168,51,43,.1)}
 .dupla{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-@media (max-width:420px){.dupla{grid-template-columns:1fr}}
+.trio{display:grid;grid-template-columns:2fr 1fr 1fr;gap:.6rem}
+@media (max-width:460px){.dupla,.trio{grid-template-columns:1fr}}
 .fichas{display:flex;flex-wrap:wrap;gap:.5rem}
 .ficha{font:inherit;font-size:.92rem;padding:.5rem .85rem;border:1px solid var(--linea);background:var(--alto);
-  color:var(--tinta);border-radius:100px;cursor:pointer;transition:all .16s}
+  color:var(--tinta);border-radius:100px;cursor:pointer;transition:all .16s;text-align:left}
 .ficha:hover{border-color:var(--mapa)}
 .ficha[aria-pressed=true]{background:var(--mapa);border-color:var(--mapa);color:#fff}
 .ficha--nada[aria-pressed=true]{background:var(--tinta-70);border-color:var(--tinta-70)}
+.ficha--ancha{border-radius:var(--r);padding:.7rem .9rem;flex:1 1 100%;line-height:1.35}
+.ficha--ancha small{display:block;font-size:.8rem;opacity:.75;font-weight:400;margin-top:.15rem}
 .ficha:focus-visible{outline:2px solid var(--ocre);outline-offset:2px}
 .contador{font-family:"IBM Plex Mono",monospace;font-size:.75rem;color:var(--tinta-70);margin-top:.45rem}
 .casilla{display:flex;gap:.65rem;align-items:flex-start;padding:.6rem .75rem;border:1px solid var(--linea);
@@ -76,6 +80,12 @@ input.mal,select.mal,textarea.mal{border-color:var(--error);box-shadow:0 0 0 3px
 .casilla input{margin:.2rem 0 0;width:18px;height:18px;accent-color:var(--mapa);flex:0 0 auto}
 .casilla span{font-size:.94rem}
 .casilla:focus-within{border-color:var(--mapa);box-shadow:0 0 0 3px var(--mapa-claro)}
+.gasto{display:grid;grid-template-columns:1fr 7.5rem;gap:.6rem;align-items:center;margin-bottom:.5rem}
+.gasto__nombre{display:flex;gap:.6rem;align-items:center;padding:.55rem .7rem;border:1px solid var(--linea);
+  background:var(--alto);border-radius:var(--r);cursor:pointer;font-size:.93rem}
+.gasto__nombre input{width:18px;height:18px;accent-color:var(--mapa);flex:0 0 auto;margin:0}
+.gasto input[type=number]{padding:.55rem .6rem}
+.gasto input[type=number]:disabled{background:#EFF1EE;color:#9AA3AE}
 .tarjeta{border:1px solid var(--linea);background:var(--alto);border-radius:var(--r);padding:1rem;margin-bottom:.85rem;position:relative}
 .tarjeta__n{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mapa);margin-bottom:.6rem}
 .tarjeta__quitar{position:absolute;top:.7rem;right:.7rem;background:none;border:0;color:var(--tinta-70);font-size:1.2rem;cursor:pointer;line-height:1;padding:.2rem .4rem}
@@ -94,6 +104,10 @@ input.mal,select.mal,textarea.mal{border-color:var(--error);box-shadow:0 0 0 3px
 .aviso--error{background:#FBEAE8;color:var(--error);border:1px solid #EFC9C5}
 .aviso--nota{background:var(--mapa-claro);color:#0A5A4B;border:1px solid #C4E0D8}
 .aviso--ocre{background:#FBF1DC;color:#7A5406;border:1px solid #EDD9AC}
+.suma{background:var(--alto);border:1px solid var(--linea);border-radius:var(--r);padding:.9rem 1rem;margin:0 0 1.3rem}
+.suma__linea{display:flex;justify-content:space-between;gap:1rem;font-size:.92rem;padding:.15rem 0}
+.suma__linea--total{border-top:1px solid var(--linea);margin-top:.5rem;padding-top:.55rem;font-weight:600}
+.suma__cifra{font-family:"IBM Plex Mono",monospace;white-space:nowrap}
 .asesor{display:none;font-family:"IBM Plex Mono",monospace;font-size:.8rem;line-height:1.5;
   border-left:3px solid var(--ocre);background:#FBF1DC;color:#6B4A05;padding:.65rem .8rem;border-radius:0 6px 6px 0;margin:0 0 1.3rem}
 body.modo-asesor .asesor{display:block}
@@ -132,10 +146,11 @@ body.modo-asesor .asesor{display:block}
 
   <main id="main">
 
+  <!-- 1 ─ Contacto -->
   <section class="paso visible" data-nombre="Quién eres">
     <h1>Vamos a preparar tu guía de viaje</h1>
-    <p class="entradilla">Once pantallas cortas, unos diez minutos. Cuanto mejor os conozcamos, menos se parecerá la guía a cualquier otra. Puedes dejarlo a medias y volver: lo escrito se guarda en este navegador.</p>
-    <div class="asesor">MODO ASESOR · Deja hablar en los bloques 6 y 10, que es donde sale lo que personaliza la guía. El bloque 5, el de compromisos cerrados, es el que más trabajo ahorra después: insiste en él aunque digan que no tienen nada.</div>
+    <p class="entradilla">Once pantallas cortas, unos diez o doce minutos. Cuanto mejor os conozcamos, menos se parecerá la guía a cualquier otra. Puedes dejarlo a medias y volver: lo escrito se guarda en este navegador.</p>
+    <div class="asesor">MODO ASESOR · Los bloques que más rendimiento dan son el 5 (compromisos cerrados) y el 10 (texto libre). En el 3 y el 4, insiste en las horas y los importes: son los que hacen que el presupuesto de la guía salga realista.</div>
 
     <div class="campo">
       <label for="nombre">Nombre y apellidos <span class="obligatorio">·</span></label>
@@ -164,6 +179,7 @@ body.modo-asesor .asesor{display:block}
     </div>
   </section>
 
+  <!-- 2 ─ El viaje -->
   <section class="paso" data-nombre="El viaje">
     <h2>El viaje</h2>
     <p class="entradilla">Lo básico para situarnos.</p>
@@ -180,7 +196,8 @@ body.modo-asesor .asesor{display:block}
       <textarea id="destino" required></textarea>
     </div>
     <div class="campo">
-      <label>Fechas <span class="obligatorio">·</span></label>
+      <label>Fechas del viaje <span class="obligatorio">·</span></label>
+      <span class="ayuda">Del día que salís de casa al día que volvéis. Estas fechas se usan después para rellenar solos los calendarios de alojamientos y actividades.</span>
       <div class="dupla">
         <div><span class="ayuda">Ida</span><input type="date" id="fechaIda" required></div>
         <div><span class="ayuda">Vuelta</span><input type="date" id="fechaVuelta" required></div>
@@ -217,13 +234,14 @@ body.modo-asesor .asesor{display:block}
     </div>
   </section>
 
+  <!-- 3 ─ Transporte -->
   <section class="paso" data-nombre="Cómo os movéis">
-    <h2>Cómo os movéis</h2>
-    <p class="entradilla">La hora de llegada decide si el primer día es un día de viaje o un día aprovechable.</p>
-    <div class="asesor">MODO ASESOR · Si no saben la hora del vuelo, que la busquen ahora. Y pregunta siempre si vuelven por el mismo sitio: dos aeropuertos distintos cambian el último día entero.</div>
+    <h2>Cómo llegáis y cómo os movéis</h2>
+    <p class="entradilla">Las horas exactas deciden si el primer día es aprovechable o solo un traslado, y si el último da para algo más que ir al aeropuerto.</p>
+    <div class="asesor">MODO ASESOR · Si no saben las horas, que abran la reserva ahora. Sin la hora de llegada, el día 1 se planifica a ciegas. Y ojo con las escalas largas: a partir de cinco horas puede caber una visita al centro de la ciudad de la escala, y eso es un día extra regalado.</div>
 
     <div class="campo">
-      <label for="llegadaMedio">¿Cómo llegáis? <span class="obligatorio">·</span></label>
+      <label for="llegadaMedio">¿Cómo llegáis al destino? <span class="obligatorio">·</span></label>
       <select id="llegadaMedio" required>
         <option value="">Elige una opción</option>
         <option value="avion">Avión</option>
@@ -233,25 +251,74 @@ body.modo-asesor .asesor{display:block}
         <option value="autobus">Autobús</option>
       </select>
     </div>
+
+    <h3>El viaje de ida</h3>
     <div class="campo">
-      <label for="llegadaPunto">Aeropuerto, estación o puerto de llegada</label>
+      <label for="idaSalidaPunto">Salís de</label>
+      <span class="ayuda">Aeropuerto, estación o puerto, y a qué hora sale.</span>
       <div class="dupla">
-        <input type="text" id="llegadaPunto" placeholder="Por ejemplo: Malpensa">
-        <div><span class="ayuda">Hora prevista</span><input type="time" id="llegadaHora"></div>
+        <input type="text" id="idaSalidaPunto" placeholder="Por ejemplo: Alicante-Elche">
+        <div><span class="ayuda">Hora de salida</span><input type="time" id="idaSalidaHora"></div>
       </div>
     </div>
     <div class="campo">
-      <label class="casilla"><input type="checkbox" id="mismoPunto" checked><span>Volvemos por el mismo sitio</span></label>
-    </div>
-    <div class="campo" id="campoVuelta" hidden>
-      <label for="vueltaPunto">Punto de salida a la vuelta</label>
+      <label for="idaLlegadaPunto">Llegáis a <span class="obligatorio">·</span></label>
+      <span class="ayuda">El punto exacto y la hora prevista de llegada. Es el dato más importante de esta pantalla.</span>
       <div class="dupla">
-        <input type="text" id="vueltaPunto" placeholder="Por ejemplo: Bérgamo">
-        <div><span class="ayuda">Hora prevista</span><input type="time" id="vueltaHora"></div>
+        <input type="text" id="idaLlegadaPunto" placeholder="Por ejemplo: Malpensa T1">
+        <div><span class="ayuda">Hora de llegada</span><input type="time" id="idaLlegadaHora"></div>
       </div>
     </div>
     <div class="campo">
-      <span class="grupo__titulo">¿Cómo os movéis allí? <span class="obligatorio">·</span></span>
+      <span class="grupo__titulo">¿Hace escala? <span class="obligatorio">·</span></span>
+      <div class="fichas" data-uno="idaEscala">
+        <button type="button" class="ficha" data-v="si">Sí, hay escala</button>
+        <button type="button" class="ficha ficha--nada" data-v="no">No, es directo</button>
+      </div>
+    </div>
+    <div class="campo" id="campoIdaEscala" hidden>
+      <label for="idaEscalaDonde">¿Dónde y cuánto tiempo? <span class="obligatorio">·</span></label>
+      <span class="ayuda">Si la espera pasa de cinco horas y el equipaje va facturado hasta el destino, quizá dé para salir a ver algo. Lo miramos y os lo decimos.</span>
+      <div class="dupla">
+        <input type="text" id="idaEscalaDonde" placeholder="Ciudad de la escala">
+        <input type="text" id="idaEscalaDuracion" placeholder="Cuánto dura: 1 h 40, 6 h…">
+      </div>
+    </div>
+
+    <h3>El viaje de vuelta</h3>
+    <div class="campo">
+      <label class="casilla"><input type="checkbox" id="mismoPunto" checked><span>Volvemos desde el mismo sitio al que llegamos</span></label>
+    </div>
+    <div class="campo" id="campoVueltaPunto" hidden>
+      <label for="vueltaPunto">Salís de vuelta desde</label>
+      <span class="ayuda">Si el vuelo de vuelta sale de otra ciudad, esto cambia el último día entero.</span>
+      <input type="text" id="vueltaPunto" placeholder="Por ejemplo: Bérgamo">
+    </div>
+    <div class="campo">
+      <label>Horarios de la vuelta</label>
+      <div class="dupla">
+        <div><span class="ayuda">Hora de salida</span><input type="time" id="vueltaSalidaHora"></div>
+        <div><span class="ayuda">Hora de llegada a casa</span><input type="time" id="vueltaLlegadaHora"></div>
+      </div>
+    </div>
+    <div class="campo">
+      <span class="grupo__titulo">¿La vuelta hace escala?</span>
+      <div class="fichas" data-uno="vueltaEscala">
+        <button type="button" class="ficha" data-v="si">Sí, hay escala</button>
+        <button type="button" class="ficha ficha--nada" data-v="no">No, es directo</button>
+      </div>
+    </div>
+    <div class="campo" id="campoVueltaEscala" hidden>
+      <label for="vueltaEscalaDonde">¿Dónde y cuánto tiempo?</label>
+      <div class="dupla">
+        <input type="text" id="vueltaEscalaDonde" placeholder="Ciudad de la escala">
+        <input type="text" id="vueltaEscalaDuracion" placeholder="Cuánto dura">
+      </div>
+    </div>
+
+    <h3>Una vez allí</h3>
+    <div class="campo">
+      <span class="grupo__titulo">¿Cómo os movéis en destino? <span class="obligatorio">·</span></span>
       <span class="ayuda">Todo lo que vayáis a usar.</span>
       <div class="fichas" data-multi="enDestino">
         <button type="button" class="ficha" data-v="coche_alquiler">Coche de alquiler</button>
@@ -264,32 +331,51 @@ body.modo-asesor .asesor{display:block}
         <button type="button" class="ficha" data-v="bici">Bicicleta</button>
       </div>
     </div>
-    <div class="campo">
-      <span class="grupo__titulo">¿Ya tenéis comprados los transportes?</span>
-      <div class="fichas" data-uno="transporteComprado">
-        <button type="button" class="ficha" data-v="si">Sí, todo</button>
-        <button type="button" class="ficha" data-v="parcial">Algunos</button>
-        <button type="button" class="ficha" data-v="no">Todavía no</button>
+
+    <h3>Lo que ya está pagado</h3>
+    <p class="ayuda" style="margin-bottom:.8rem">Marca lo que ya tengáis comprado y, si lo sabéis, cuánto ha costado en total entre todos. Con eso el presupuesto de la guía sale realista y esos gastos aparecen ya anotados dentro de ella, sin tener que meterlos a mano.</p>
+    <div id="gastosTransporte">
+      <div class="gasto">
+        <label class="gasto__nombre"><input type="checkbox" data-g="vuelos"><span>Vuelos</span></label>
+        <input type="number" min="0" step="10" placeholder="€ total" data-gi="vuelos" disabled>
+      </div>
+      <div class="gasto">
+        <label class="gasto__nombre"><input type="checkbox" data-g="tren"><span>Trenes</span></label>
+        <input type="number" min="0" step="10" placeholder="€ total" data-gi="tren" disabled>
+      </div>
+      <div class="gasto">
+        <label class="gasto__nombre"><input type="checkbox" data-g="coche"><span>Coche de alquiler</span></label>
+        <input type="number" min="0" step="10" placeholder="€ total" data-gi="coche" disabled>
+      </div>
+      <div class="gasto">
+        <label class="gasto__nombre"><input type="checkbox" data-g="barco"><span>Barco, ferry o crucero</span></label>
+        <input type="number" min="0" step="10" placeholder="€ total" data-gi="barco" disabled>
+      </div>
+      <div class="gasto">
+        <label class="gasto__nombre"><input type="checkbox" data-g="traslados"><span>Traslados al aeropuerto</span></label>
+        <input type="number" min="0" step="10" placeholder="€ total" data-gi="traslados" disabled>
       </div>
     </div>
   </section>
 
+  <!-- 4 ─ Alojamiento -->
   <section class="paso" data-nombre="Dónde dormís">
     <h2>Dónde dormís</h2>
-    <p class="entradilla">Cada noche del viaje entra en la guía con su ficha, su mapa y cómo llegar. Si dormís varias noches seguidas en el mismo sitio, con una entrada basta.</p>
+    <p class="entradilla">Cada noche entra en la guía con su ficha y su punto en el mapa, porque <strong>el itinerario de cada mañana arranca en la puerta del alojamiento</strong>. Si dormís varias noches seguidas en el mismo sitio, con una entrada basta.</p>
     <div class="campo">
       <label class="casilla"><input type="checkbox" id="sinReserva"><span>Todavía no lo tenemos reservado y agradeceríamos recomendación de zona</span></label>
     </div>
     <div id="alojamientos"></div>
     <button type="button" class="btn btn--fantasma" id="masAlojamiento">+ Añadir otro alojamiento</button>
-    <div class="asesor" style="margin-top:1.3rem">MODO ASESOR · Nunca pidas el localizador ni el número de reserva. Con el nombre y la ciudad sobra para situarlo en el mapa.</div>
+    <div class="asesor" style="margin-top:1.3rem">MODO ASESOR · La dirección es obligatoria salvo que el hotel sea localizable por su nombre. En apartamentos y casas rurales, sin calle y número no se puede calcular ni un solo tiempo de trayecto. Nunca pidas el localizador.</div>
   </section>
 
+  <!-- 5 ─ Compromisos cerrados -->
   <section class="paso" data-nombre="Lo que ya está cerrado">
     <h2>¿Hay algo que ya esté cerrado?</h2>
     <p class="entradilla">Excursiones contratadas, entradas con hora, una comida familiar, un concierto, una visita guiada. Cualquier cosa que ocupe una franja concreta de un día concreto.</p>
     <div class="aviso aviso--nota">Este bloque es el que más cambia la guía. Una excursión de un día entero puede ocupar el veinticinco por ciento de un viaje de cuatro días, y saberlo desde el principio evita que os propongamos planes imposibles.</div>
-    <div class="asesor">MODO ASESOR · Ojo con lo que la gente mete en «imprescindibles»: si tiene día y hora, no es un deseo, es un compromiso y va aquí. Pregunta también la hora de vuelta, no solo la de salida.</div>
+    <div class="asesor">MODO ASESOR · Si tiene día y hora, es un compromiso y va aquí, no en «imprescindibles». Pregunta la hora de vuelta, no solo la de salida, y el precio: casi siempre es la partida más gorda del viaje después del avión.</div>
 
     <div class="campo">
       <span class="grupo__titulo">¿Tenéis algo ya reservado con día y hora? <span class="obligatorio">·</span></span>
@@ -304,16 +390,22 @@ body.modo-asesor .asesor{display:block}
     </div>
   </section>
 
+  <!-- 6 ─ Gustos -->
   <section class="paso" data-nombre="Qué os gusta">
     <h2>Qué os gusta</h2>
     <p class="entradilla">De aquí sale casi todo lo que la guía os va a proponer.</p>
     <div class="campo">
-      <span class="grupo__titulo">Nivel de gasto <span class="obligatorio">·</span></span>
+      <span class="grupo__titulo">Nivel de gasto del día a día <span class="obligatorio">·</span></span>
+      <span class="ayuda">Marca la horquilla en la que os sentís cómodos comiendo y visitando. Es lo que decide qué restaurantes y qué actividades se proponen.</span>
       <div class="fichas" data-uno="nivel">
-        <button type="button" class="ficha" data-v="economico">Económico</button>
-        <button type="button" class="ficha" data-v="medio">Medio</button>
-        <button type="button" class="ficha" data-v="alto">Alto</button>
-        <button type="button" class="ficha" data-v="lujo">Lujo</button>
+        <button type="button" class="ficha ficha--ancha" data-v="economico">Económico
+          <small>Comer bien sin sentarse a mantel: mercados, menú del día, 12–20 € por persona. Visitas sobre todo gratuitas.</small></button>
+        <button type="button" class="ficha ficha--ancha" data-v="medio">Medio
+          <small>Trattorias y casas de comidas con solera, 25–40 € por persona en la cena. Entradas a los monumentos principales.</small></button>
+        <button type="button" class="ficha ficha--ancha" data-v="alto">Alto
+          <small>Cocina de nivel y alguna mesa con reserva difícil, 50–80 € por persona. Visitas guiadas y accesos preferentes.</small></button>
+        <button type="button" class="ficha ficha--ancha" data-v="lujo">Lujo
+          <small>Estrellas Michelin y experiencias privadas, desde 100 € por persona. Sin límite en entradas ni traslados.</small></button>
       </div>
     </div>
     <div class="campo">
@@ -356,6 +448,7 @@ body.modo-asesor .asesor{display:block}
     </div>
   </section>
 
+  <!-- 7 ─ Evitar -->
   <section class="paso" data-nombre="Qué evitar">
     <h2>Qué preferís evitar</h2>
     <p class="entradilla">Esto vale tanto como lo anterior. Saber qué no proponeros nos ahorra a todos un mal día.</p>
@@ -394,40 +487,38 @@ body.modo-asesor .asesor{display:block}
     </div>
   </section>
 
+  <!-- 8 ─ Presupuesto -->
   <section class="paso" data-nombre="Presupuesto">
     <h2>Presupuesto</h2>
-    <p class="entradilla">Un orden de magnitud basta. Sirve para no proponeros ni lo inalcanzable ni lo que se queda corto.</p>
-    <div class="campo">
-      <label for="presupuesto">Cantidad aproximada <span class="obligatorio">·</span></label>
-      <div class="dupla">
-        <input type="number" id="presupuesto" min="0" step="50" placeholder="1500" required>
-        <select id="presupuestoTipo">
-          <option value="total_grupo">€ en total, todo el grupo</option>
-          <option value="total_persona">€ en total, por persona</option>
-          <option value="dia_grupo">€ al día, todo el grupo</option>
-          <option value="dia_persona">€ al día, por persona</option>
-        </select>
-      </div>
+    <p class="entradilla">Una sola cifra: <strong>lo que calculáis gastar en el viaje entero, entre todos y contando todo</strong>, incluido lo que ya habéis pagado. Con eso la guía reparte por partidas y va descontando sobre la marcha.</p>
+
+    <div class="suma" id="sumaComprometido">
+      <div class="suma__linea"><span>Ya nos habéis dicho que tenéis pagado</span><span class="suma__cifra" id="cifraComprometido">0 €</span></div>
+      <div class="suma__linea" style="color:var(--tinta-70);font-size:.85rem"><span id="detalleComprometido">De momento no has marcado nada como pagado.</span></div>
     </div>
+
     <div class="campo">
-      <span class="grupo__titulo">¿Qué incluye esa cifra?</span>
-      <span class="ayuda">Importante: si tenéis una excursión contratada aparte, marcadla abajo para no contarla dos veces.</span>
-      <div class="fichas" data-multi="incluye">
-        <button type="button" class="ficha" data-v="transporte">Vuelos o transporte</button>
-        <button type="button" class="ficha" data-v="alojamiento">Alojamiento</button>
-        <button type="button" class="ficha" data-v="comidas">Comidas</button>
-        <button type="button" class="ficha" data-v="actividades">Entradas y actividades</button>
-        <button type="button" class="ficha" data-v="excursiones">Excursiones ya contratadas</button>
-        <button type="button" class="ficha" data-v="compras">Compras</button>
-      </div>
+      <label for="presupuesto">Presupuesto total del viaje <span class="obligatorio">·</span></label>
+      <span class="ayuda">En euros, para todo el grupo y para todos los días. Si ya habéis pagado vuelos o alojamiento, esa cifra va incluida aquí dentro.</span>
+      <input type="number" id="presupuesto" min="0" step="50" placeholder="2000" required>
+      <div id="avisoPresupuesto"></div>
     </div>
     <div class="campo">
       <label for="partida">¿Hay algún gasto propio de este viaje que queráis ver aparte?</label>
-      <span class="ayuda">Peajes y parkings, forfait de esquí, entradas de parques, alquiler del coche.</span>
+      <span class="ayuda">Peajes y parkings, forfait de esquí, entradas de parques, gasolina. Se le pone su propia casilla en la guía.</span>
       <input type="text" id="partida">
+    </div>
+    <div class="campo">
+      <span class="grupo__titulo">¿Cómo lleváis el dinero del grupo?</span>
+      <span class="ayuda">La guía tiene una sección para repartir gastos entre varias personas. Si os interesa, la dejamos preparada.</span>
+      <div class="fichas" data-uno="reparto">
+        <button type="button" class="ficha" data-v="comun">Bote común, no hace falta repartir</button>
+        <button type="button" class="ficha" data-v="repartir">Cada uno paga cosas y luego cuadramos</button>
+      </div>
     </div>
   </section>
 
+  <!-- 9 ─ Comida -->
   <section class="paso" data-nombre="Comida">
     <h2>Comida</h2>
     <p class="entradilla">Cada día lleva una comida y una cena propuestas. Conviene acertar.</p>
@@ -455,7 +546,7 @@ body.modo-asesor .asesor{display:block}
     </div>
     <div class="campo">
       <label for="cenaEspecial">¿Cuánto os apetece gastar en una cena especial?</label>
-      <span class="ayuda">Para saber si se propone un sitio de 40 € o uno de 120 € por persona.</span>
+      <span class="ayuda">Una sola noche del viaje, la que se recuerda.</span>
       <select id="cenaEspecial">
         <option value="">Sin preferencia</option>
         <option value="hasta_30">Hasta 30 € por persona</option>
@@ -467,6 +558,7 @@ body.modo-asesor .asesor{display:block}
     </div>
   </section>
 
+  <!-- 10 ─ Detalles finales -->
   <section class="paso" data-nombre="Últimos detalles">
     <h2>Últimos detalles</h2>
     <p class="entradilla">La lista de equipaje de la guía se filtra con esto, y el último campo es el que más ayuda.</p>
@@ -494,6 +586,7 @@ body.modo-asesor .asesor{display:block}
     </div>
   </section>
 
+  <!-- 11 ─ Revisión -->
   <section class="paso" data-nombre="Revisar y enviar">
     <h2>Repasa antes de enviarlo</h2>
     <p class="entradilla">Si algo no está bien, vuelve atrás y cámbialo. Después de enviarlo también se puede corregir, pero es más cómodo ahora.</p>
@@ -506,6 +599,7 @@ body.modo-asesor .asesor{display:block}
     </p>
   </section>
 
+  <!-- Confirmación -->
   <section class="paso" data-nombre="Enviado">
     <div class="final">
       <div class="final__marca">✓</div>
@@ -536,16 +630,14 @@ body.modo-asesor .asesor{display:block}
 (function () {
   'use strict';
 
-  /* ══════════ CONFIGURACIÓN ══════════ */
   var CONFIG = {
     formspree: 'https://formspree.io/f/xnjeeyrz',
     agencia:   '',
     logo:      '',
-    plazo:     'en un plazo de uno a dos días'
+    plazo:     'en un plazo de 5 a 7 días'
   };
 
-  /* ══════════ ALMACENAMIENTO SEGURO ══════════ */
-  var CLAVE = 'briefing-viaje-v2';
+  var CLAVE = 'briefing-viaje-v3';
   function guardar(d) { try { localStorage.setItem(CLAVE, JSON.stringify(d)); } catch (e) {} }
   function recuperar() { try { var s = localStorage.getItem(CLAVE); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
   function olvidar() { try { localStorage.removeItem(CLAVE); } catch (e) {} }
@@ -562,7 +654,7 @@ body.modo-asesor .asesor{display:block}
   if (CONFIG.agencia) { $('#marca').textContent = CONFIG.agencia; }
   if (location.search.indexOf('modo=asesor') > -1) { document.body.classList.add('modo-asesor'); }
 
-  /* ══════════ SEÑAL DE RUTA ══════════ */
+  /* ══════════ RUTA ══════════ */
   var paradas = $('#paradas');
   for (var i = 0; i < TOTAL; i++) {
     var li = document.createElement('li');
@@ -590,13 +682,10 @@ body.modo-asesor .asesor{display:block}
       $$('.ficha', grupo).forEach(function (b) {
         b.setAttribute('aria-pressed', 'false');
         b.addEventListener('click', function () {
-          var v = b.dataset.v;
-          var idx = multi[clave].indexOf(v);
-          if (idx > -1) {
-            multi[clave].splice(idx, 1);
-          } else if (nada && v === nada) {
-            multi[clave] = [nada];
-          } else {
+          var v = b.dataset.v, idx = multi[clave].indexOf(v);
+          if (idx > -1) { multi[clave].splice(idx, 1); }
+          else if (nada && v === nada) { multi[clave] = [nada]; }
+          else {
             if (nada) { multi[clave] = multi[clave].filter(function (x) { return x !== nada; }); }
             if (multi[clave].length >= max) { return; }
             multi[clave].push(v);
@@ -634,15 +723,43 @@ body.modo-asesor .asesor{display:block}
     }
   }
 
-  /* Campos que dependen de una ficha */
   function condicionales() {
+    $('#campoIdaEscala').hidden = uno.idaEscala !== 'si';
+    $('#campoVueltaEscala').hidden = uno.vueltaEscala !== 'si';
     $('#zonaCompromisos').hidden = uno.hayCompromisos !== 'si';
     if (uno.hayCompromisos === 'si' && !$$('.tarjeta', cajaComp).length) { anadirCompromiso(); }
     $('#campoLimitaciones').hidden = uno.hayLimitaciones !== 'si';
     $('#campoRestricciones').hidden = uno.hayRestricciones !== 'si';
   }
 
-  /* ══════════ TARJETAS REPETIBLES ══════════ */
+  /* ══════════ FECHAS CÓMODAS ══════════
+     Los calendarios de alojamientos y compromisos se abren en las fechas del
+     viaje y no en el día de hoy, que era lo que obligaba a recorrer meses. */
+  function sumarDias(iso, n) {
+    if (!iso) { return ''; }
+    var d = new Date(iso + 'T12:00:00');
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+  function rango() { return { ida: $('#fechaIda').value, vuelta: $('#fechaVuelta').value }; }
+  function acotar(input, porDefecto) {
+    var r = rango();
+    if (r.ida) { input.min = r.ida; }
+    if (r.vuelta) { input.max = r.vuelta; }
+    if (!input.value && porDefecto) { input.value = porDefecto; }
+  }
+  function acotarTodo() {
+    var r = rango();
+    $$('.tarjeta', cajaAloj).forEach(function (t, i) {
+      var e = $('[data-k=entrada]', t), s = $('[data-k=salida]', t);
+      acotar(e, i === 0 ? r.ida : '');
+      acotar(s, i === 0 ? r.vuelta : '');
+      if (e.value) { s.min = sumarDias(e.value, 1); }
+    });
+    $$('.tarjeta', cajaComp).forEach(function (t) { acotar($('[data-k=fecha]', t), r.ida); });
+  }
+
+  /* ══════════ TARJETAS ══════════ */
   var cajaAloj = $('#alojamientos');
   var cajaComp = $('#compromisos');
 
@@ -651,8 +768,12 @@ body.modo-asesor .asesor{display:block}
   }
   function cablear(t, caja, etiqueta, datos) {
     $$('input', t).forEach(function (inp) {
-      if (datos[inp.dataset.k]) { inp.value = datos[inp.dataset.k]; }
+      if (datos[inp.dataset.k]) {
+        if (inp.type === 'checkbox') { inp.checked = datos[inp.dataset.k] === true; }
+        else { inp.value = datos[inp.dataset.k]; }
+      }
       inp.addEventListener('input', autoguardar);
+      inp.addEventListener('change', autoguardar);
     });
     $('.tarjeta__quitar', t).addEventListener('click', function () {
       t.remove(); renumerar(caja, etiqueta); autoguardar();
@@ -667,16 +788,32 @@ body.modo-asesor .asesor{display:block}
       '<div class="tarjeta__n">Alojamiento ' + ($$('.tarjeta', cajaAloj).length + 1) + '</div>' +
       '<button type="button" class="tarjeta__quitar" aria-label="Quitar">×</button>' +
       '<div class="campo"><label>Nombre del hotel o apartamento</label><input type="text" data-k="nombre"></div>' +
-      '<div class="campo"><label>Ciudad o pueblo</label><input type="text" data-k="ciudad"></div>' +
+      '<div class="campo"><label>Dirección completa</label>' +
+      '<span class="ayuda">Calle, número y ciudad. Hace falta para calcular los tiempos de cada mañana: si es un apartamento sin nombre público, sin la calle no se puede situar en el mapa.</span>' +
+      '<input type="text" data-k="direccion" placeholder="Via Panfilo Castaldi 32, Milán"></div>' +
       '<div class="campo"><label>Fechas</label><div class="dupla">' +
         '<div><span class="ayuda">Entrada</span><input type="date" data-k="entrada"></div>' +
         '<div><span class="ayuda">Salida</span><input type="date" data-k="salida"></div>' +
       '</div></div>' +
-      '<div class="campo" style="margin-bottom:0"><label>Enlace o dirección</label>' +
-      '<span class="ayuda">La web del hotel o su dirección. Nunca el localizador de la reserva.</span>' +
-      '<input type="text" data-k="enlace"></div>';
+      '<div class="campo"><label>Horas previstas, si las sabéis</label><div class="dupla">' +
+        '<div><span class="ayuda">Llegada</span><input type="time" data-k="hora_entrada"></div>' +
+        '<div><span class="ayuda">Salida</span><input type="time" data-k="hora_salida"></div>' +
+      '</div></div>' +
+      '<div class="campo" style="margin-bottom:0"><label>Precio total de esta estancia</label>' +
+      '<div class="gasto" style="margin-bottom:0">' +
+        '<label class="gasto__nombre"><input type="checkbox" data-k="pagado"><span>Ya está pagado</span></label>' +
+        '<input type="number" min="0" step="10" placeholder="€ total" data-k="precio">' +
+      '</div></div>';
     cajaAloj.appendChild(t);
     cablear(t, cajaAloj, 'Alojamiento', datos);
+    var e = $('[data-k=entrada]', t);
+    e.addEventListener('change', function () {
+      var s = $('[data-k=salida]', t);
+      s.min = sumarDias(e.value, 1);
+      if (!s.value || s.value <= e.value) { s.value = sumarDias(e.value, 1); }
+      autoguardar();
+    });
+    acotarTodo();
   }
 
   function anadirCompromiso(datos) {
@@ -695,22 +832,88 @@ body.modo-asesor .asesor{display:block}
       '<div class="campo"><label>¿Cuánto dura, más o menos?</label>' +
       '<span class="ayuda">Si acaba a una hora concreta, mejor todavía: «vuelta sobre las 20:30».</span>' +
       '<input type="text" data-k="duracion" placeholder="Todo el día, 3 horas, vuelta a las 20:30…"></div>' +
+      '<div class="campo"><label>Precio total</label>' +
+      '<div class="gasto" style="margin-bottom:0">' +
+        '<label class="gasto__nombre"><input type="checkbox" data-k="pagado"><span>Ya está pagado</span></label>' +
+        '<input type="number" min="0" step="10" placeholder="€ total" data-k="precio">' +
+      '</div></div>' +
       '<div class="campo" style="margin-bottom:0"><label>¿Algo más que debamos saber?</label>' +
       '<span class="ayuda">Dónde es la cita, si incluye comida, si hay que estar antes.</span>' +
       '<input type="text" data-k="notas"></div>';
     cajaComp.appendChild(t);
     cablear(t, cajaComp, 'Compromiso', datos);
+    acotarTodo();
   }
 
   $('#masAlojamiento').addEventListener('click', function () { anadirAlojamiento(); });
   $('#masCompromiso').addEventListener('click', function () { anadirCompromiso(); });
 
-  /* ══════════ CAMPOS CONDICIONALES SIMPLES ══════════ */
+  /* ══════════ GASTOS DE TRANSPORTE ══════════ */
+  $$('#gastosTransporte input[type=checkbox]').forEach(function (c) {
+    c.addEventListener('change', function () {
+      var imp = $('#gastosTransporte [data-gi=' + c.dataset.g + ']');
+      imp.disabled = !c.checked;
+      if (!c.checked) { imp.value = ''; }
+      autoguardar();
+    });
+  });
+
+  var ETIQUETA_GASTO = { vuelos: 'Vuelos', tren: 'Trenes', coche: 'Coche de alquiler',
+                         barco: 'Barco o crucero', traslados: 'Traslados' };
+  var CATEGORIA_GASTO = { vuelos: 'flights', tren: 'transport', coche: 'transport',
+                          barco: 'transport', traslados: 'transport' };
+
+  function gastosPagados() {
+    var lista = [];
+    $$('#gastosTransporte input[type=checkbox]').forEach(function (c) {
+      if (!c.checked) { return; }
+      var imp = Number($('#gastosTransporte [data-gi=' + c.dataset.g + ']').value) || 0;
+      lista.push({ concepto: ETIQUETA_GASTO[c.dataset.g], categoria: CATEGORIA_GASTO[c.dataset.g],
+                   importe: imp, pagado: true });
+    });
+    $$('.tarjeta', cajaAloj).forEach(function (t) {
+      var pag = $('[data-k=pagado]', t).checked, imp = Number($('[data-k=precio]', t).value) || 0;
+      var nom = $('[data-k=nombre]', t).value.trim() || $('[data-k=ciudad]', t) || 'Alojamiento';
+      if (pag || imp) {
+        lista.push({ concepto: 'Alojamiento' + (nom && typeof nom === 'string' ? ': ' + nom : ''),
+                     categoria: 'accommodation', importe: imp, pagado: pag });
+      }
+    });
+    $$('.tarjeta', cajaComp).forEach(function (t) {
+      var pag = $('[data-k=pagado]', t).checked, imp = Number($('[data-k=precio]', t).value) || 0;
+      var que = $('[data-k=que]', t).value.trim();
+      if ((pag || imp) && que) {
+        lista.push({ concepto: que, categoria: 'activities', importe: imp, pagado: pag,
+                     fecha: $('[data-k=fecha]', t).value });
+      }
+    });
+    return lista;
+  }
+
+  function pintarComprometido() {
+    var lista = gastosPagados().filter(function (g) { return g.pagado; });
+    var total = lista.reduce(function (s, g) { return s + g.importe; }, 0);
+    $('#cifraComprometido').textContent = total.toLocaleString('es-ES') + ' €';
+    $('#detalleComprometido').textContent = lista.length
+      ? lista.map(function (g) { return g.concepto + (g.importe ? ' (' + g.importe + ' €)' : ' (sin importe)'); }).join(' · ')
+      : 'De momento no has marcado nada como pagado.';
+    var pres = Number($('#presupuesto').value) || 0;
+    if (pres && total && pres < total) {
+      $('#avisoPresupuesto').innerHTML = '<div class="aviso aviso--ocre" style="margin-top:.8rem">' +
+        'Lo que ya tenéis pagado suma ' + total.toLocaleString('es-ES') + ' €, más que el presupuesto que has puesto. ' +
+        'Recuerda que aquí va el total del viaje, incluyendo lo ya pagado.</div>';
+    } else { $('#avisoPresupuesto').innerHTML = ''; }
+  }
+  $('#presupuesto').addEventListener('input', pintarComprometido);
+
+  /* ══════════ OTROS CONDICIONALES ══════════ */
   $('#ninos').addEventListener('input', function () {
     $('#campoEdades').hidden = !(parseInt(this.value, 10) > 0);
   });
-  $('#mismoPunto').addEventListener('change', function () { $('#campoVuelta').hidden = this.checked; });
+  $('#mismoPunto').addEventListener('change', function () { $('#campoVueltaPunto').hidden = this.checked; });
   $('#sinReserva').addEventListener('change', function () { cajaAloj.style.opacity = this.checked ? '.5' : ''; });
+  $('#fechaIda').addEventListener('change', function () { revisarFechas(); acotarTodo(); });
+  $('#fechaVuelta').addEventListener('change', acotarTodo);
 
   /* ══════════ VALIDACIÓN ══════════ */
   function marcar(el, mal) { el.classList.toggle('mal', mal); }
@@ -739,7 +942,24 @@ body.modo-asesor .asesor{display:block}
     }
     if (n === 2) {
       if (!$('#llegadaMedio').value) { marcar($('#llegadaMedio'), true); f.push('cómo llegáis'); }
+      if (!$('#idaLlegadaPunto').value.trim()) { marcar($('#idaLlegadaPunto'), true); f.push('a dónde llegáis'); }
+      if (!$('#idaLlegadaHora').value) { marcar($('#idaLlegadaHora'), true); f.push('la hora de llegada'); }
+      if (!uno.idaEscala) { f.push('si el viaje de ida hace escala'); }
+      if (uno.idaEscala === 'si' && !$('#idaEscalaDonde').value.trim()) {
+        marcar($('#idaEscalaDonde'), true); f.push('dónde es la escala');
+      }
       if (!multi.enDestino || !multi.enDestino.length) { f.push('cómo os movéis allí'); }
+    }
+    if (n === 3 && !$('#sinReserva').checked) {
+      var conAlgo = $$('.tarjeta', cajaAloj).filter(function (t) {
+        return $('[data-k=nombre]', t).value.trim() || $('[data-k=direccion]', t).value.trim();
+      });
+      if (!conAlgo.length) { f.push('el nombre o la dirección del alojamiento'); }
+      var sinSitio = $$('.tarjeta', cajaAloj).filter(function (t) {
+        return ($('[data-k=nombre]', t).value.trim() || $('[data-k=direccion]', t).value.trim()) &&
+               !$('[data-k=direccion]', t).value.trim() && $('[data-k=nombre]', t).value.trim().length < 6;
+      });
+      if (sinSitio.length) { f.push('la dirección completa de cada alojamiento'); }
     }
     if (n === 4) {
       if (!uno.hayCompromisos) { f.push('si tenéis algo ya cerrado'); }
@@ -762,7 +982,7 @@ body.modo-asesor .asesor{display:block}
       }
     }
     if (n === 7) {
-      if (!$('#presupuesto').value) { marcar($('#presupuesto'), true); f.push('una cifra aproximada'); }
+      if (!$('#presupuesto').value) { marcar($('#presupuesto'), true); f.push('el presupuesto total del viaje'); }
     }
     if (n === 8) {
       if (!uno.hayRestricciones) { f.push('si hay alergias o restricciones'); }
@@ -783,7 +1003,6 @@ body.modo-asesor .asesor{display:block}
       avisar(caja, 'Esa fecha ya ha pasado. Revísala, por favor.', 'error');
     } else { caja.innerHTML = ''; }
   }
-  $('#fechaIda').addEventListener('change', revisarFechas);
 
   /* ══════════ NAVEGACIÓN ══════════ */
   function ir(n) {
@@ -793,6 +1012,7 @@ body.modo-asesor .asesor{display:block}
     $('#atras').hidden = (n === 0 || n >= TOTAL);
     if (n >= TOTAL - 1) { $('#acciones').hidden = true; }
     else { $('#acciones').hidden = false; $('#seguir').textContent = n === 0 ? 'Empezar' : 'Continuar'; }
+    if (n === 7) { pintarComprometido(); }
     if (n === TOTAL - 1) { pintarRepaso(); }
     window.scrollTo({ top: 0, behavior: 'smooth' });
     autoguardar();
@@ -804,7 +1024,7 @@ body.modo-asesor .asesor{display:block}
       if (!caja) {
         caja = document.createElement('div');
         caja.className = 'avisoPaso';
-        pasos[actual].insertBefore(caja, pasos[actual].querySelector('.campo, .fichas, .aviso'));
+        pasos[actual].insertBefore(caja, pasos[actual].querySelector('.campo, .fichas, .aviso, h3'));
       }
       avisar(caja, 'Falta ' + (f.length > 1 ? 'indicar: ' + f.join(', ') : f[0]) + '.');
       caja.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -822,15 +1042,21 @@ body.modo-asesor .asesor{display:block}
   function tarjetas(caja, clave) {
     return $$('.tarjeta', caja).map(function (t) {
       var o = {};
-      $$('input', t).forEach(function (i) { o[i.dataset.k] = i.value.trim(); });
+      $$('input', t).forEach(function (i) {
+        o[i.dataset.k] = i.type === 'checkbox' ? i.checked
+          : (i.type === 'number' ? (Number(i.value) || 0) : i.value.trim());
+      });
       return o;
-    }).filter(function (o) { return o[clave]; });
+    }).filter(function (o) { return o[clave] || o.direccion; });
   }
 
   function briefing() {
     var evitarSel = multi.evitar || [];
+    var pagados = gastosPagados();
+    var comprometido = pagados.filter(function (g) { return g.pagado; })
+                              .reduce(function (s, g) { return s + g.importe; }, 0);
     return {
-      briefing_version: '2.0',
+      briefing_version: '3.0',
       enviado_el: new Date().toISOString(),
       cliente: {
         nombre: v('nombre'), email: v('email'), telefono: v('telefono'),
@@ -845,14 +1071,24 @@ body.modo-asesor .asesor{display:block}
         celebracion: v('celebracion')
       },
       transporte: {
-        llegada: { medio: v('llegadaMedio'), punto: v('llegadaPunto'), hora: v('llegadaHora') },
+        medio: v('llegadaMedio'),
+        ida: {
+          salida_punto: v('idaSalidaPunto'), salida_hora: v('idaSalidaHora'),
+          llegada_punto: v('idaLlegadaPunto'), llegada_hora: v('idaLlegadaHora'),
+          escala: uno.idaEscala === 'si',
+          escala_donde: uno.idaEscala === 'si' ? v('idaEscalaDonde') : '',
+          escala_duracion: uno.idaEscala === 'si' ? v('idaEscalaDuracion') : ''
+        },
         vuelta: {
           mismo_punto: $('#mismoPunto').checked,
-          punto: $('#mismoPunto').checked ? v('llegadaPunto') : v('vueltaPunto'),
-          hora: v('vueltaHora')
+          salida_punto: $('#mismoPunto').checked ? v('idaLlegadaPunto') : v('vueltaPunto'),
+          salida_hora: v('vueltaSalidaHora'),
+          llegada_casa_hora: v('vueltaLlegadaHora'),
+          escala: uno.vueltaEscala === 'si',
+          escala_donde: uno.vueltaEscala === 'si' ? v('vueltaEscalaDonde') : '',
+          escala_duracion: uno.vueltaEscala === 'si' ? v('vueltaEscalaDuracion') : ''
         },
-        en_destino: multi.enDestino || [],
-        ya_comprado: uno.transporteComprado || ''
+        en_destino: multi.enDestino || []
       },
       alojamientos: tarjetas(cajaAloj, 'nombre'),
       pide_recomendacion_alojamiento: $('#sinReserva').checked,
@@ -874,8 +1110,12 @@ body.modo-asesor .asesor{display:block}
         limitaciones: uno.hayLimitaciones === 'si' ? v('limitaciones') : ''
       },
       presupuesto: {
-        cantidad: num('presupuesto'), tipo: v('presupuestoTipo'), moneda: 'EUR',
-        incluye: multi.incluye || [], partida_a_separar: v('partida')
+        total_viaje: num('presupuesto'),
+        moneda: 'EUR',
+        ya_comprometido: comprometido,
+        gastos_ya_pagados: pagados,
+        partida_a_separar: v('partida'),
+        reparto: uno.reparto || ''
       },
       gastronomia: {
         respondido: !!uno.hayRestricciones,
@@ -911,18 +1151,28 @@ body.modo-asesor .asesor{display:block}
         (b.viaje.viajeros.children ? ', ' + b.viaje.viajeros.children + ' niños (' + escapar(b.viaje.viajeros.children_ages) + ')' : '') +
         (b.viaje.con_quien ? ' · ' + escapar(b.viaje.con_quien) : ''));
     if (b.viaje.celebracion) { h += fila('Celebráis', escapar(b.viaje.celebracion)); }
-    h += fila('Cómo llegáis', escapar(b.transporte.llegada.medio) +
-        (b.transporte.llegada.punto ? ' · ' + escapar(b.transporte.llegada.punto) : '') +
-        (b.transporte.llegada.hora ? ' · ' + b.transporte.llegada.hora : ''));
-    h += fila('Vuelta', b.transporte.vuelta.mismo_punto ? 'Por el mismo sitio'
-        : escapar(b.transporte.vuelta.punto) + (b.transporte.vuelta.hora ? ' · ' + b.transporte.vuelta.hora : ''));
+    h += fila('Ida', escapar(b.transporte.medio) +
+        (b.transporte.ida.salida_hora ? ' · sale ' + b.transporte.ida.salida_hora : '') +
+        (b.transporte.ida.llegada_punto ? ' · llega a ' + escapar(b.transporte.ida.llegada_punto) : '') +
+        (b.transporte.ida.llegada_hora ? ' a las ' + b.transporte.ida.llegada_hora : '') +
+        (b.transporte.ida.escala ? ' · escala en ' + escapar(b.transporte.ida.escala_donde) +
+          (b.transporte.ida.escala_duracion ? ' (' + escapar(b.transporte.ida.escala_duracion) + ')' : '') : ' · directo'));
+    h += fila('Vuelta', (b.transporte.vuelta.mismo_punto ? 'Desde el mismo sitio' : 'Desde ' + escapar(b.transporte.vuelta.salida_punto)) +
+        (b.transporte.vuelta.salida_hora ? ' · sale ' + b.transporte.vuelta.salida_hora : '') +
+        (b.transporte.vuelta.llegada_casa_hora ? ' · en casa ' + b.transporte.vuelta.llegada_casa_hora : '') +
+        (b.transporte.vuelta.escala ? ' · escala en ' + escapar(b.transporte.vuelta.escala_donde) : ''));
     h += fila('En destino', b.transporte.en_destino.map(escapar));
     h += fila('Alojamientos', b.pide_recomendacion_alojamiento ? 'Pendiente, quieren recomendación'
-        : b.alojamientos.map(function (a) { return escapar(a.nombre || '(sin nombre)') + ' · ' + escapar(a.ciudad); }));
+        : b.alojamientos.map(function (a) {
+            return escapar(a.nombre || a.direccion || '(sin nombre)') +
+                   (a.entrada ? ' · ' + a.entrada + ' a ' + (a.salida || '?') : '') +
+                   (a.precio ? ' · ' + a.precio + ' €' + (a.pagado ? ' pagado' : '') : '');
+          }));
     h += fila('Ya cerrado', b.compromisos_cerrados.hay
         ? b.compromisos_cerrados.lista.map(function (c) {
             return escapar(c.que) + (c.fecha ? ' · ' + c.fecha : '') + (c.hora ? ' a las ' + c.hora : '') +
-                   (c.duracion ? ' · ' + escapar(c.duracion) : '');
+                   (c.duracion ? ' · ' + escapar(c.duracion) : '') +
+                   (c.precio ? ' · ' + c.precio + ' €' + (c.pagado ? ' pagado' : '') : '');
           })
         : 'Nada cerrado, agenda libre');
     h += fila('Nivel y ritmo', [b.estilo.nivel, b.estilo.ritmo].filter(Boolean).map(escapar).join(' · '));
@@ -931,7 +1181,12 @@ body.modo-asesor .asesor{display:block}
     h += fila('Qué buscáis', escapar(b.estilo.que_buscamos));
     h += fila('Evitar', b.evitar.nada_que_resenar ? 'Nada en particular' : b.evitar.etiquetas.map(escapar));
     h += fila('Limitaciones', b.evitar.hay_limitaciones ? escapar(b.evitar.limitaciones) : 'Ninguna');
-    h += fila('Presupuesto', b.presupuesto.cantidad ? b.presupuesto.cantidad + ' € (' + escapar(b.presupuesto.tipo) + ')' : '');
+    h += fila('Presupuesto total', b.presupuesto.total_viaje ? b.presupuesto.total_viaje.toLocaleString('es-ES') + ' €' : '');
+    h += fila('Ya pagado', b.presupuesto.ya_comprometido
+        ? b.presupuesto.ya_comprometido.toLocaleString('es-ES') + ' € · ' +
+          b.presupuesto.gastos_ya_pagados.filter(function (g) { return g.pagado; })
+            .map(function (g) { return escapar(g.concepto); }).join(', ')
+        : 'Nada');
     h += fila('Comida', b.gastronomia.hay_restricciones ? escapar(b.gastronomia.restricciones) : 'Comen de todo');
     h += fila('Notas', escapar(b.notas_libres));
     $('#repaso').innerHTML = h;
@@ -961,6 +1216,7 @@ body.modo-asesor .asesor{display:block}
         nombre: b.cliente.nombre, email: b.cliente.email, telefono: b.cliente.telefono,
         referencia: b.cliente.referencia_agencia, destino: b.viaje.destino_libre,
         fechas: b.viaje.fechas.start + ' a ' + b.viaje.fechas.end,
+        presupuesto: b.presupuesto.total_viaje + ' € (ya pagado: ' + b.presupuesto.ya_comprometido + ' €)',
         compromisos: b.compromisos_cerrados.hay
           ? b.compromisos_cerrados.lista.map(function (c) { return c.que + ' (' + c.fecha + ' ' + c.hora + ')'; }).join(' | ')
           : 'ninguno',
@@ -980,12 +1236,17 @@ body.modo-asesor .asesor{display:block}
     });
   });
 
-  /* ══════════ GUARDADO AUTOMÁTICO ══════════ */
+  /* ══════════ GUARDADO ══════════ */
   var pendiente = null;
   function autoguardar() {
     clearTimeout(pendiente);
     pendiente = setTimeout(function () {
-      guardar({ paso: actual, multi: multi, uno: uno, datos: briefing() });
+      var gt = {};
+      $$('#gastosTransporte input[type=checkbox]').forEach(function (c) {
+        gt[c.dataset.g] = { on: c.checked, importe: $('#gastosTransporte [data-gi=' + c.dataset.g + ']').value };
+      });
+      guardar({ paso: actual, multi: multi, uno: uno, gastosTransporte: gt, datos: briefing() });
+      pintarComprometido();
     }, 400);
   }
   $$('input, select, textarea').forEach(function (e) {
@@ -1007,18 +1268,31 @@ body.modo-asesor .asesor{display:block}
     set('adultos', d.viaje.viajeros.adults); set('ninos', d.viaje.viajeros.children);
     set('edades', d.viaje.viajeros.children_ages); set('celebracion', d.viaje.celebracion);
     $('#campoEdades').hidden = !(d.viaje.viajeros.children > 0);
-    set('llegadaMedio', d.transporte.llegada.medio); set('llegadaPunto', d.transporte.llegada.punto);
-    set('llegadaHora', d.transporte.llegada.hora);
+    set('llegadaMedio', d.transporte.medio);
+    set('idaSalidaPunto', d.transporte.ida.salida_punto); set('idaSalidaHora', d.transporte.ida.salida_hora);
+    set('idaLlegadaPunto', d.transporte.ida.llegada_punto); set('idaLlegadaHora', d.transporte.ida.llegada_hora);
+    set('idaEscalaDonde', d.transporte.ida.escala_donde); set('idaEscalaDuracion', d.transporte.ida.escala_duracion);
     $('#mismoPunto').checked = d.transporte.vuelta.mismo_punto !== false;
-    $('#campoVuelta').hidden = $('#mismoPunto').checked;
-    set('vueltaPunto', d.transporte.vuelta.punto); set('vueltaHora', d.transporte.vuelta.hora);
+    $('#campoVueltaPunto').hidden = $('#mismoPunto').checked;
+    if (!d.transporte.vuelta.mismo_punto) { set('vueltaPunto', d.transporte.vuelta.salida_punto); }
+    set('vueltaSalidaHora', d.transporte.vuelta.salida_hora);
+    set('vueltaLlegadaHora', d.transporte.vuelta.llegada_casa_hora);
+    set('vueltaEscalaDonde', d.transporte.vuelta.escala_donde);
+    set('vueltaEscalaDuracion', d.transporte.vuelta.escala_duracion);
     $('#sinReserva').checked = !!d.pide_recomendacion_alojamiento;
     set('imprescindibles', d.estilo.imprescindibles); set('queBuscamos', d.estilo.que_buscamos);
     set('evitarLibre', d.evitar.texto_libre); set('limitaciones', d.evitar.limitaciones);
-    set('presupuesto', d.presupuesto.cantidad || ''); set('presupuestoTipo', d.presupuesto.tipo);
-    set('partida', d.presupuesto.partida_a_separar);
+    set('presupuesto', d.presupuesto.total_viaje || ''); set('partida', d.presupuesto.partida_a_separar);
     set('restricciones', d.gastronomia.restricciones); set('cenaEspecial', d.gastronomia.cena_especial);
     set('imprescindiblesEquipaje', d.equipaje.imprescindibles); set('notasLibres', d.notas_libres);
+
+    Object.keys(g.gastosTransporte || {}).forEach(function (k) {
+      var c = $('#gastosTransporte [data-g=' + k + ']'), imp = $('#gastosTransporte [data-gi=' + k + ']');
+      if (!c) { return; }
+      c.checked = !!g.gastosTransporte[k].on;
+      imp.disabled = !c.checked;
+      imp.value = g.gastosTransporte[k].importe || '';
+    });
 
     multi = g.multi || {}; uno = g.uno || {};
     (d.alojamientos && d.alojamientos.length ? d.alojamientos : [{}]).forEach(anadirAlojamiento);
@@ -1035,6 +1309,8 @@ body.modo-asesor .asesor{display:block}
     });
     condicionales();
     revisarFechas();
+    acotarTodo();
+    pintarComprometido();
     if (g.paso > 0 && g.paso < TOTAL) { ir(g.paso); } else { pintarRuta(); }
   }
 
