@@ -120,6 +120,14 @@ body.modo-asesor .asesor{display:block}
 .final{text-align:center;padding:2.5rem 0}
 .final__marca{font-size:2.5rem;line-height:1}
 .trampa{position:absolute;left:-9999px;opacity:0;height:0;width:0}
+.borrar{display:inline-block;background:none;border:0;font:inherit;font-size:.85rem;color:var(--tinta-70);
+  text-decoration:underline;cursor:pointer;padding:.4rem}
+.borrar:hover{color:var(--error)}
+.borrar:focus-visible{outline:2px solid var(--ocre);outline-offset:2px}
+.recuperado{background:#FBF1DC;border:1px solid #EDD9AC;color:#7A5406;border-radius:var(--r);
+  padding:.8rem .9rem;margin:0 0 1.4rem;font-size:.9rem}
+.recuperado__acciones{display:flex;gap:.6rem;margin-top:.6rem;flex-wrap:wrap}
+.recuperado .btn{padding:.5rem .9rem;font-size:.9rem;flex:0 0 auto}
 .pie{margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--linea);font-size:.82rem;color:var(--tinta-70)}
 .pie a{color:var(--mapa)}
 </style>
@@ -150,6 +158,7 @@ body.modo-asesor .asesor{display:block}
   <section class="paso visible" data-nombre="Quién eres">
     <h1>Vamos a preparar tu guía de viaje</h1>
     <p class="entradilla">Once pantallas cortas, unos diez o doce minutos. Cuanto mejor os conozcamos, menos se parecerá la guía a cualquier otra. Puedes dejarlo a medias y volver: lo escrito se guarda en este navegador.</p>
+    <div id="avisoRecuperado" hidden></div>
     <div class="asesor">MODO ASESOR · Los bloques que más rendimiento dan son el 5 (compromisos cerrados) y el 10 (texto libre). En el 3 y el 4, insiste en las horas y los importes: son los que hacen que el presupuesto de la guía salga realista.</div>
 
     <div class="campo">
@@ -597,6 +606,9 @@ body.modo-asesor .asesor{display:block}
     <p style="margin-top:1rem;text-align:center">
       <button type="button" class="btn btn--fantasma" id="descargar">Descargar una copia en mi dispositivo</button>
     </p>
+    <p style="text-align:center;margin:.4rem 0 0">
+      <button type="button" class="borrar" id="reset">Borrar todo y empezar un cuestionario nuevo</button>
+    </p>
   </section>
 
   <!-- Confirmación -->
@@ -610,6 +622,9 @@ body.modo-asesor .asesor{display:block}
         Si quieres verlas dentro de la guía, puedes enviarlas por WeTransfer al correo desde el que te escribamos. Es opcional: la guía llevará fotografías igualmente.
       </div>
       <button type="button" class="btn btn--fantasma" id="descargar2">Descargar una copia de mis respuestas</button>
+      <p style="margin:1rem 0 0">
+        <button type="button" class="borrar" id="reset2">Rellenar otro cuestionario desde cero</button>
+      </p>
     </div>
   </section>
 
@@ -638,9 +653,18 @@ body.modo-asesor .asesor{display:block}
   };
 
   var CLAVE = 'briefing-viaje-v3';
-  function guardar(d) { try { localStorage.setItem(CLAVE, JSON.stringify(d)); } catch (e) {} }
+  var CADUCA_DIAS = 30;
+  function guardar(d) {
+    try { d.guardado_el = Date.now(); localStorage.setItem(CLAVE, JSON.stringify(d)); } catch (e) {}
+  }
   function recuperar() { try { var s = localStorage.getItem(CLAVE); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
   function olvidar() { try { localStorage.removeItem(CLAVE); } catch (e) {} }
+
+  function empezarDeCero(mensaje) {
+    if (!window.confirm(mensaje)) { return; }
+    olvidar();
+    window.location.reload();
+  }
 
   var $  = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
@@ -1203,6 +1227,12 @@ body.modo-asesor .asesor{display:block}
   }
   $('#descargar').addEventListener('click', descargar);
   $('#descargar2').addEventListener('click', descargar);
+  $('#reset').addEventListener('click', function () {
+    empezarDeCero('Se van a borrar todas las respuestas de este cuestionario y volverás a la primera pantalla. Esta acción no se puede deshacer. ¿Seguimos?');
+  });
+  $('#reset2').addEventListener('click', function () {
+    empezarDeCero('¿Empezamos un cuestionario nuevo? El que acabas de enviar ya está a salvo: esto solo limpia el formulario de este navegador.');
+  });
 
   $('#enviar').addEventListener('click', function () {
     if ($('#trampa').value) { return; }
@@ -1254,10 +1284,43 @@ body.modo-asesor .asesor{display:block}
     e.addEventListener('change', autoguardar);
   });
 
-  
+  function arrancarLimpio() {
+    anadirAlojamiento(); conectarFichas(); condicionales(); pintarRuta();
+  }
+
+  function avisoRecuperado(g) {
+    var caja = $('#avisoRecuperado');
+    var cuando = '';
+    if (g.guardado_el) {
+      var f = new Date(g.guardado_el);
+      cuando = ' del ' + f.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) +
+               ', a las ' + f.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    }
+    caja.innerHTML =
+      '<strong>Hay un cuestionario a medias' + cuando + '.</strong><br>' +
+      'Puedes seguir donde lo dejaste o empezar uno nuevo desde cero.' +
+      '<div class="recuperado__acciones">' +
+        '<button type="button" class="btn btn--seguir" id="seguirGuardado">Seguir con ese</button>' +
+        '<button type="button" class="btn btn--atras" id="resetInicio">Empezar de cero</button>' +
+      '</div>';
+    caja.hidden = false;
+    $('#resetInicio').addEventListener('click', function () {
+      empezarDeCero('Se van a borrar las respuestas guardadas en este navegador y el formulario quedará vacío. ¿Seguimos?');
+    });
+    $('#seguirGuardado').addEventListener('click', function () {
+      caja.hidden = true;
+      if (g.paso > 0 && g.paso < TOTAL) { ir(g.paso); }
+    });
+  }
+
   function restaurar() {
+    // Empezar limpio: con ?nuevo en la URL o si lo guardado ha caducado.
+    if (location.search.indexOf('nuevo') > -1) { olvidar(); arrancarLimpio(); return; }
     var g = recuperar();
-    if (!g || !g.datos) { anadirAlojamiento(); conectarFichas(); condicionales(); pintarRuta(); return; }
+    if (g && g.guardado_el && (Date.now() - g.guardado_el) > CADUCA_DIAS * 86400000) {
+      olvidar(); g = null;
+    }
+    if (!g || !g.datos) { arrancarLimpio(); return; }
     var d = g.datos;
     function set(id, val) { var e = $('#' + id); if (e && val) { e.value = val; } }
     set('nombre', d.cliente.nombre); set('email', d.cliente.email);
@@ -1312,7 +1375,10 @@ body.modo-asesor .asesor{display:block}
     revisarFechas();
     acotarTodo();
     pintarComprometido();
-    if (g.paso > 0 && g.paso < TOTAL) { ir(g.paso); } else { pintarRuta(); }
+    pintarRuta();
+    // No se salta al paso guardado sin preguntar: primero se ofrece elegir.
+    if (d.cliente.nombre || d.viaje.destino_libre) { avisoRecuperado(g); }
+    else if (g.paso > 0 && g.paso < TOTAL) { ir(g.paso); }
   }
 
   restaurar();
