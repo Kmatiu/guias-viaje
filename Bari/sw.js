@@ -3,6 +3,7 @@
    repositorio y los tiles del mapa que se hayan visitado.
    Sube este archivo junto al index.html, en la misma carpeta. */
 
+
 var CACHE = 'guia-v2';
 var CORE = ['./', './index.html'];
 var TILE_LIMIT = 700;
