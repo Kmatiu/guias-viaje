@@ -1,0 +1,40 @@
+{
+  "documentos": [
+    {
+      "archivo": "105-polignano-centro-abitato-puglia-maps-2018.jpg",
+      "titulo": "Plano del casco antiguo de Polignano a Mare",
+      "tipo": "mapa",
+      "dia": 2
+    },
+    {
+      "archivo": "mapa-ostuni1.jpg",
+      "titulo": "Plano del casco antiguo de Ostuni",
+      "tipo": "mapa",
+      "dia": 3
+    },
+    {
+      "enlace": "https://urbanaccessregulations.eu/countries-mainmenu-147/italy-mainmenu-81/basilicata-region/matera-access-regulation",
+      "titulo": "Zonas restringidas Matera",
+      "tipo": "transporte",
+      "dia": 3
+    },
+    {
+      "enlace": "https://www.automobilista.it/come-funziona-la-ztl-di-matera-tra-sassi-centro-storico-e-varchi-elettronici/",
+      "titulo": "Cómo aparcar en Matera",
+      "tipo": "transporte",
+      "dia": 3
+    },
+    {
+      "archivo": "cartina-sassi-apt-2019-fronte-per-web.png",
+      "titulo": "Plano de los Sassi",
+      "tipo": "mapa",
+      "dia": 3
+    },
+    {
+      "enlace": "https://www.parcomurgia.it/iti_dettaglio.php?id_iti=6072",
+      "titulo": "Parco della Murgia Materana",
+      "tipo": "web",
+      "dia": 4
+    }
+  ]
+}
