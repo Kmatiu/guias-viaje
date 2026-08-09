@@ -1433,7 +1433,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 41.1359898,
           "lng": 16.7618185
         },
-        "origin": true
+        "origin": true,
+        "kind": "airport"
       },
       {
         "day": 1,
@@ -1441,7 +1442,8 @@ body.is-offline .offline-chip { display: inline-flex; }
         "coords": {
           "lat": 40.6456234,
           "lng": 17.5138493
-        }
+        },
+        "kind": "hotel"
       },
       {
         "day": 2,
@@ -1450,7 +1452,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 40.6456234,
           "lng": 17.5138493
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 2,
@@ -1507,7 +1510,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 40.6456234,
           "lng": 17.5138493
         },
-        "stay": true
+        "stay": true,
+        "kind": "hotel"
       },
       {
         "day": 3,
@@ -1516,7 +1520,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 40.6456234,
           "lng": 17.5138493
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 3,
@@ -1556,7 +1561,8 @@ body.is-offline .offline-chip { display: inline-flex; }
         "coords": {
           "lat": 40.6671271,
           "lng": 16.607255
-        }
+        },
+        "kind": "apartment"
       },
       {
         "day": 4,
@@ -1565,7 +1571,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 40.6671271,
           "lng": 16.607255
         },
-        "origin": true
+        "origin": true,
+        "kind": "apartment"
       },
       {
         "day": 4,
@@ -1606,7 +1613,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 41.1359898,
           "lng": 16.7618185
         },
-        "finish": true
+        "finish": true,
+        "kind": "airport"
       }
     ]
   },
@@ -4909,7 +4917,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           // El punto de salida no cuenta para el encuadre en la vista general:
           // ya lo aporta el dia anterior y encoger el mapa por el no aporta nada.
           // El de fin de viaje si cuenta siempre: cierra el recorrido.
-          if (mapDayFilter === 'all' && m.origin) return;
+          if (mapDayFilter === 'all' && m.origin && m.day !== Math.min.apply(null, visibles)) return;
           puntos.push([m.coords.lat, m.coords.lng]);
         });
         if (latlngs.length > 1) {
@@ -4920,6 +4928,21 @@ body.is-offline .offline-chip { display: inline-flex; }
           }).addTo(mapInstance);
         }
       });
+
+      // Glifos de los puntos de transito. La clave `kind` del marcador manda;
+      // si no viene, se usa el respaldo historico (cama o avion segun el rol).
+      var GLIFO_PUNTO = {
+        airport: '✈️', train: '🚆', bus: '🚌', port: '⚓', ship: '🚢',
+        hotel: '🛏', apartment: '🛏', camper: '🚐', car: '🚗', home: '🏠'
+      };
+      var ROTULO_PUNTO = {
+        airport: 'Aeropuerto', train: 'Estación de tren', bus: 'Estación de autobuses',
+        port: 'Puerto', ship: 'A bordo', hotel: 'Alojamiento', apartment: 'Alojamiento',
+        camper: 'Autocaravana', car: 'Coche', home: 'Casa'
+      };
+      // El primer dia del viaje: su punto de salida es la entrada al destino y
+      // no duplica nada, asi que se muestra tambien en la vista general.
+      var primerDia = visibles.length ? Math.min.apply(null, visibles) : 1;
 
       // En la vista general, varias noches seguidas en el mismo alojamiento
       // apilarian marcadores identicos: se pinta solo la primera vez.
@@ -4937,7 +4960,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           // En la vista general el punto de salida se omite: es el mismo lugar
           // donde termino el dia anterior y se pintarian dos marcadores encima.
           // El de fin de viaje se muestra siempre: no duplica nada y cierra la ruta.
-          if (m.origin && mapDayFilter === 'all') return;
+          if (m.origin && mapDayFilter === 'all' && m.day !== primerDia) return;
           if (m.stay && mapDayFilter === 'all') {
             var cl = m.coords.lat + ',' + m.coords.lng;
             if (cl === ultimoTransito) return;
@@ -4947,13 +4970,26 @@ body.is-offline .offline-chip { display: inline-flex; }
           if (!esTransito(m)) cuenta++;
           // Con un dia seleccionado el numero pasa a ser el orden de la parada,
           // que es lo que hace legible la ruta. Con «Todos», el numero del dia.
-          var etiqueta = (m.origin || m.stay) ? '🛏' : (m.finish ? '✈️' : ((mapDayFilter === 'all') ? m.day : cuenta));
+          // El glifo lo decide `kind`: un aeropuerto lleva avion y un barco lleva barco.
+          // Sin `kind`, se mantiene el comportamiento antiguo: cama para origin y stay,
+          // avion para finish, de modo que las guias ya publicadas siguen funcionando.
+          // Manda `kind`: un aeropuerto lleva avion y un alojamiento lleva cama, sea
+          // parada con ficha o punto de transito. Sin `kind`, respaldo historico.
+          var etiqueta = GLIFO_PUNTO[m.kind]
+            || (esTransito(m)
+                  ? (m.finish ? '✈️' : ((m.origin || m.stay) ? '🛏' : '📍'))
+                  : ((mapDayFilter === 'all') ? m.day : cuenta));
+          var comoSeLlama = ROTULO_PUNTO[m.kind] || '';
           var pieza = m.origin
-            ? 'Salida · alojamiento de la noche anterior'
+            ? (m.kind && m.kind !== 'hotel' && m.kind !== 'apartment'
+                ? 'Salida del día · ' + comoSeLlama
+                : 'Salida · alojamiento de la noche anterior')
             : (m.stay
-                ? 'Llegada · alojamiento de esta noche'
+                ? (m.kind === 'ship'
+                    ? 'Noche a bordo, amarrados aquí'
+                    : 'Llegada · alojamiento de esta noche')
                 : (m.finish
-                    ? 'Fin del viaje'
+                    ? 'Fin del viaje' + (comoSeLlama ? ' · ' + comoSeLlama : '')
                     : ((mapDayFilter === 'all')
                         ? 'Día ' + m.day
                         : 'Parada ' + cuenta + ' de ' + nParadas + ' · Día ' + m.day)));
@@ -6175,7 +6211,6 @@ body.is-offline .offline-chip { display: inline-flex; }
   // 8. ARRANQUE
   // ------------------------------------------------------
   showPage('home');
-
 
 })();
 </script>
