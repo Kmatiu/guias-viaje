@@ -1302,7 +1302,15 @@ body.is-offline .offline-chip { display: inline-flex; }
       "labels": {
         "activities": "Entradas y experiencias",
         "other": "Imprevistos"
-      }
+      },
+      "prepaid": [
+        {
+          "desc": "Vuelos Valencia–Tokio y Osaka–Valencia, las dos parejas",
+          "category": "flights",
+          "amount": 5056,
+          "day": 1
+        }
+      ]
     },
     "interests": [
       "cultura tradicional",
@@ -1364,7 +1372,8 @@ body.is-offline .offline-chip { display: inline-flex; }
       "Itinerario optimizado por zonas, no por orden de deseo",
       "Horas de luz calculadas para cada día",
       "Planes alternativos en los quince días",
-      "Presupuesto editable y gastos compartidos entre las dos parejas",
+      "Vuelos ya pagados anotados de partida en el presupuesto",
+      "Gastos compartidos entre las dos parejas, con céntimos",
       "Funciona sin cobertura una vez precargada"
     ]
   },
@@ -1418,16 +1427,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.5455,
           "lng": 139.7687
         },
-        "origin": true
-      },
-      {
-        "day": 1,
-        "name": "Aeropuerto de Haneda",
-        "coords": {
-          "lat": 35.5455,
-          "lng": 139.7687
-        },
-        "stay": true
+        "origin": true,
+        "kind": "airport"
       },
       {
         "day": 2,
@@ -1436,7 +1437,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.5455,
           "lng": 139.7687
         },
-        "origin": true
+        "origin": true,
+        "kind": "airport"
       },
       {
         "day": 2,
@@ -1444,7 +1446,8 @@ body.is-offline .offline-chip { display: inline-flex; }
         "coords": {
           "lat": 35.698,
           "lng": 139.7047
-        }
+        },
+        "kind": "apartment"
       },
       {
         "day": 3,
@@ -1453,7 +1456,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.698,
           "lng": 139.7047
         },
-        "origin": true
+        "origin": true,
+        "kind": "apartment"
       },
       {
         "day": 3,
@@ -1486,7 +1490,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.698,
           "lng": 139.7047
         },
-        "stay": true
+        "stay": true,
+        "kind": "apartment"
       },
       {
         "day": 4,
@@ -1495,7 +1500,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.698,
           "lng": 139.7047
         },
-        "origin": true
+        "origin": true,
+        "kind": "apartment"
       },
       {
         "day": 4,
@@ -1536,7 +1542,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.698,
           "lng": 139.7047
         },
-        "stay": true
+        "stay": true,
+        "kind": "apartment"
       },
       {
         "day": 5,
@@ -1545,7 +1552,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.698,
           "lng": 139.7047
         },
-        "origin": true
+        "origin": true,
+        "kind": "apartment"
       },
       {
         "day": 5,
@@ -1578,7 +1586,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.698,
           "lng": 139.7047
         },
-        "stay": true
+        "stay": true,
+        "kind": "apartment"
       },
       {
         "day": 6,
@@ -1587,7 +1596,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.698,
           "lng": 139.7047
         },
-        "origin": true
+        "origin": true,
+        "kind": "apartment"
       },
       {
         "day": 6,
@@ -1612,7 +1622,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.698,
           "lng": 139.7047
         },
-        "stay": true
+        "stay": true,
+        "kind": "apartment"
       },
       {
         "day": 7,
@@ -1621,7 +1632,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.698,
           "lng": 139.7047
         },
-        "origin": true
+        "origin": true,
+        "kind": "apartment"
       },
       {
         "day": 7,
@@ -1653,7 +1665,8 @@ body.is-offline .offline-chip { display: inline-flex; }
         "coords": {
           "lat": 35.0073,
           "lng": 135.7689
-        }
+        },
+        "kind": "hotel"
       },
       {
         "day": 8,
@@ -1662,7 +1675,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.0073,
           "lng": 135.7689
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 8,
@@ -1695,7 +1709,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.0073,
           "lng": 135.7689
         },
-        "stay": true
+        "stay": true,
+        "kind": "hotel"
       },
       {
         "day": 9,
@@ -1704,7 +1719,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.0073,
           "lng": 135.7689
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 9,
@@ -1753,7 +1769,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.0073,
           "lng": 135.7689
         },
-        "stay": true
+        "stay": true,
+        "kind": "hotel"
       },
       {
         "day": 10,
@@ -1762,7 +1779,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.0073,
           "lng": 135.7689
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 10,
@@ -1803,7 +1821,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.0073,
           "lng": 135.7689
         },
-        "stay": true
+        "stay": true,
+        "kind": "hotel"
       },
       {
         "day": 11,
@@ -1812,7 +1831,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 35.0073,
           "lng": 135.7689
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 11,
@@ -1844,7 +1864,8 @@ body.is-offline .offline-chip { display: inline-flex; }
         "coords": {
           "lat": 34.6655,
           "lng": 135.5058
-        }
+        },
+        "kind": "hotel"
       },
       {
         "day": 12,
@@ -1853,7 +1874,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 34.6655,
           "lng": 135.5058
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 12,
@@ -1870,7 +1892,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 34.6655,
           "lng": 135.5058
         },
-        "stay": true
+        "stay": true,
+        "kind": "hotel"
       },
       {
         "day": 13,
@@ -1879,7 +1902,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 34.6655,
           "lng": 135.5058
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 13,
@@ -1912,7 +1936,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 34.6655,
           "lng": 135.5058
         },
-        "stay": true
+        "stay": true,
+        "kind": "hotel"
       },
       {
         "day": 14,
@@ -1921,7 +1946,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 34.6655,
           "lng": 135.5058
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 14,
@@ -1954,7 +1980,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 34.6655,
           "lng": 135.5058
         },
-        "stay": true
+        "stay": true,
+        "kind": "hotel"
       },
       {
         "day": 15,
@@ -1963,7 +1990,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 34.6655,
           "lng": 135.5058
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 15,
@@ -1980,7 +2008,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 34.432,
           "lng": 135.2366
         },
-        "finish": true
+        "finish": true,
+        "kind": "airport"
       }
     ]
   },
@@ -2202,7 +2231,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "226.000 ¥ los dos apartamentos por las cinco noches, a repartir entre las dos parejas",
           "tips": "Conviene confirmar con el anfitrión cómo se entra (caja de llaves o código) antes de volar, porque se llega de noche. Está en el borde de Kabukicho: la zona es segura para caminar a cualquier hora, pero lo mejor es ignorar a los captadores de la calle, que son la trampa turística clásica de Shinjuku. El konbini más cercano abre 24 horas, así que el desayuno del día siguiente se puede dejar comprado esta misma noche.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=35.698,139.7047",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         }
       ],
       "restaurants": [
@@ -2343,7 +2372,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis",
           "tips": "Al llegar tan pronto, las tiendas de Nakamise estarán cerradas: es el precio de tener el templo vacío. Para comprar amuletos, lo suyo es pasar de vuelta del paseo por el Sumida.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=35.7148,139.7967",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "samurai-museum",
@@ -2530,7 +2559,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis. El jardín interior tiene entrada aparte, en torno a 500 ¥",
           "tips": "La puerta sur, junto a Harajuku Station, es la entrada natural. Si os cruzáis con una boda sintoísta, lo correcto es apartarse y no fotografiar de cerca a la comitiva.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=35.6764,139.6993",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "omotesando",
@@ -2739,7 +2768,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis entrar",
           "tips": "El mostrador de tax-free está en una planta concreta y suele tener cola, así que interesa ir con tiempo y con el pasaporte encima. Comprar aquí los dulces y la cosmética, y no en las tiendas de los templos, ahorra fácilmente la mitad.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=35.6931,139.7036",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         }
       ],
       "restaurants": [
@@ -2880,7 +2909,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis",
           "tips": "El Fuji se ve mejor por la mañana temprano y en días fríos y secos; a mediodía la cumbre se nubla con frecuencia. Los 398 escalones equivalen a unas trece plantas, y hay una rampa lateral más suave para quien la prefiera.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=35.4004,138.8",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "nakano-broadway",
@@ -2894,7 +2923,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis entrar",
           "tips": "Lo que más se repite en las reseñas es que conviene comparar antes de comprar: la misma figura puede costar 1.980 ¥ en una tienda y 2.990 ¥ en la de al lado. El edificio es un laberinto y la señalización deja que desear, así que merece la pena subir a la segunda planta primero y bajar después. El sótano tiene un puesto famoso por sus helados gigantes de ocho sabores apilados.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=35.7092,139.6657",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         }
       ],
       "restaurants": [],
@@ -3045,7 +3074,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "En torno a 2.000-2.500 ¥ por maleta hasta Kioto, según tamaño",
           "tips": "El envío tarda un día completo, así que la maleta sale el 24 y llega al Travelodge el 25: todo lo de la primera noche en Kioto tiene que ir en la mochila. Hace falta el nombre y la dirección del hotel de destino en japonés, que el propio mostrador ayuda a rellenar, y el destino debe tener recepción, cosa que el Travelodge cumple. Al abrir a las 8:00 en punto, presentarse a esa hora evita la cola. Conviene fotografiar la maleta antes de entregarla: hay reseñas de desperfectos y la reclamación es más fácil con foto.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=35.6959,139.7006",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "kiyomizu-dera",
@@ -3073,7 +3102,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Unos 500-800 ¥ por pieza",
           "tips": "Suele haber cola, pero avanza rápido porque el mochi se hace en tandas. El personal se ofrece a grabar vídeo del machacado, que es la parte que merece el gimbal. Al estar en la bajada de Kiyomizu, encaja mejor de vuelta que de ida: subir la cuesta con un mochi en la mano no es cómodo.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=34.9966,135.7802",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "alojamiento-kyoto",
@@ -3087,7 +3116,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "133.200 ¥ las dos habitaciones por las cuatro noches",
           "tips": "Al hacer el check-in vale la pena pedir habitación interior, por el ruido de Kawaramachi. Aquí llegan las maletas enviadas desde Tokio, previsiblemente el día 25, así que interesa avisar en recepción de que hay un envío de Yamato en camino a nombre de la reserva. Enfrente hay un Don Quijote abierto hasta tarde para lo que falte.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=35.0073,135.7689",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         }
       ],
       "restaurants": [
@@ -3237,7 +3266,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis",
           "tips": "El mirador de Yotsutsuji está a unos treinta o cuarenta minutos de subida y es donde la mayoría da la vuelta; a partir de ahí el bosque se queda vacío del todo. Los torii llevan grabado el nombre del donante en la cara interior, así que se leen al bajar y no al subir. Con este horario todavía estarán cerrados los puestos de inari-zushi de la calle de acceso, que es el pequeño precio del madrugón.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=34.9671,135.7727",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "kinkakuji",
@@ -3251,7 +3280,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "En torno a 500 ¥",
           "tips": "Casi todo el mundo se agolpa en el primer mirador, pero unos metros más adelante hay dos ángulos más despejados y casi igual de buenos. Las reseñas avisan de que los grupos organizados son lo que más estorba, y a las once todavía no ha llegado el grueso.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=35.0394,135.7292",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "nishiki-market",
@@ -3265,7 +3294,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis entrar",
           "tips": "En buena parte del mercado está prohibido comer andando: lo correcto es comprar y comer junto al puesto. Si alguien quiere un cuchillo grabado con su nombre, lo suyo es encargarlo al principio de la visita y recogerlo al salir, porque tardan un rato.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=35.005,135.7649",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         }
       ],
       "restaurants": [
@@ -3449,7 +3478,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis",
           "tips": "A las ocho hay quizá diez personas; a las diez y media, varios cientos. Es el ejemplo más claro de por qué funciona vuestra estrategia de madrugar.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=35.017,135.6713",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "tenryuji",
@@ -3649,7 +3678,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "En torno a 600-800 ¥",
           "tips": "Al fondo, a la derecha del Buda, hay un pilar con un agujero del tamaño de su nariz; pasar por él da buena suerte, aunque la cola suele ser mayoritariamente de niños.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=34.6889,135.8398",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "kasuga-taisha",
@@ -3772,21 +3801,21 @@ body.is-offline .offline-chip { display: inline-flex; }
         },
         {
           "time": "16:00",
-          "icon": "😴",
-          "title": "Check-in y descanso",
-          "description": "Día de traslado: buen momento para deshacer maletas con calma antes de salir de noche.",
-          "type": "checkin",
-          "duration_min": 90,
-          "place_id": "alojamiento-osaka"
-        },
-        {
-          "time": "17:45",
           "icon": "🌃",
           "title": "Dotonbori al anochecer",
           "description": "El Glico Man, el cangrejo mecánico de Kani Doraku y el canal lleno de neón. Es cuando el barrio cobra sentido.",
           "type": "visit",
-          "duration_min": 80,
+          "duration_min": 110,
           "place_id": "dotonbori"
+        },
+        {
+          "time": "18:00",
+          "icon": "🏨",
+          "title": "Check-in y descanso",
+          "description": "Vuelta al hotel a deshacer maletas con calma antes de cenar.",
+          "type": "checkin",
+          "duration_min": 60,
+          "place_id": "alojamiento-osaka"
         },
         {
           "time": "19:20",
@@ -3810,7 +3839,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Parque gratis; torre en torno a 600 ¥; jardín Nishinomaru unos 200-350 ¥ en temporada de sakura",
           "tips": "La mejor vista exterior está desde el puente Gokuraku, al noreste. El jardín Nishinomaru es de pago pero en floración vale cada yen: trescientos cerezos con la torre de fondo.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=34.6873,135.5259",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "kuromon-market",
@@ -3824,7 +3853,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis entrar",
           "tips": "Los puestos de vieiras y bogavante gigante de la entrada están claramente orientados al turista. El tramo central, donde compran los cocineros locales, tiene el mismo producto a la mitad de precio, así que compensa caminar antes de pedir.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=34.6656,135.5062",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "dotonbori",
@@ -3851,7 +3880,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "112.860 ¥ las dos habitaciones por las cuatro noches",
           "tips": "El detalle que más aparece en las reseñas es que dan una sola tarjeta por habitación, sin excepciones, y hace falta para entrar al edificio y usar el ascensor: si la pareja se separa, hay que contar con ello. El checkout de las 10:00 se aplica con rigor y retrasarse se cobra caro, así que el último día conviene madrugar y dejar el equipaje en consigna, que sí es gratuita. La lavadora de la planta 13 resuelve la colada a mitad de viaje.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=34.6655,135.5058",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         }
       ],
       "restaurants": [
@@ -4090,7 +4119,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis",
           "tips": "La Llama de la Paz lleva encendida desde 1964 y está previsto que se apague solo cuando desaparezca la última arma nuclear del planeta. El monumento de las grullas suele estar rodeado de guirnaldas enviadas por escuelas de todo el mundo.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=34.3955,132.4536",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "peace-museum",
@@ -4118,7 +4147,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "En torno a 300-500 ¥ el santuario",
           "tips": "La tabla de mareas decide qué versión se ve: con marea alta el torii flota, que es la foto clásica, y con marea baja se camina hasta él y se ven las conchas pegadas a la base. Las dos están bien, pero conviene saber cuál toca antes de ir.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=34.2959,132.3199",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         }
       ],
       "restaurants": [],
@@ -4225,7 +4254,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis; la torre Tsutenkaku en torno a 900-1.200 ¥",
           "tips": "De día es completamente seguro y muy fotogénico. Por la noche la zona sur, hacia Nishinari, se vuelve algo más desangelada, así que lo cómodo es quedarse en el eje comercial.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=34.6524,135.5063",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         },
         {
           "id": "abeno-harukas",
@@ -4376,7 +4405,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Gratis entrar",
           "tips": "Al abrir a las once, encaja perfecto en esta última mañana. Muchas tiendas hacen tax-free, así que merece la pena dejar aquí las compras grandes de última hora en lugar de pagar precio de aeropuerto. Está de camino natural entre el hotel y Namba Station.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=34.6605,135.5062",
-          "verified_at": "2026-07-27"
+          "verified_at": "2026-08-13"
         }
       ],
       "restaurants": [],
@@ -4672,8 +4701,12 @@ body.is-offline .offline-chip { display: inline-flex; }
           "text": "El tipo de cambio en casas de cambio españolas y en los mostradores del aeropuerto es notablemente peor que sacar directamente de un cajero japonés."
         },
         {
+          "subtitle": "Los vuelos ya aparecen anotados",
+          "text": "La guía se abre con los 5.056 € de los vuelos ya cargados como gasto real, porque están pagados desde antes de salir. No es un error: se pueden editar o borrar como cualquier otro gasto, y el gráfico de la sección de presupuesto arranca ya en esa cifra."
+        },
+        {
           "subtitle": "Repartir gastos entre las dos parejas",
-          "text": "La sección Yo de esta guía incluye una calculadora de gastos compartidos: se añaden los cuatro nombres, se anota quién paga cada cosa y al final del viaje dice exactamente quién debe a quién y cuánto."
+          "text": "La sección Yo incluye una calculadora de gastos compartidos: se añaden los cuatro nombres, se anota quién paga cada cosa y al final del viaje dice exactamente quién debe a quién y cuánto. Los importes admiten céntimos y da igual escribir 23,60 que 23.60."
         }
       ]
     },
@@ -4853,11 +4886,11 @@ body.is-offline .offline-chip { display: inline-flex; }
     }
   ],
   "generation_metadata": {
-    "generated_at": "2026-08-02T12:00:00Z",
+    "generated_at": "2026-08-13T12:00:00Z",
     "schema_version": "1.2",
     "claude_model": "Claude Opus 4.6",
     "web_search_count": 16,
-    "verification_note": "Coordenadas verificadas con Google Places: Haneda Terminal 3, los tres alojamientos, Yamato Kabukicho, Kichi Kichi, Mochi Mochi, Nakano Broadway, Den Den Town, Kinkaku-ji y Kansai. Traslado Haneda-Shinjuku y horarios de Kichi Kichi, Mochi Mochi y Nakano verificados en agosto de 2026. Los precios de entradas y transporte son los vigentes en 2026 y deben reconfirmarse antes del viaje: para marzo de 2027 es esperable una subida, especialmente en Universal Studios Japan, que tiene precio dinámico, y en el Shinkansen. Los campos con verified_at nulo requieren comprobación en la web oficial al reservar."
+    "verification_note": "Coordenadas verificadas con Google Places: Haneda Terminal 3, los tres alojamientos, Yamato Kabukicho, Kichi Kichi, Mochi Mochi, Nakano Broadway, Den Den Town, Kinkaku-ji y Kansai. Los precios de entradas y transporte son los vigentes en 2026 y deben reconfirmarse antes del viaje: para marzo de 2027 es esperable una subida, especialmente en Universal Studios Japan, que tiene precio dinámico, y en el Shinkansen. En prepaid solo constan los vuelos, que es lo único confirmado como pagado; los alojamientos figuran en el desglose pero no se han sembrado como gasto. Los campos con verified_at nulo requieren comprobación en la web oficial al reservar."
   }
 }
 </script>
@@ -4887,12 +4920,31 @@ body.is-offline .offline-chip { display: inline-flex; }
     theme: null          // "light" | "dark" | null (= auto)
   };
 
+  // Gastos ya pagados antes de salir, declarados en meta.budget.prepaid.
+  // Se siembran una sola vez, en la primera apertura de la guía: a partir de ahí
+  // son gastos normales y el viajero puede editarlos o borrarlos.
+  function seedExpenses() {
+    const pre = (DATA.meta && DATA.meta.budget && DATA.meta.budget.prepaid) || [];
+    const BD = ['flights','accommodation','transport','food','activities','shopping','other'];
+    return pre
+      .filter(p => Number(p.amount) > 0)
+      .map((p, i) => ({
+        id: 'pre-' + i,
+        day: Number.isInteger(p.day) ? p.day : null,
+        category: BD.indexOf(p.category) > -1 ? p.category : 'other',
+        desc: p.desc || 'Pagado antes de salir',
+        amount: Number(p.amount),
+        date: p.date || (DATA.meta.dates && DATA.meta.dates.start) || '',
+        prepaid: true
+      }));
+  }
+
   function loadStore() {
     try {
       const raw = localStorage.getItem(STORE_KEY);
-      if (!raw) return { ...defaultStore };
+      if (!raw) return { ...defaultStore, expenses: seedExpenses() };
       return { ...defaultStore, ...JSON.parse(raw) };
-    } catch (e) { return { ...defaultStore }; }
+    } catch (e) { return { ...defaultStore, expenses: seedExpenses() }; }
   }
   function saveStore() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {}
@@ -4907,8 +4959,32 @@ body.is-offline .offline-chip { display: inline-flex; }
     const d = new Date(isoDate + 'T00:00:00');
     return d.toLocaleDateString('es-ES', opts);
   };
+  // Los importes con decimales se muestran con dos; los redondos, sin ninguno.
+  // Antes se truncaba siempre a cero decimales y un gasto de 23,60 € se veia como 24 €.
+  // El teclado espanol escribe coma y el navegador espera punto: se admiten los dos.
+  const numDec = (v) => {
+    if (typeof v === 'number') return isNaN(v) ? 0 : Math.round(v * 100) / 100;
+    let t = String(v == null ? '' : v).trim().replace(/[\s€]/g, '');
+    if (!t) return 0;
+    if (t.indexOf(',') > -1) {
+      // Hay coma: es el separador decimal y los puntos son de millar (1.234,50).
+      t = t.replace(/\./g, '').replace(',', '.');
+    } else {
+      // Solo puntos: es decimal si hay uno y deja una o dos cifras detras (23.6);
+      // en cualquier otro caso son separadores de millar (1.234 o 1.234.567).
+      const p = t.split('.');
+      t = (p.length === 2 && p[1].length <= 2) ? t : p.join('');
+    }
+    const n = parseFloat(t);
+    return isNaN(n) ? 0 : Math.round(n * 100) / 100;
+  };
+
   const fmtMoney = (n, currency = 'EUR') => {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+    const v = Number(n) || 0;
+    const dec = Math.abs(v - Math.round(v)) < 0.005 ? 0 : 2;
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency', currency, minimumFractionDigits: dec, maximumFractionDigits: dec
+    }).format(v);
   };
   const el = (sel) => document.querySelector(sel);
   const esc = (s) => String(s == null ? '' : s)
@@ -6768,7 +6844,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           // El punto de salida no cuenta para el encuadre en la vista general:
           // ya lo aporta el dia anterior y encoger el mapa por el no aporta nada.
           // El de fin de viaje si cuenta siempre: cierra el recorrido.
-          if (mapDayFilter === 'all' && m.origin) return;
+          if (mapDayFilter === 'all' && m.origin && m.day !== Math.min.apply(null, visibles)) return;
           puntos.push([m.coords.lat, m.coords.lng]);
         });
         if (latlngs.length > 1) {
@@ -6779,6 +6855,21 @@ body.is-offline .offline-chip { display: inline-flex; }
           }).addTo(mapInstance);
         }
       });
+
+      // Glifos de los puntos de transito. La clave `kind` del marcador manda;
+      // si no viene, se usa el respaldo historico (cama o avion segun el rol).
+      var GLIFO_PUNTO = {
+        airport: '✈️', train: '🚆', bus: '🚌', port: '⚓', ship: '🚢',
+        hotel: '🛏', apartment: '🛏', camper: '🚐', car: '🚗', home: '🏠'
+      };
+      var ROTULO_PUNTO = {
+        airport: 'Aeropuerto', train: 'Estación de tren', bus: 'Estación de autobuses',
+        port: 'Puerto', ship: 'A bordo', hotel: 'Alojamiento', apartment: 'Alojamiento',
+        camper: 'Autocaravana', car: 'Coche', home: 'Casa'
+      };
+      // El primer dia del viaje: su punto de salida es la entrada al destino y
+      // no duplica nada, asi que se muestra tambien en la vista general.
+      var primerDia = visibles.length ? Math.min.apply(null, visibles) : 1;
 
       // En la vista general, varias noches seguidas en el mismo alojamiento
       // apilarian marcadores identicos: se pinta solo la primera vez.
@@ -6796,7 +6887,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           // En la vista general el punto de salida se omite: es el mismo lugar
           // donde termino el dia anterior y se pintarian dos marcadores encima.
           // El de fin de viaje se muestra siempre: no duplica nada y cierra la ruta.
-          if (m.origin && mapDayFilter === 'all') return;
+          if (m.origin && mapDayFilter === 'all' && m.day !== primerDia) return;
           if (m.stay && mapDayFilter === 'all') {
             var cl = m.coords.lat + ',' + m.coords.lng;
             if (cl === ultimoTransito) return;
@@ -6806,13 +6897,26 @@ body.is-offline .offline-chip { display: inline-flex; }
           if (!esTransito(m)) cuenta++;
           // Con un dia seleccionado el numero pasa a ser el orden de la parada,
           // que es lo que hace legible la ruta. Con «Todos», el numero del dia.
-          var etiqueta = (m.origin || m.stay) ? '🛏' : (m.finish ? '✈️' : ((mapDayFilter === 'all') ? m.day : cuenta));
+          // El glifo lo decide `kind`: un aeropuerto lleva avion y un barco lleva barco.
+          // Sin `kind`, se mantiene el comportamiento antiguo: cama para origin y stay,
+          // avion para finish, de modo que las guias ya publicadas siguen funcionando.
+          // Manda `kind`: un aeropuerto lleva avion y un alojamiento lleva cama, sea
+          // parada con ficha o punto de transito. Sin `kind`, respaldo historico.
+          var etiqueta = GLIFO_PUNTO[m.kind]
+            || (esTransito(m)
+                  ? (m.finish ? '✈️' : ((m.origin || m.stay) ? '🛏' : '📍'))
+                  : ((mapDayFilter === 'all') ? m.day : cuenta));
+          var comoSeLlama = ROTULO_PUNTO[m.kind] || '';
           var pieza = m.origin
-            ? 'Salida · alojamiento de la noche anterior'
+            ? (m.kind && m.kind !== 'hotel' && m.kind !== 'apartment'
+                ? 'Salida del día · ' + comoSeLlama
+                : 'Salida · alojamiento de la noche anterior')
             : (m.stay
-                ? 'Llegada · alojamiento de esta noche'
+                ? (m.kind === 'ship'
+                    ? 'Noche a bordo, amarrados aquí'
+                    : 'Llegada · alojamiento de esta noche')
                 : (m.finish
-                    ? 'Fin del viaje'
+                    ? 'Fin del viaje' + (comoSeLlama ? ' · ' + comoSeLlama : '')
                     : ((mapDayFilter === 'all')
                         ? 'Día ' + m.day
                         : 'Parada ' + cuenta + ' de ' + nParadas + ' · Día ' + m.day)));
@@ -7371,7 +7475,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           <div class="budget-row" style="margin-bottom:4px">
             <input type="text" class="bd-label-input" data-bd-label="${k}" value="${esc(bdLabels[k])}" aria-label="Nombre de la partida">
             <div style="display:flex;align-items:center;gap:4px">
-              <input type="number" data-bd-key="${k}" value="${be.breakdown[k] || 0}" style="width:75px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;text-align:right">
+              <input type="text" inputmode="decimal" data-bd-key="${k}" value="${be.breakdown[k] || 0}" style="width:75px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;text-align:right">
               <span style="font-size:11px;color:var(--text-muted)">€</span>
             </div>
           </div>`).join('')}
@@ -7397,7 +7501,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:20px 0 8px">Añadir gasto</div>
       <div class="expense-form">
         <input id="exp-desc" placeholder="Concepto">
-        <input id="exp-amount" type="number" step="0.01" placeholder="€">
+        <input id="exp-amount" type="text" inputmode="decimal" placeholder="€ (admite 23,60 o 23.60)">
         <select id="exp-cat">${bdKeys.map(k => `<option value="${k}">${esc(bdLabels[k])}</option>`).join('')}</select>
         <button id="exp-add">+</button>
       </div>
@@ -7494,7 +7598,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px">Registrar pago</div>
           <div style="display:grid;grid-template-columns:1fr 70px;gap:6px;margin-bottom:6px">
             <input id="split-desc" placeholder="Concepto" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;min-width:0">
-            <input id="split-amount" type="number" step="0.01" placeholder="€" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
+            <input id="split-amount" type="text" inputmode="decimal" placeholder="€" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center">
             <div>
@@ -7594,7 +7698,7 @@ body.is-offline .offline-chip { display: inline-flex; }
 
     document.querySelectorAll('[data-bd-key]').forEach(inp => {
       inp.addEventListener('change', () => {
-        store.budget_edit.breakdown[inp.dataset.bdKey] = parseFloat(inp.value) || 0;
+        store.budget_edit.breakdown[inp.dataset.bdKey] = numDec(inp.value);
         saveStore();
         const newTotal = bdKeys.reduce((s, k) => s + (store.budget_edit.breakdown[k] || 0), 0);
         const totalEl = document.getElementById('budget-auto-total');
@@ -7606,7 +7710,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     // --- Listeners para gastos personales ---
     document.getElementById('exp-add').addEventListener('click', () => {
       const desc = document.getElementById('exp-desc').value.trim();
-      const amount = parseFloat(document.getElementById('exp-amount').value);
+      const amount = numDec(document.getElementById('exp-amount').value);
       const category = document.getElementById('exp-cat').value;
       if (!desc || !amount || isNaN(amount)) return;
       store.expenses.push({ id: 'e_' + Date.now(), desc, amount, category, date: todayISO() });
@@ -7657,7 +7761,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     if (addSplitBtn) {
       addSplitBtn.addEventListener('click', () => {
         const desc = document.getElementById('split-desc').value.trim();
-        const amount = parseFloat(document.getElementById('split-amount').value);
+        const amount = numDec(document.getElementById('split-amount').value);
         const who = document.getElementById('split-who').value;
         const date = document.getElementById('split-date').value || todayISO();
         // Leer beneficiarios seleccionados
@@ -7837,14 +7941,14 @@ body.is-offline .offline-chip { display: inline-flex; }
 
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em">${esc(destCurr)} → EUR</div>
         <div class="tool-card__row" style="margin-bottom:4px">
-          <input id="conv-local" type="number" placeholder="${esc(destCurr)}" value="100">
+          <input id="conv-local" type="text" inputmode="decimal" placeholder="${esc(destCurr)}" value="100">
           <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">${esc(destCurr)}</div>
         </div>
         <div class="tool-card__result" id="conv-result-rev">—</div>
 
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:0.06em">EUR → ${esc(destCurr)}</div>
         <div class="tool-card__row" style="margin-bottom:4px">
-          <input id="conv-eur" type="number" placeholder="Euros" value="">
+          <input id="conv-eur" type="text" inputmode="decimal" placeholder="Euros" value="">
           <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">EUR</div>
         </div>
         <div class="tool-card__result" id="conv-result-fwd">—</div>
@@ -7904,17 +8008,17 @@ body.is-offline .offline-chip { display: inline-flex; }
       }
 
       async function convertFwd() {
-        const a = parseFloat(eurInput.value) || 0;
+        const a = numDec(eurInput.value);
         const rate = await fetchRate();
         if (rate) {
           const result = a * rate;
-          resFwd.textContent = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(result) + ' ' + destCurr;
+          resFwd.textContent = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(result) + ' ' + destCurr;
         } else {
           resFwd.textContent = 'Error';
         }
       }
       async function convertRev() {
-        const a = parseFloat(localInput.value) || 0;
+        const a = numDec(localInput.value);
         const rate = await fetchRate();
         if (rate) {
           const result = a / rate;
