@@ -1301,7 +1301,26 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       "labels": {
         "activities": "Parkings/Peajes"
-      }
+      },
+      "prepaid": [
+        {
+          "desc": "Vuelos Valencia–Milán Bérgamo, ida y vuelta",
+          "category": "flights",
+          "amount": 288
+        },
+        {
+          "desc": "Apartamento de Bolzano, 2 noches",
+          "category": "accommodation",
+          "amount": 231,
+          "day": 1
+        },
+        {
+          "desc": "B&B Il Sogno, 4 noches",
+          "category": "accommodation",
+          "amount": 337.6,
+          "day": 3
+        }
+      ]
     },
     "interests": [
       "senderismo",
@@ -1377,7 +1396,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 45.669,
           "lng": 9.7074
         },
-        "origin": true
+        "origin": true,
+        "kind": "airport"
       },
       {
         "day": 1,
@@ -1417,7 +1437,8 @@ body.is-offline .offline-chip { display: inline-flex; }
         "coords": {
           "lat": 46.4983,
           "lng": 11.3548
-        }
+        },
+        "kind": "apartment"
       },
       {
         "day": 2,
@@ -1426,7 +1447,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.4983,
           "lng": 11.3548
         },
-        "origin": true
+        "origin": true,
+        "kind": "apartment"
       },
       {
         "day": 2,
@@ -1467,7 +1489,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.4983,
           "lng": 11.3548
         },
-        "stay": true
+        "stay": true,
+        "kind": "apartment"
       },
       {
         "day": 3,
@@ -1476,7 +1499,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.4983,
           "lng": 11.3548
         },
-        "origin": true
+        "origin": true,
+        "kind": "apartment"
       },
       {
         "day": 3,
@@ -1516,7 +1540,8 @@ body.is-offline .offline-chip { display: inline-flex; }
         "coords": {
           "lat": 46.563,
           "lng": 12.5734
-        }
+        },
+        "kind": "hotel"
       },
       {
         "day": 4,
@@ -1525,7 +1550,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.563,
           "lng": 12.5734
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 4,
@@ -1566,7 +1592,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.563,
           "lng": 12.5734
         },
-        "stay": true
+        "stay": true,
+        "kind": "hotel"
       },
       {
         "day": 5,
@@ -1575,7 +1602,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.563,
           "lng": 12.5734
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 5,
@@ -1600,7 +1628,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.563,
           "lng": 12.5734
         },
-        "stay": true
+        "stay": true,
+        "kind": "hotel"
       },
       {
         "day": 6,
@@ -1609,7 +1638,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.563,
           "lng": 12.5734
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 6,
@@ -1650,7 +1680,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.563,
           "lng": 12.5734
         },
-        "stay": true
+        "stay": true,
+        "kind": "hotel"
       },
       {
         "day": 7,
@@ -1659,7 +1690,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 46.563,
           "lng": 12.5734
         },
-        "origin": true
+        "origin": true,
+        "kind": "hotel"
       },
       {
         "day": 7,
@@ -1684,7 +1716,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "lat": 45.669,
           "lng": 9.7074
         },
-        "finish": true
+        "finish": true,
+        "kind": "airport"
       }
     ]
   },
@@ -3828,12 +3861,31 @@ body.is-offline .offline-chip { display: inline-flex; }
     theme: null          // "light" | "dark" | null (= auto)
   };
 
+  // Gastos ya pagados antes de salir, declarados en meta.budget.prepaid.
+  // Se siembran una sola vez, en la primera apertura de la guía: a partir de ahí
+  // son gastos normales y el viajero puede editarlos o borrarlos.
+  function seedExpenses() {
+    const pre = (DATA.meta && DATA.meta.budget && DATA.meta.budget.prepaid) || [];
+    const BD = ['flights','accommodation','transport','food','activities','shopping','other'];
+    return pre
+      .filter(p => Number(p.amount) > 0)
+      .map((p, i) => ({
+        id: 'pre-' + i,
+        day: Number.isInteger(p.day) ? p.day : null,
+        category: BD.indexOf(p.category) > -1 ? p.category : 'other',
+        desc: p.desc || 'Pagado antes de salir',
+        amount: Number(p.amount),
+        date: p.date || (DATA.meta.dates && DATA.meta.dates.start) || '',
+        prepaid: true
+      }));
+  }
+
   function loadStore() {
     try {
       const raw = localStorage.getItem(STORE_KEY);
-      if (!raw) return { ...defaultStore };
+      if (!raw) return { ...defaultStore, expenses: seedExpenses() };
       return { ...defaultStore, ...JSON.parse(raw) };
-    } catch (e) { return { ...defaultStore }; }
+    } catch (e) { return { ...defaultStore, expenses: seedExpenses() }; }
   }
   function saveStore() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {}
@@ -3848,8 +3900,32 @@ body.is-offline .offline-chip { display: inline-flex; }
     const d = new Date(isoDate + 'T00:00:00');
     return d.toLocaleDateString('es-ES', opts);
   };
+  // Los importes con decimales se muestran con dos; los redondos, sin ninguno.
+  // Antes se truncaba siempre a cero decimales y un gasto de 23,60 € se veia como 24 €.
+  // El teclado espanol escribe coma y el navegador espera punto: se admiten los dos.
+  const numDec = (v) => {
+    if (typeof v === 'number') return isNaN(v) ? 0 : Math.round(v * 100) / 100;
+    let t = String(v == null ? '' : v).trim().replace(/[\s€]/g, '');
+    if (!t) return 0;
+    if (t.indexOf(',') > -1) {
+      // Hay coma: es el separador decimal y los puntos son de millar (1.234,50).
+      t = t.replace(/\./g, '').replace(',', '.');
+    } else {
+      // Solo puntos: es decimal si hay uno y deja una o dos cifras detras (23.6);
+      // en cualquier otro caso son separadores de millar (1.234 o 1.234.567).
+      const p = t.split('.');
+      t = (p.length === 2 && p[1].length <= 2) ? t : p.join('');
+    }
+    const n = parseFloat(t);
+    return isNaN(n) ? 0 : Math.round(n * 100) / 100;
+  };
+
   const fmtMoney = (n, currency = 'EUR') => {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+    const v = Number(n) || 0;
+    const dec = Math.abs(v - Math.round(v)) < 0.005 ? 0 : 2;
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency', currency, minimumFractionDigits: dec, maximumFractionDigits: dec
+    }).format(v);
   };
   const el = (sel) => document.querySelector(sel);
   const esc = (s) => String(s == null ? '' : s)
@@ -5709,7 +5785,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           // El punto de salida no cuenta para el encuadre en la vista general:
           // ya lo aporta el dia anterior y encoger el mapa por el no aporta nada.
           // El de fin de viaje si cuenta siempre: cierra el recorrido.
-          if (mapDayFilter === 'all' && m.origin) return;
+          if (mapDayFilter === 'all' && m.origin && m.day !== Math.min.apply(null, visibles)) return;
           puntos.push([m.coords.lat, m.coords.lng]);
         });
         if (latlngs.length > 1) {
@@ -5720,6 +5796,21 @@ body.is-offline .offline-chip { display: inline-flex; }
           }).addTo(mapInstance);
         }
       });
+
+      // Glifos de los puntos de transito. La clave `kind` del marcador manda;
+      // si no viene, se usa el respaldo historico (cama o avion segun el rol).
+      var GLIFO_PUNTO = {
+        airport: '✈️', train: '🚆', bus: '🚌', port: '⚓', ship: '🚢',
+        hotel: '🛏', apartment: '🛏', camper: '🚐', car: '🚗', home: '🏠'
+      };
+      var ROTULO_PUNTO = {
+        airport: 'Aeropuerto', train: 'Estación de tren', bus: 'Estación de autobuses',
+        port: 'Puerto', ship: 'A bordo', hotel: 'Alojamiento', apartment: 'Alojamiento',
+        camper: 'Autocaravana', car: 'Coche', home: 'Casa'
+      };
+      // El primer dia del viaje: su punto de salida es la entrada al destino y
+      // no duplica nada, asi que se muestra tambien en la vista general.
+      var primerDia = visibles.length ? Math.min.apply(null, visibles) : 1;
 
       // En la vista general, varias noches seguidas en el mismo alojamiento
       // apilarian marcadores identicos: se pinta solo la primera vez.
@@ -5737,7 +5828,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           // En la vista general el punto de salida se omite: es el mismo lugar
           // donde termino el dia anterior y se pintarian dos marcadores encima.
           // El de fin de viaje se muestra siempre: no duplica nada y cierra la ruta.
-          if (m.origin && mapDayFilter === 'all') return;
+          if (m.origin && mapDayFilter === 'all' && m.day !== primerDia) return;
           if (m.stay && mapDayFilter === 'all') {
             var cl = m.coords.lat + ',' + m.coords.lng;
             if (cl === ultimoTransito) return;
@@ -5747,13 +5838,26 @@ body.is-offline .offline-chip { display: inline-flex; }
           if (!esTransito(m)) cuenta++;
           // Con un dia seleccionado el numero pasa a ser el orden de la parada,
           // que es lo que hace legible la ruta. Con «Todos», el numero del dia.
-          var etiqueta = (m.origin || m.stay) ? '🛏' : (m.finish ? '✈️' : ((mapDayFilter === 'all') ? m.day : cuenta));
+          // El glifo lo decide `kind`: un aeropuerto lleva avion y un barco lleva barco.
+          // Sin `kind`, se mantiene el comportamiento antiguo: cama para origin y stay,
+          // avion para finish, de modo que las guias ya publicadas siguen funcionando.
+          // Manda `kind`: un aeropuerto lleva avion y un alojamiento lleva cama, sea
+          // parada con ficha o punto de transito. Sin `kind`, respaldo historico.
+          var etiqueta = GLIFO_PUNTO[m.kind]
+            || (esTransito(m)
+                  ? (m.finish ? '✈️' : ((m.origin || m.stay) ? '🛏' : '📍'))
+                  : ((mapDayFilter === 'all') ? m.day : cuenta));
+          var comoSeLlama = ROTULO_PUNTO[m.kind] || '';
           var pieza = m.origin
-            ? 'Salida · alojamiento de la noche anterior'
+            ? (m.kind && m.kind !== 'hotel' && m.kind !== 'apartment'
+                ? 'Salida del día · ' + comoSeLlama
+                : 'Salida · alojamiento de la noche anterior')
             : (m.stay
-                ? 'Llegada · alojamiento de esta noche'
+                ? (m.kind === 'ship'
+                    ? 'Noche a bordo, amarrados aquí'
+                    : 'Llegada · alojamiento de esta noche')
                 : (m.finish
-                    ? 'Fin del viaje'
+                    ? 'Fin del viaje' + (comoSeLlama ? ' · ' + comoSeLlama : '')
                     : ((mapDayFilter === 'all')
                         ? 'Día ' + m.day
                         : 'Parada ' + cuenta + ' de ' + nParadas + ' · Día ' + m.day)));
@@ -6312,7 +6416,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           <div class="budget-row" style="margin-bottom:4px">
             <input type="text" class="bd-label-input" data-bd-label="${k}" value="${esc(bdLabels[k])}" aria-label="Nombre de la partida">
             <div style="display:flex;align-items:center;gap:4px">
-              <input type="number" data-bd-key="${k}" value="${be.breakdown[k] || 0}" style="width:75px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;text-align:right">
+              <input type="text" inputmode="decimal" data-bd-key="${k}" value="${be.breakdown[k] || 0}" style="width:75px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;text-align:right">
               <span style="font-size:11px;color:var(--text-muted)">€</span>
             </div>
           </div>`).join('')}
@@ -6338,7 +6442,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:20px 0 8px">Añadir gasto</div>
       <div class="expense-form">
         <input id="exp-desc" placeholder="Concepto">
-        <input id="exp-amount" type="number" step="0.01" placeholder="€">
+        <input id="exp-amount" type="text" inputmode="decimal" placeholder="€ (admite 23,60 o 23.60)">
         <select id="exp-cat">${bdKeys.map(k => `<option value="${k}">${esc(bdLabels[k])}</option>`).join('')}</select>
         <button id="exp-add">+</button>
       </div>
@@ -6435,7 +6539,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px">Registrar pago</div>
           <div style="display:grid;grid-template-columns:1fr 70px;gap:6px;margin-bottom:6px">
             <input id="split-desc" placeholder="Concepto" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;min-width:0">
-            <input id="split-amount" type="number" step="0.01" placeholder="€" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
+            <input id="split-amount" type="text" inputmode="decimal" placeholder="€" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center">
             <div>
@@ -6535,7 +6639,7 @@ body.is-offline .offline-chip { display: inline-flex; }
 
     document.querySelectorAll('[data-bd-key]').forEach(inp => {
       inp.addEventListener('change', () => {
-        store.budget_edit.breakdown[inp.dataset.bdKey] = parseFloat(inp.value) || 0;
+        store.budget_edit.breakdown[inp.dataset.bdKey] = numDec(inp.value);
         saveStore();
         const newTotal = bdKeys.reduce((s, k) => s + (store.budget_edit.breakdown[k] || 0), 0);
         const totalEl = document.getElementById('budget-auto-total');
@@ -6547,7 +6651,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     // --- Listeners para gastos personales ---
     document.getElementById('exp-add').addEventListener('click', () => {
       const desc = document.getElementById('exp-desc').value.trim();
-      const amount = parseFloat(document.getElementById('exp-amount').value);
+      const amount = numDec(document.getElementById('exp-amount').value);
       const category = document.getElementById('exp-cat').value;
       if (!desc || !amount || isNaN(amount)) return;
       store.expenses.push({ id: 'e_' + Date.now(), desc, amount, category, date: todayISO() });
@@ -6598,7 +6702,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     if (addSplitBtn) {
       addSplitBtn.addEventListener('click', () => {
         const desc = document.getElementById('split-desc').value.trim();
-        const amount = parseFloat(document.getElementById('split-amount').value);
+        const amount = numDec(document.getElementById('split-amount').value);
         const who = document.getElementById('split-who').value;
         const date = document.getElementById('split-date').value || todayISO();
         // Leer beneficiarios seleccionados
@@ -6778,14 +6882,14 @@ body.is-offline .offline-chip { display: inline-flex; }
 
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em">${esc(destCurr)} → EUR</div>
         <div class="tool-card__row" style="margin-bottom:4px">
-          <input id="conv-local" type="number" placeholder="${esc(destCurr)}" value="100">
+          <input id="conv-local" type="text" inputmode="decimal" placeholder="${esc(destCurr)}" value="100">
           <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">${esc(destCurr)}</div>
         </div>
         <div class="tool-card__result" id="conv-result-rev">—</div>
 
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:0.06em">EUR → ${esc(destCurr)}</div>
         <div class="tool-card__row" style="margin-bottom:4px">
-          <input id="conv-eur" type="number" placeholder="Euros" value="">
+          <input id="conv-eur" type="text" inputmode="decimal" placeholder="Euros" value="">
           <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">EUR</div>
         </div>
         <div class="tool-card__result" id="conv-result-fwd">—</div>
@@ -6845,17 +6949,17 @@ body.is-offline .offline-chip { display: inline-flex; }
       }
 
       async function convertFwd() {
-        const a = parseFloat(eurInput.value) || 0;
+        const a = numDec(eurInput.value);
         const rate = await fetchRate();
         if (rate) {
           const result = a * rate;
-          resFwd.textContent = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(result) + ' ' + destCurr;
+          resFwd.textContent = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(result) + ' ' + destCurr;
         } else {
           resFwd.textContent = 'Error';
         }
       }
       async function convertRev() {
-        const a = parseFloat(localInput.value) || 0;
+        const a = numDec(localInput.value);
         const rate = await fetchRate();
         if (rate) {
           const result = a / rate;
