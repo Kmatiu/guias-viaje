@@ -2,7 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FAF4E8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mis guías">
+<meta name="robots" content="noindex, nofollow">
 <title>Mis guías de viaje</title>
 <style>
   * { box-sizing: border-box; margin: 0; }
@@ -10,12 +15,28 @@
     font-family: Georgia, serif;
     background: #FAF4E8;
     color: #1A1A1A;
-    padding: 40px 20px;
+    padding: 40px 20px calc(40px + env(safe-area-inset-bottom));
     min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
   }
   .wrap { max-width: 600px; margin: 0 auto; }
   h1 { font-size: 32px; margin-bottom: 8px; }
-  .lead { color: #6B6B6B; margin-bottom: 32px; }
+  .lead { color: #6B6B6B; margin-bottom: 24px; }
+
+  /* Aviso de que no hay conexión */
+  .sin-red {
+    display: none;
+    background: #FBF1DC;
+    border: 1px solid #EDD9AC;
+    color: #7A5406;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  body.offline .sin-red { display: block; }
+
   .card {
     display: block;
     padding: 20px;
@@ -25,49 +46,150 @@
     margin-bottom: 12px;
     text-decoration: none;
     color: inherit;
-    transition: border-color 150ms, transform 150ms;
+    transition: border-color 150ms, transform 150ms, opacity 150ms;
+    position: relative;
   }
   .card:hover { border-color: #C65D3A; transform: translateY(-2px); }
   .card h2 { font-size: 20px; color: #C65D3A; margin-bottom: 4px; }
   .card p { font-size: 14px; color: #6B6B6B; }
+
+  /* Marca de guía disponible sin conexión */
+  .card__estado {
+    display: none;
+    font-family: -apple-system, system-ui, sans-serif;
+    font-size: 11px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: #4A7C59;
+    margin-top: 8px;
+  }
+  .card--guardada .card__estado { display: block; }
+  /* Sin conexión, lo no guardado se atenúa: se ve pero se avisa */
+  body.offline .card:not(.card--guardada) { opacity: .45; }
+  body.offline .card:not(.card--guardada) .card__estado {
+    display: block;
+    color: #9A6B4A;
+  }
+
+  .pie {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid #E5DCC8;
+    font-size: 13px;
+    color: #6B6B6B;
+    line-height: 1.5;
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Mis guías de viaje</h1>
   <p class="lead">Pulsa sobre una guía para abrirla.</p>
-  
+
+  <div class="sin-red">
+    <strong>Estás sin conexión.</strong> Puedes abrir las guías que hayas preparado
+    para usar sin internet. Las demás necesitan cobertura.
+  </div>
+
   <a class="card" href="Budapest/">
     <h2>Budapest</h2>
     <p>4 días en la Perla del Danubio</p>
+    <span class="card__estado"></span>
   </a>
+
   <a class="card" href="CruceroBáltico/">
     <h2>Crucero Mar Báltico</h2>
     <p>8 perlas del mar del Norte</p>
+    <span class="card__estado"></span>
   </a>
+
   <a class="card" href="Bari/">
     <h2>Puglia - Bari</h2>
     <p>Escapada por el talón de la bota italiana</p>
+    <span class="card__estado"></span>
   </a>
-    <a class="card" href="Milán/">
+
+  <a class="card" href="Milán/">
     <h2>Milán</h2>
     <p>Escapada en Milán y ruta por el Bernina Express</p>
+    <span class="card__estado"></span>
   </a>
+
   <a class="card" href="Japón/">
     <h2>Japón</h2>
     <p>15 días en la tierra del sol saliente</p>
+    <span class="card__estado"></span>
   </a>
- <a class="card" href="Dolomitas/">
+
+  <a class="card" href="Dolomitas/">
     <h2>Dolomitas</h2>
     <p>7 días recorriendo los Dolomitas</p>
+    <span class="card__estado"></span>
   </a>
- <a class="card" href="Herramientas/"> 
+
+  <a class="card" href="Herramientas/">
     <h2>Herramientas de carga</h2>
     <p>Herramientas para cargar imágenes, archivos y enlaces externos a las guías</p>
+    <span class="card__estado"></span>
   </a>
 
   <!-- Añade más guías aquí copiando el bloque anterior -->
 
+  <p class="pie">
+    Esta portada se guarda sola en el móvil y se abre sin conexión.
+    Cada guía hay que prepararla por separado: se entra en ella con wifi y se pulsa
+    <em>Yo → Herramientas → Preparar para usar sin conexión</em>.
+  </p>
 </div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── 1 · Service worker propio de la portada ─────────────────────────────
+  // Cachea esta página para que se abra sin cobertura. Su alcance es la raíz,
+  // pero el service worker de cada guía manda dentro de su carpeta, así que
+  // no se pisan: cada uno cachea lo suyo.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw-portada.js').catch(function () {});
+    });
+  }
+
+  // ── 2 · Aviso de conexión ───────────────────────────────────────────────
+  function pintarConexion() {
+    document.body.classList.toggle('offline', !navigator.onLine);
+  }
+  window.addEventListener('online', pintarConexion);
+  window.addEventListener('offline', pintarConexion);
+  pintarConexion();
+
+  // ── 3 · Qué guías están guardadas ───────────────────────────────────────
+  // Se comprueba mirando si la caché del navegador guarda el index de cada
+  // carpeta. No se descarga nada: solo se pregunta a lo que ya hay guardado.
+  function marcarGuardadas() {
+    if (!('caches' in window)) { return; }
+    var enlaces = Array.prototype.slice.call(document.querySelectorAll('.card'));
+    enlaces.forEach(function (a) {
+      var destino = new URL(a.getAttribute('href'), location.href).href;
+      Promise.all([
+        caches.match(destino, { ignoreSearch: true }),
+        caches.match(destino + 'index.html', { ignoreSearch: true })
+      ]).then(function (r) {
+        var guardada = !!(r[0] || r[1]);
+        a.classList.toggle('card--guardada', guardada);
+        a.querySelector('.card__estado').textContent =
+          guardada ? '✓ Disponible sin conexión' : 'Necesita conexión';
+      }).catch(function () {});
+    });
+  }
+  marcarGuardadas();
+
+  // Al volver de una guía, el estado puede haber cambiado: se repasa.
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) { pintarConexion(); marcarGuardadas(); }
+  });
+})();
+</script>
 </body>
 </html>
