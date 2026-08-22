@@ -31,6 +31,15 @@ body{
 .cabecera__marca{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-70)}
 .ruta{position:sticky;top:0;z-index:20;padding:.85rem 0 .9rem;
   background:linear-gradient(var(--papel) 78%,rgba(241,243,240,0));backdrop-filter:blur(3px)}
+.ruta__rotulos{position:relative;height:0;overflow:hidden;margin:0 5px;
+  transition:height .28s cubic-bezier(.4,0,.2,1),opacity .2s;opacity:0;pointer-events:none}
+.ruta.arriba .ruta__rotulos{height:74px;opacity:1}
+.ruta__rotulo{position:absolute;bottom:2px;transform-origin:left bottom;transform:rotate(-45deg);
+  font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.02em;white-space:nowrap;
+  color:var(--tinta-70);transition:color .2s}
+.ruta__rotulo.hecha{color:var(--mapa)}
+.ruta__rotulo.actual{color:var(--ocre);font-weight:500}
+@media (max-width:430px){ .ruta__rotulo{font-size:8.5px} .ruta.arriba .ruta__rotulos{height:66px} }
 .ruta__pista{position:relative;height:2px;background:var(--linea);margin:0 5px}
 .ruta__avance{position:absolute;inset:0 auto 0 0;background:var(--mapa);width:0;transition:width .45s cubic-bezier(.4,0,.2,1)}
 .ruta__paradas{position:absolute;inset:0;margin:0;padding:0;list-style:none;display:flex;justify-content:space-between;align-items:center}
@@ -155,6 +164,7 @@ body.modo-asesor .asesor{display:block}
   </header>
 
   <nav class="ruta" id="ruta" aria-label="Progreso del cuestionario">
+    <div class="ruta__rotulos" id="rotulos" aria-hidden="true"></div>
     <div class="ruta__pista">
       <span class="ruta__avance" id="avance"></span>
       <ol class="ruta__paradas" id="paradas"></ol>
@@ -421,14 +431,16 @@ body.modo-asesor .asesor{display:block}
       <span class="grupo__titulo">Nivel de gasto del día a día <span class="obligatorio">·</span></span>
       <span class="ayuda">Marca la horquilla en la que os sentís cómodos comiendo y visitando. Es lo que decide qué restaurantes y qué actividades se proponen.</span>
       <div class="fichas" data-uno="nivel">
-        <button type="button" class="ficha ficha--ancha" data-v="economico">Económico
-          <small>Comer bien sin sentarse a mantel: mercados, menú del día, 12–20 € por persona. Visitas sobre todo gratuitas.</small></button>
+        <button type="button" class="ficha ficha--ancha" data-v="ajustado">Ajustado
+          <small>Supermercado local, picnic y bocadillos, mercados y puestos callejeros. Visitas sobre todo gratuitas: iglesias, plazas, miradores y algún museo suelto. Unos 10–15 € por persona y día en comida.</small></button>
+        <button type="button" class="ficha ficha--ancha" data-v="economico">Económico con caprichos
+          <small>La mayoría de comidas informales o de supermercado, pero sin renunciar a las entradas de los monumentos importantes y a sentarse a mantel una o dos veces en el viaje, en sitios de 25–40 € por persona.</small></button>
         <button type="button" class="ficha ficha--ancha" data-v="medio">Medio
-          <small>Trattorias y casas de comidas con solera, 25–40 € por persona en la cena. Entradas a los monumentos principales.</small></button>
+          <small>Comer y cenar sentados a diario en trattorias y casas de comidas con solera, en torno a 25–40 € por persona. Entradas a todo lo principal sin mirar el precio.</small></button>
+        <button type="button" class="ficha ficha--ancha" data-v="medio_alto">Medio-alto
+          <small>Lo anterior más alguna mesa de nivel a lo largo del viaje, de 50–80 € por persona, y alguna visita guiada o acceso preferente para saltarse las colas.</small></button>
         <button type="button" class="ficha ficha--ancha" data-v="alto">Alto
-          <small>Cocina de nivel y alguna mesa con reserva difícil, 50–80 € por persona. Visitas guiadas y accesos preferentes.</small></button>
-        <button type="button" class="ficha ficha--ancha" data-v="lujo">Lujo
-          <small>Estrellas Michelin y experiencias privadas, desde 100 € por persona. Sin límite en entradas ni traslados.</small></button>
+          <small>Cocina de autor y mesas con reserva difícil, desde 100 € por persona, experiencias privadas y traslados cómodos. Sin límite en entradas.</small></button>
       </div>
     </div>
     <div class="campo">
@@ -530,14 +542,6 @@ body.modo-asesor .asesor{display:block}
       <label for="partida">¿Hay algún gasto propio de este viaje que queráis ver aparte?</label>
       <span class="ayuda">Peajes y parkings, forfait de esquí, entradas de parques, gasolina. Se le pone su propia casilla en la guía.</span>
       <input type="text" id="partida">
-    </div>
-    <div class="campo">
-      <span class="grupo__titulo">¿Cómo lleváis el dinero del grupo?</span>
-      <span class="ayuda">La guía tiene una sección para repartir gastos entre varias personas. Si os interesa, la dejamos preparada.</span>
-      <div class="fichas" data-uno="reparto">
-        <button type="button" class="ficha" data-v="comun">Bote común, no hace falta repartir</button>
-        <button type="button" class="ficha" data-v="repartir">Cada uno paga cosas y luego cuadramos</button>
-      </div>
     </div>
   </section>
 
@@ -717,7 +721,36 @@ body.modo-asesor .asesor{display:block}
     li.appendChild(punto);
     li.style.display = 'contents';
     paradas.appendChild(li);
+
+    // Rótulo en diagonal sobre cada parada, para saber cuál es sin entrar.
+    var rot = document.createElement('span');
+    rot.className = 'ruta__rotulo';
+    rot.dataset.paso = i;
+    rot.textContent = pasos[i].dataset.nombre;
+    $('#rotulos').appendChild(rot);
   }
+
+  // Los rótulos se colocan sobre su punto una vez el navegador conoce el ancho.
+  function colocarRotulos() {
+    var caja = $('#rotulos');
+    if (!caja) { return; }
+    var ancho = caja.offsetWidth;
+    if (!ancho) { return; }
+    var n = TOTAL;
+    $$('.ruta__rotulo').forEach(function (r, i) {
+      // Los puntos se reparten a lo ancho con justify-content: space-between.
+      var x = n > 1 ? (i / (n - 1)) * (ancho - 10) + 5 : ancho / 2;
+      r.style.left = x + 'px';
+    });
+  }
+  window.addEventListener('resize', colocarRotulos);
+
+  // Los rótulos solo se ven arriba del todo: al bajar, la barra se queda fina
+  // y con el nombre de la parada actual, que es lo que hace falta mientras se rellena.
+  function vigilarScroll() {
+    $('#ruta').classList.toggle('arriba', window.scrollY < 40);
+  }
+  window.addEventListener('scroll', vigilarScroll, { passive: true });
   function pintarRuta() {
     if (actual < TOTAL) { maxPaso = Math.max(maxPaso, actual); }
     $$('.ruta__parada').forEach(function (p, i) {
@@ -728,6 +761,12 @@ body.modo-asesor .asesor{display:block}
       p.disabled = !accesible;
       p.title = accesible ? 'Ir a: ' + pasos[i].dataset.nombre : '';
     });
+    $$('.ruta__rotulo').forEach(function (r, i) {
+      r.classList.toggle('hecha', i < actual);
+      r.classList.toggle('actual', i === actual);
+    });
+    colocarRotulos();
+    vigilarScroll();
     $('#avance').style.width = Math.min(TOTAL > 1 ? (actual / (TOTAL - 1)) * 100 : 0, 100) + '%';
     $('#numeroParada').textContent = actual >= TOTAL ? 'Cuestionario enviado' : 'Parada ' + (actual + 1) + ' de ' + TOTAL;
     $('#nombreParada').textContent = pasos[actual].dataset.nombre;
@@ -1072,8 +1111,13 @@ body.modo-asesor .asesor{display:block}
     actual = n;
     pintarRuta();
     $('#atras').hidden = (n === 0 || n >= TOTAL);
+    // En la revisión y en la confirmación no hay nada que continuar:
+    // esas pantallas traen sus propios botones.
     if (n >= TOTAL - 1) { $('#acciones').hidden = true; }
-    else { $('#acciones').hidden = false; $('#seguir').textContent = n === 0 ? 'Empezar' : 'Continuar'; }
+    else {
+      $('#acciones').hidden = false;
+      $('#seguir').textContent = n === 0 ? 'Empezar' : 'Continuar';
+    }
     if (n === 0) { pintarAvisoEnviado(); }
     if (n === 7) { pintarComprometido(); }
     if (n === TOTAL - 1) {
@@ -1182,8 +1226,7 @@ body.modo-asesor .asesor{display:block}
         moneda: 'EUR',
         ya_comprometido: comprometido,
         gastos_ya_pagados: pagados,
-        partida_a_separar: v('partida'),
-        reparto: uno.reparto || ''
+        partida_a_separar: v('partida')
       },
       gastronomia: {
         respondido: !!uno.hayRestricciones,
@@ -1463,6 +1506,9 @@ body.modo-asesor .asesor{display:block}
   }
 
   restaurar();
+  // Las tipografías pueden llegar tarde y cambiar los anchos: se recolocan al cargar.
+  window.addEventListener('load', colocarRotulos);
+  setTimeout(colocarRotulos, 300);
 })();
 </script>
 </body>
