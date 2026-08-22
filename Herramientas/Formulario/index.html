@@ -16,6 +16,9 @@
   --r:10px; --paso:clamp(1rem,4vw,1.5rem);
 }
 *{box-sizing:border-box}
+/* `hidden` equivale a display:none con prioridad mínima, así que cualquier
+   regla de clase lo anula. Esto hace que ocultar de verdad sea ocultar. */
+[hidden]{display:none !important}
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0; font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -37,6 +40,9 @@ body{
 .ruta__rotulo{position:absolute;bottom:2px;transform-origin:left bottom;transform:rotate(-45deg);
   font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.02em;white-space:nowrap;
   color:var(--tinta-70);transition:color .2s}
+/* La mitad derecha se abre hacia el otro lado para no salirse de la pantalla:
+   el conjunto queda como un abanico simétrico. */
+.ruta__rotulo--izq{transform-origin:right bottom;transform:rotate(45deg)}
 .ruta__rotulo.hecha{color:var(--mapa)}
 .ruta__rotulo.actual{color:var(--ocre);font-weight:500}
 @media (max-width:430px){ .ruta__rotulo{font-size:8.5px} .ruta.arriba .ruta__rotulos{height:66px} }
@@ -178,7 +184,7 @@ body.modo-asesor .asesor{display:block}
   <main id="main">
 
   <!-- 1 ─ Contacto -->
-  <section class="paso visible" data-nombre="Quién eres">
+  <section class="paso visible" data-nombre="Quién eres" data-corto="Contacto">
     <h1>Vamos a preparar tu guía de viaje</h1>
     <p class="entradilla">Once pantallas cortas, unos diez o doce minutos. Cuanto mejor os conozcamos, menos se parecerá la guía a cualquier otra. Puedes dejarlo a medias y volver: lo escrito se guarda en este navegador.</p>
     <div id="avisoEnviado" hidden></div>
@@ -213,7 +219,7 @@ body.modo-asesor .asesor{display:block}
   </section>
 
   <!-- 2 ─ El viaje -->
-  <section class="paso" data-nombre="El viaje">
+  <section class="paso" data-nombre="El viaje" data-corto="El viaje">
     <h2>El viaje</h2>
     <p class="entradilla">Lo básico para situarnos.</p>
     <div class="campo">
@@ -268,7 +274,7 @@ body.modo-asesor .asesor{display:block}
   </section>
 
   <!-- 3 ─ Transporte -->
-  <section class="paso" data-nombre="Cómo os movéis">
+  <section class="paso" data-nombre="Cómo os movéis" data-corto="Transporte">
     <h2>Cómo llegáis y cómo os movéis</h2>
     <p class="entradilla">Las horas exactas deciden si el primer día es aprovechable o solo un traslado, y si el último da para algo más que ir al aeropuerto.</p>
     <div class="asesor">MODO ASESOR · Si no saben las horas, que abran la reserva ahora. Sin la hora de llegada, el día 1 se planifica a ciegas. Y ojo con las escalas largas: a partir de cinco horas puede caber una visita al centro de la ciudad de la escala, y eso es un día extra regalado.</div>
@@ -392,7 +398,7 @@ body.modo-asesor .asesor{display:block}
   </section>
 
   <!-- 4 ─ Alojamiento -->
-  <section class="paso" data-nombre="Dónde dormís">
+  <section class="paso" data-nombre="Dónde dormís" data-corto="Alojamiento">
     <h2>Dónde dormís</h2>
     <p class="entradilla">Cada noche entra en la guía con su ficha y su punto en el mapa, porque <strong>el itinerario de cada mañana arranca en la puerta del alojamiento</strong>. Si dormís varias noches seguidas en el mismo sitio, con una entrada basta.</p>
     <div class="campo">
@@ -404,7 +410,7 @@ body.modo-asesor .asesor{display:block}
   </section>
 
   <!-- 5 ─ Compromisos cerrados -->
-  <section class="paso" data-nombre="Lo que ya está cerrado">
+  <section class="paso" data-nombre="Lo que ya está cerrado" data-corto="Ya cerrado">
     <h2>¿Hay algo que ya esté cerrado?</h2>
     <p class="entradilla">Excursiones contratadas, entradas con hora, una comida familiar, un concierto, una visita guiada. Cualquier cosa que ocupe una franja concreta de un día concreto.</p>
     <div class="aviso aviso--nota">Este bloque es el que más cambia la guía. Una excursión de un día entero puede ocupar el veinticinco por ciento de un viaje de cuatro días, y saberlo desde el principio evita que os propongamos planes imposibles.</div>
@@ -424,7 +430,7 @@ body.modo-asesor .asesor{display:block}
   </section>
 
   <!-- 6 ─ Gustos -->
-  <section class="paso" data-nombre="Qué os gusta">
+  <section class="paso" data-nombre="Qué os gusta" data-corto="Gustos">
     <h2>Qué os gusta</h2>
     <p class="entradilla">De aquí sale casi todo lo que la guía os va a proponer.</p>
     <div class="campo">
@@ -484,7 +490,7 @@ body.modo-asesor .asesor{display:block}
   </section>
 
   <!-- 7 ─ Evitar -->
-  <section class="paso" data-nombre="Qué evitar">
+  <section class="paso" data-nombre="Qué evitar" data-corto="Evitar">
     <h2>Qué preferís evitar</h2>
     <p class="entradilla">Esto vale tanto como lo anterior. Saber qué no proponeros nos ahorra a todos un mal día.</p>
     <div class="campo">
@@ -523,7 +529,7 @@ body.modo-asesor .asesor{display:block}
   </section>
 
   <!-- 8 ─ Presupuesto -->
-  <section class="paso" data-nombre="Presupuesto">
+  <section class="paso" data-nombre="Presupuesto" data-corto="Presupuesto">
     <h2>Presupuesto</h2>
     <p class="entradilla">Una sola cifra: <strong>lo que calculáis gastar en el viaje entero, entre todos y contando todo</strong>, incluido lo que ya habéis pagado. Con eso la guía reparte por partidas y va descontando sobre la marcha.</p>
 
@@ -546,7 +552,7 @@ body.modo-asesor .asesor{display:block}
   </section>
 
   <!-- 9 ─ Comida -->
-  <section class="paso" data-nombre="Comida">
+  <section class="paso" data-nombre="Comida" data-corto="Comida">
     <h2>Comida</h2>
     <p class="entradilla">Cada día lleva una comida y una cena propuestas. Conviene acertar.</p>
     <div class="campo">
@@ -586,7 +592,7 @@ body.modo-asesor .asesor{display:block}
   </section>
 
   <!-- 10 ─ Detalles finales -->
-  <section class="paso" data-nombre="Últimos detalles">
+  <section class="paso" data-nombre="Últimos detalles" data-corto="Detalles">
     <h2>Últimos detalles</h2>
     <p class="entradilla">La lista de equipaje de la guía se filtra con esto, y el último campo es el que más ayuda.</p>
     <div class="campo">
@@ -614,7 +620,7 @@ body.modo-asesor .asesor{display:block}
   </section>
 
   <!-- 11 ─ Revisión -->
-  <section class="paso" data-nombre="Revisar y enviar">
+  <section class="paso" data-nombre="Revisar y enviar" data-corto="Revisar">
     <h2>Repasa antes de enviarlo</h2>
     <p class="entradilla">Si algo no está bien, vuelve atrás y cámbialo. Después de enviarlo también se puede corregir, pero es más cómodo ahora.</p>
     <div id="repaso" class="repaso"></div>
@@ -630,7 +636,7 @@ body.modo-asesor .asesor{display:block}
   </section>
 
   <!-- Confirmación -->
-  <section class="paso" data-nombre="Enviado">
+  <section class="paso" data-nombre="Enviado" data-corto="Enviado">
     <div class="final">
       <div class="final__marca">✓</div>
       <h2>Recibido</h2>
@@ -726,7 +732,7 @@ body.modo-asesor .asesor{display:block}
     var rot = document.createElement('span');
     rot.className = 'ruta__rotulo';
     rot.dataset.paso = i;
-    rot.textContent = pasos[i].dataset.nombre;
+    rot.textContent = pasos[i].dataset.corto || pasos[i].dataset.nombre;
     $('#rotulos').appendChild(rot);
   }
 
@@ -737,10 +743,20 @@ body.modo-asesor .asesor{display:block}
     var ancho = caja.offsetWidth;
     if (!ancho) { return; }
     var n = TOTAL;
+    var mitad = Math.ceil(n / 2);
     $$('.ruta__rotulo').forEach(function (r, i) {
       // Los puntos se reparten a lo ancho con justify-content: space-between.
       var x = n > 1 ? (i / (n - 1)) * (ancho - 10) + 5 : ancho / 2;
-      r.style.left = x + 'px';
+      var haciaIzquierda = i >= mitad;
+      r.classList.toggle('ruta__rotulo--izq', haciaIzquierda);
+      if (haciaIzquierda) {
+        // Se ancla por la derecha: el texto sube hacia la izquierda y no se sale.
+        r.style.left = 'auto';
+        r.style.right = Math.max(0, ancho - x) + 'px';
+      } else {
+        r.style.right = 'auto';
+        r.style.left = x + 'px';
+      }
     });
   }
   window.addEventListener('resize', colocarRotulos);
