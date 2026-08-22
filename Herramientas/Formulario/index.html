@@ -34,9 +34,17 @@ body{
 .ruta__pista{position:relative;height:2px;background:var(--linea);margin:0 5px}
 .ruta__avance{position:absolute;inset:0 auto 0 0;background:var(--mapa);width:0;transition:width .45s cubic-bezier(.4,0,.2,1)}
 .ruta__paradas{position:absolute;inset:0;margin:0;padding:0;list-style:none;display:flex;justify-content:space-between;align-items:center}
-.ruta__parada{width:10px;height:10px;border-radius:50%;background:var(--papel);border:2px solid var(--linea);transition:all .3s}
+.ruta__parada{width:10px;height:10px;border-radius:50%;background:var(--papel);border:2px solid var(--linea);
+  transition:all .3s;padding:0;cursor:default;-webkit-appearance:none;appearance:none;flex:0 0 auto;position:relative}
 .ruta__parada.hecha{background:var(--mapa);border-color:var(--mapa)}
 .ruta__parada.actual{background:var(--ocre);border-color:var(--ocre);box-shadow:0 0 0 4px rgba(201,138,21,.22)}
+/* Las paradas ya visitadas funcionan como atajo */
+.ruta__parada.visitada{cursor:pointer}
+.ruta__parada.visitada:hover{transform:scale(1.45)}
+.ruta__parada:focus-visible{outline:2px solid var(--ocre);outline-offset:3px}
+/* Área de toque holgada sin agrandar el punto, para el dedo en el móvil */
+.ruta__parada.visitada::after{content:'';position:absolute;width:34px;height:34px;
+  transform:translate(-12px,-12px);border-radius:50%}
 .ruta__pie{display:flex;justify-content:space-between;align-items:baseline;margin-top:.85rem;gap:1rem}
 .ruta__n{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-70);white-space:nowrap}
 .ruta__donde{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.06em;color:var(--mapa);text-align:right}
@@ -118,6 +126,11 @@ body.modo-asesor .asesor{display:block}
 .repaso__v{white-space:pre-wrap;overflow-wrap:anywhere}
 .repaso__v em{color:var(--tinta-70);font-style:italic}
 .final{text-align:center;padding:2.5rem 0}
+.final__acciones{display:flex;flex-direction:column;gap:.7rem;margin-top:1.6rem;text-align:left}
+.enviado{background:var(--mapa-claro);border:1px solid #C4E0D8;color:#0A5A4B;border-radius:var(--r);
+  padding:.8rem .9rem;margin:0 0 1.4rem;font-size:.9rem;line-height:1.5}
+.enviado__acciones{display:flex;gap:.6rem;margin-top:.7rem;flex-wrap:wrap}
+.enviado .btn{padding:.5rem .9rem;font-size:.9rem;flex:0 0 auto}
 .final__marca{font-size:2.5rem;line-height:1}
 .trampa{position:absolute;left:-9999px;opacity:0;height:0;width:0}
 .borrar{display:inline-block;background:none;border:0;font:inherit;font-size:.85rem;color:var(--tinta-70);
@@ -158,6 +171,7 @@ body.modo-asesor .asesor{display:block}
   <section class="paso visible" data-nombre="Quién eres">
     <h1>Vamos a preparar tu guía de viaje</h1>
     <p class="entradilla">Once pantallas cortas, unos diez o doce minutos. Cuanto mejor os conozcamos, menos se parecerá la guía a cualquier otra. Puedes dejarlo a medias y volver: lo escrito se guarda en este navegador.</p>
+    <div id="avisoEnviado" hidden></div>
     <div id="avisoRecuperado" hidden></div>
     <div class="asesor">MODO ASESOR · Los bloques que más rendimiento dan son el 5 (compromisos cerrados) y el 10 (texto libre). En el 3 y el 4, insiste en las horas y los importes: son los que hacen que el presupuesto de la guía salga realista.</div>
 
@@ -621,9 +635,14 @@ body.modo-asesor .asesor{display:block}
         <strong>¿Tienes fotos propias del destino o de viajes anteriores?</strong><br>
         Si quieres verlas dentro de la guía, puedes enviarlas por WeTransfer al correo desde el que te escribamos. Es opcional: la guía llevará fotografías igualmente.
       </div>
-      <button type="button" class="btn btn--fantasma" id="descargar2">Descargar una copia de mis respuestas</button>
-      <p style="margin:1rem 0 0">
-        <button type="button" class="borrar" id="reset2">Rellenar otro cuestionario desde cero</button>
+      <div class="final__acciones">
+        <button type="button" class="btn btn--fantasma" id="volverFormulario">Volver al cuestionario y revisar mis respuestas</button>
+        <button type="button" class="btn btn--fantasma" id="descargar2">Descargar una copia de mis respuestas</button>
+        <button type="button" class="btn btn--fantasma" id="reset2">Empezar un cuestionario nuevo desde cero</button>
+      </div>
+      <p class="ayuda" style="margin-top:1.2rem;text-align:left">
+        Tus respuestas siguen guardadas en este navegador. Si vuelves al cuestionario y cambias algo,
+        recuerda enviarlo otra vez para que nos llegue.
       </p>
     </div>
   </section>
@@ -672,6 +691,8 @@ body.modo-asesor .asesor{display:block}
   var pasos = $$('.paso');
   var TOTAL = pasos.length - 1;
   var actual = 0;
+  var maxPaso = 0;      // parada más lejana alcanzada: hasta ahí se puede saltar
+  var enviado = false;  // el cuestionario ya se ha mandado al menos una vez
   var multi = {}, uno = {};
 
   if (CONFIG.logo) { var l = $('#logo'); l.src = CONFIG.logo; l.alt = CONFIG.agencia || 'Logotipo'; l.hidden = false; }
@@ -682,13 +703,30 @@ body.modo-asesor .asesor{display:block}
   var paradas = $('#paradas');
   for (var i = 0; i < TOTAL; i++) {
     var li = document.createElement('li');
-    li.className = 'ruta__parada';
+    var punto = document.createElement('button');
+    punto.type = 'button';
+    punto.className = 'ruta__parada';
+    punto.dataset.paso = i;
+    punto.setAttribute('aria-label', 'Ir a la parada ' + (i + 1) + ': ' + pasos[i].dataset.nombre);
+    punto.addEventListener('click', function () {
+      var destino = parseInt(this.dataset.paso, 10);
+      // Solo se salta a lo ya visitado: hacia delante hay que validar cada paso.
+      if (destino > maxPaso || destino === actual) { return; }
+      ir(destino);
+    });
+    li.appendChild(punto);
+    li.style.display = 'contents';
     paradas.appendChild(li);
   }
   function pintarRuta() {
+    if (actual < TOTAL) { maxPaso = Math.max(maxPaso, actual); }
     $$('.ruta__parada').forEach(function (p, i) {
       p.classList.toggle('hecha', i < actual);
       p.classList.toggle('actual', i === actual);
+      var accesible = i <= maxPaso && i !== actual;
+      p.classList.toggle('visitada', accesible);
+      p.disabled = !accesible;
+      p.title = accesible ? 'Ir a: ' + pasos[i].dataset.nombre : '';
     });
     $('#avance').style.width = Math.min(TOTAL > 1 ? (actual / (TOTAL - 1)) * 100 : 0, 100) + '%';
     $('#numeroParada').textContent = actual >= TOTAL ? 'Cuestionario enviado' : 'Parada ' + (actual + 1) + ' de ' + TOTAL;
@@ -1036,8 +1074,14 @@ body.modo-asesor .asesor{display:block}
     $('#atras').hidden = (n === 0 || n >= TOTAL);
     if (n >= TOTAL - 1) { $('#acciones').hidden = true; }
     else { $('#acciones').hidden = false; $('#seguir').textContent = n === 0 ? 'Empezar' : 'Continuar'; }
+    if (n === 0) { pintarAvisoEnviado(); }
     if (n === 7) { pintarComprometido(); }
-    if (n === TOTAL - 1) { pintarRepaso(); }
+    if (n === TOTAL - 1) {
+      pintarRepaso();
+      var env = $('#enviar');
+      env.disabled = false;
+      env.textContent = enviado ? 'Enviar las respuestas actualizadas' : 'Enviar el cuestionario';
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
     autoguardar();
   }
@@ -1231,12 +1275,19 @@ body.modo-asesor .asesor{display:block}
     empezarDeCero('Se van a borrar todas las respuestas de este cuestionario y volverás a la primera pantalla. Esta acción no se puede deshacer. ¿Seguimos?');
   });
   $('#reset2').addEventListener('click', function () {
-    empezarDeCero('¿Empezamos un cuestionario nuevo? El que acabas de enviar ya está a salvo: esto solo limpia el formulario de este navegador.');
+    empezarDeCero('¿Empezamos un cuestionario nuevo? El que acabas de enviar ya está a salvo en nuestro correo: esto solo limpia el formulario de este navegador.');
+  });
+  $('#volverFormulario').addEventListener('click', function () {
+    pintarAvisoEnviado();
+    ir(0);
   });
 
   $('#enviar').addEventListener('click', function () {
     if ($('#trampa').value) { return; }
     var boton = this, b = briefing();
+    if (enviado && !window.confirm('Ya nos habías enviado este cuestionario. ¿Quieres mandarnos la versión actualizada?')) {
+      return;
+    }
     boton.disabled = true; boton.textContent = 'Enviando…';
     avisar($('#errorEnvio'), '');
     fetch(CONFIG.formspree, {
@@ -1256,7 +1307,11 @@ body.modo-asesor .asesor{display:block}
       if (!r.ok) { throw new Error('respuesta ' + r.status); }
       $('#textoFinal').textContent = 'Ya tenemos todo lo necesario para empezar. Recibirás la guía ' + CONFIG.plazo +
         ' en el correo que has dejado. Si algo no encaja o falta un dato, te escribiremos antes.';
-      olvidar();
+      // Los datos NO se borran: así se puede volver al cuestionario a revisarlos.
+      // Para empezar de cero está el botón de reinicio.
+      enviado = true;
+      maxPaso = TOTAL - 1;
+      autoguardar();
       ir(TOTAL);
     }).catch(function () {
       boton.disabled = false; boton.textContent = 'Volver a intentarlo';
@@ -1275,7 +1330,8 @@ body.modo-asesor .asesor{display:block}
       $$('#gastosTransporte input[type=checkbox]').forEach(function (c) {
         gt[c.dataset.g] = { on: c.checked, importe: $('#gastosTransporte [data-gi=' + c.dataset.g + ']').value };
       });
-      guardar({ paso: actual, multi: multi, uno: uno, gastosTransporte: gt, datos: briefing() });
+      guardar({ paso: actual, maxPaso: maxPaso, enviado: enviado,
+                multi: multi, uno: uno, gastosTransporte: gt, datos: briefing() });
       pintarComprometido();
     }, 400);
   }
@@ -1286,6 +1342,26 @@ body.modo-asesor .asesor{display:block}
 
   function arrancarLimpio() {
     anadirAlojamiento(); conectarFichas(); condicionales(); pintarRuta();
+  }
+
+  // Cartel de la primera pantalla cuando el cuestionario ya se ha enviado.
+  // Da la salida para empezar uno nuevo sin tener que llegar hasta el final.
+  function pintarAvisoEnviado() {
+    var caja = $('#avisoEnviado');
+    if (!caja) { return; }
+    if (!enviado) { caja.hidden = true; caja.innerHTML = ''; return; }
+    caja.className = 'enviado';
+    caja.innerHTML =
+      '<strong>Este cuestionario ya nos lo has enviado.</strong><br>' +
+      'Puedes repasarlo y cambiar lo que quieras, pero acuérdate de volver a enviarlo al final ' +
+      'para que nos llegue la versión nueva. Si lo que quieres es preparar otro viaje, empieza uno limpio.' +
+      '<div class="enviado__acciones">' +
+        '<button type="button" class="btn btn--atras" id="resetEnviado">Empezar un cuestionario nuevo</button>' +
+      '</div>';
+    caja.hidden = false;
+    $('#resetEnviado').addEventListener('click', function () {
+      empezarDeCero('Se van a borrar todas las respuestas de este cuestionario para empezar uno nuevo. El que ya enviaste está a salvo en nuestro correo. ¿Seguimos?');
+    });
   }
 
   function avisoRecuperado(g) {
@@ -1359,6 +1435,8 @@ body.modo-asesor .asesor{display:block}
     });
 
     multi = g.multi || {}; uno = g.uno || {};
+    enviado = !!g.enviado;
+    maxPaso = Math.min(Number(g.maxPaso) || 0, TOTAL - 1);
     (d.alojamientos && d.alojamientos.length ? d.alojamientos : [{}]).forEach(anadirAlojamiento);
     ((d.compromisos_cerrados && d.compromisos_cerrados.lista) || []).forEach(anadirCompromiso);
     conectarFichas();
@@ -1376,7 +1454,10 @@ body.modo-asesor .asesor{display:block}
     acotarTodo();
     pintarComprometido();
     pintarRuta();
-    // No se salta al paso guardado sin preguntar: primero se ofrece elegir.
+    pintarAvisoEnviado();
+    // Un cuestionario ya enviado se abre por el principio, para repasarlo.
+    // Uno a medias ofrece elegir entre seguir o empezar de cero.
+    if (enviado) { return; }
     if (d.cliente.nombre || d.viaje.destino_libre) { avisoRecuperado(g); }
     else if (g.paso > 0 && g.paso < TOTAL) { ir(g.paso); }
   }
