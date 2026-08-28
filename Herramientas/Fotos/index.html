@@ -42,9 +42,23 @@
   .slot.is-over { border-color:var(--accent); background:#FEFAF3; }
   .slot.is-done { border-left:4px solid var(--ok); }
   .slot__head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-  .slot__name { font-weight:700; font-size:15px; }
+  .slot__name { font-weight:700; font-size:15px; font-family:inherit; color:inherit;
+    background:none; border:0; padding:2px 6px; margin:-2px -6px; border-radius:6px;
+    cursor:pointer; text-align:left; transition:background 120ms, color 120ms; }
+  .slot__name:hover { background:rgba(198,93,58,.10); color:var(--accent); }
+  .slot__name:active { background:rgba(198,93,58,.18); }
+  .slot__name:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+  .slot__name.is-copied { background:rgba(74,124,89,.15); color:#3E6B4A; }
+  /* Una pista discreta de que se puede copiar, solo al pasar por encima */
+  .slot__name::after { content:' ⧉'; opacity:0; font-weight:400; font-size:12px; transition:opacity 120ms; }
+  .slot__name:hover::after { opacity:.55; }
+  .slot__name.is-copied::after { content:' ✓'; opacity:1; }
   .slot__file { font-family:'SF Mono',Menlo,Consolas,monospace; font-size:12px; color:var(--soft);
+    cursor:pointer; border:0; transition:background 120ms, color 120ms;
     background:#F7F1E6; border-radius:6px; padding:2px 7px; }
+  .slot__file:hover { background:#EFE4D2; color:var(--ink); }
+  .slot__file:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+  .slot__file.is-copied { background:rgba(74,124,89,.15); color:#3E6B4A; }
   .slot__body { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:10px; }
   .slot__drop { flex:1; min-width:220px; border:1.5px dashed var(--line); border-radius:10px;
     padding:12px 14px; font-size:13px; color:var(--muted); text-align:center; }
@@ -93,6 +107,7 @@
       <li>Cada imagen se redimensiona a 1600 px de lado mayor y se recomprime a JPEG. Una foto de 5 MB suele quedar en 300–500 KB, que es lo que hace que la guía cargue rápido con datos móviles.</li>
       <li>Para poner varias fotos de un mismo sitio, suelta más de una: se nombran solas como <code>-2</code>, <code>-3</code>…</li>
       <li>Si una foto da error al leerse, casi seguro es un HEIC de iPhone. Los navegadores no lo saben abrir: conviértela a JPG y vuelve a arrastrarla.</li>
+      <li>Pulsando el <strong>nombre de un lugar</strong> se copia al portapapeles, listo para pegarlo en el buscador de imágenes. El nombre del archivo, al lado, también se copia al pulsarlo.</li>
       <li>Para comprobar sobre la propia guía qué lugares siguen sin foto, ábrela añadiendo <code>?autor</code> al final de la dirección. Verás un hueco con el nombre del archivo en cada sitio que falte. Sin ese parámetro, el viajero no ve nada de esto.</li>
     </ul>
   </div>
@@ -227,8 +242,12 @@
           '</div></div>';
       }).join('');
       html += '<article class="slot' + (list.length ? ' is-done' : '') + '" data-id="' + p.id + '">' +
-        '<div class="slot__head"><span class="slot__name">' + esc(p.name) + '</span>' +
-        '<span class="slot__file">' + esc(p.id) + '.jpg</span></div><div class="slot__body">' +
+        '<div class="slot__head">' +
+        '<button type="button" class="slot__name" data-act="copy" data-copy="' + esc(p.name) + '" ' +
+          'title="Pulsa para copiar el nombre y buscarlo en el navegador">' + esc(p.name) + '</button>' +
+        '<button type="button" class="slot__file" data-act="copy" data-copy="' + esc(p.id) + '.jpg" ' +
+          'title="Pulsa para copiar el nombre del archivo">' + esc(p.id) + '.jpg</button>' +
+        '</div><div class="slot__body">' +
         (list.length ? '<div class="thumbs">' + thumbs + '</div>' : '') +
         (list.length < MAX_PER_PLACE
           ? '<div class="slot__drop">Suelta una foto aquí o <button class="btn-ghost btn-mini" data-act="pick" data-id="' + p.id + '">elige un archivo</button></div>'
@@ -273,12 +292,56 @@
     chain.then(render);
   }
 
+  // Copia al portapapeles con respaldo para cuando el navegador no da permiso
+  // (la API moderna solo funciona en https o en archivos locales de confianza).
+  function copiar(texto) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(texto);
+    }
+    return new Promise(function (ok, falla) {
+      var ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      var bien = false;
+      try { bien = document.execCommand('copy'); } catch (err) { bien = false; }
+      document.body.removeChild(ta);
+      bien ? ok() : falla();
+    });
+  }
+
+  function avisarCopiado(boton) {
+    var previo = boton.textContent;
+    boton.classList.add('is-copied');
+    boton.textContent = 'Copiado';
+    clearTimeout(boton._t);
+    boton._t = setTimeout(function () {
+      boton.classList.remove('is-copied');
+      boton.textContent = previo;
+    }, 1100);
+  }
+
   slotsEl.addEventListener('click', function (e) {
     var b = e.target.closest('button[data-act]');
     if (!b) return;
     var id = b.getAttribute('data-id'), i = parseInt(b.getAttribute('data-i'), 10);
     var act = b.getAttribute('data-act');
-    if (act === 'pick') {
+    if (act === 'copy') {
+      var texto = b.getAttribute('data-copy');
+      copiar(texto).then(function () {
+        avisarCopiado(b);
+      }).catch(function () {
+        // Sin permiso para copiar: al menos se deja el texto seleccionado.
+        var r = document.createRange();
+        r.selectNodeContents(b);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+      });
+    } else if (act === 'pick') {
       var inp = document.createElement('input');
       inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
       inp.addEventListener('change', function () { addFiles(id, inp.files); });
