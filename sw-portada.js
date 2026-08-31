@@ -11,29 +11,68 @@
 
    Si algún día cambias el diseño de la portada y no ves los cambios,
    sube el número de VERSION: eso obliga a rehacer la caché.
+
+   ────────────────────────────────────────────────────────────────
+   Correcciones de esta versión:
+     1. addAll() es atómico: si uno de los archivos daba 404, no se
+        guardaba ninguno, y encima el fallo se silenciaba.
+     3. respondWith() podía recibir undefined cuando no había ni red
+        ni copia guardada, y el navegador mostraba su pantalla de
+        error en lugar de algo entendible.
+   Van numeradas igual que en el sw.js de las guías para que sea fácil
+   compararlos. Los otros cuatro fallos de aquel no se dan aquí: esta
+   portada no precarga nada y su borrado de cachés antiguas ya estaba
+   acotado a las suyas desde el principio.
    ──────────────────────────────────────────────────────────────── */
 
-const VERSION = 'portada-v1';
+const VERSION = 'portada-v2';
+const PREFIJO = 'portada-';
 const ESENCIALES = ['./', './index.html'];
+
+/* addAll() descarga todo y solo guarda si TODAS las respuestas son correctas.
+   Con que uno de los dos archivos falte, se rechaza la promesa y la caché
+   queda vacía: la portada parecería preparada y luego no abriría sin
+   cobertura. Aquí se guarda archivo a archivo, tolerando fallos sueltos. [FIX 1] */
+function addAllTolerante(cache, urls) {
+  return Promise.all(urls.map((u) =>
+    cache.add(new Request(u, { cache: 'reload' })).catch(() => null)
+  ));
+}
+
+/* Devolver undefined desde respondWith() provoca un error de red del navegador.
+   Mejor una página explicativa, que además dice qué hacer. [FIX 3] */
+function sinConexion() {
+  return new Response(
+    '<!DOCTYPE html><meta charset="utf-8"><title>Sin conexión</title>' +
+    '<body style="font-family:Georgia,serif;display:grid;place-items:center;' +
+    'height:100vh;margin:0;text-align:center;background:#FAF4E8;color:#1A1A1A">' +
+    '<div style="max-width:22rem;padding:1rem">' +
+    '<h1 style="font-size:1.5rem;margin:0 0 .5rem">Sin conexión</h1>' +
+    '<p style="color:#6B6B6B;line-height:1.5">Esta página todavía no está guardada ' +
+    'en el móvil. Ábrela una vez con wifi y volverá a funcionar sin cobertura.</p>' +
+    '</div>',
+    { status: 504, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+  );
+}
 
 // Al instalarse, guarda la portada y toma el relevo sin esperar.
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(VERSION)
-      .then((cache) => cache.addAll(ESENCIALES))
+      .then((cache) => addAllTolerante(cache, ESENCIALES))
       .then(() => self.skipWaiting())
-      .catch(() => self.skipWaiting())
   );
 });
 
-// Al activarse, borra las versiones antiguas de la portada.
-// Solo las suyas: las cachés de las guías llevan otro nombre y no se tocan.
+/* Al activarse, borra las versiones antiguas de la portada.
+   Solo las suyas: el almacén de cachés es común a todo el dominio, así que un
+   borrado sin filtrar se llevaría por delante las cachés de las guías. */
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
       .then((claves) => Promise.all(
         claves
-          .filter((k) => k.startsWith('portada-') && k !== VERSION)
+          .filter((k) => k.startsWith(PREFIJO) && k !== VERSION)
           .map((k) => caches.delete(k))
       ))
       .then(() => self.clients.claim())
@@ -66,7 +105,13 @@ self.addEventListener('fetch', (event) => {
         }
         return res;
       })
-      .catch(() => caches.match(req, { ignoreSearch: true })
-        .then((guardada) => guardada || caches.match('./index.html')))
+      .catch(() =>
+        caches.match(req, { ignoreSearch: true })
+          .then((guardada) => guardada || caches.match('./index.html'))
+          .then((guardada) => guardada || caches.match('./'))
+          /* Si no aparece ninguna de las tres, se responde con algo válido en
+             lugar de dejar a respondWith sin Response. [FIX 3] */
+          .then((guardada) => guardada || sinConexion())
+      )
   );
 });
