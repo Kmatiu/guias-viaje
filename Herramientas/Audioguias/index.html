@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Preparar las audioguías · Guías de viaje</title>
+<style>
+  :root{
+    --ink:#1A1A1A; --soft:#6B6B6B; --paper:#FAF4E8; --card:#fff;
+    --line:#E5DCC8; --accent:#C65D3A; --ok:#4A7C59; --warn:#B58900;
+    --r:14px;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font-family:Georgia,serif;background:var(--paper);color:var(--ink);
+    padding:32px 18px 80px;line-height:1.55}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:30px;margin-bottom:6px}
+  .sub{color:var(--soft);margin-bottom:24px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:18px 20px;margin-bottom:18px}
+  .panel h2{font-size:17px;margin-bottom:10px}
+  ol.pasos{margin:0 0 0 18px;padding:0;font-size:14.5px;color:var(--soft)}
+  ol.pasos li{margin-bottom:7px}
+  code{font-family:'SF Mono',Menlo,Consolas,monospace;font-size:12.5px;
+    background:#F7F1E6;border-radius:5px;padding:2px 6px}
+
+  .btn{font:inherit;font-size:15px;padding:9px 16px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--ink);transition:all .15s}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+  .btn-primary:hover{background:#A94A2C;color:#fff}
+  .btn-primary[disabled]{opacity:.45;cursor:not-allowed;background:var(--accent);color:#fff}
+  .btn-mini{font-size:13px;padding:5px 11px;border-radius:100px}
+  #guide-input,#zip-input{display:none}
+
+  .tally{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+  .tally__n{font-size:26px;font-weight:700}
+  .tally__t{color:var(--soft);font-size:14px}
+  .bar{height:7px;background:#EFE7D7;border-radius:99px;overflow:hidden;margin-bottom:14px}
+  .bar__fill{height:100%;background:var(--ok);width:0;transition:width .3s}
+  .tally__actions{display:flex;gap:10px;flex-wrap:wrap}
+
+  .day{font-family:'SF Mono',Menlo,monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--soft);margin:22px 0 8px}
+  .slot{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:14px 16px;margin-bottom:10px;transition:border-color .15s}
+  .slot.is-on{border-color:var(--ok);background:#F6FAF6}
+  .slot.is-drag{border-color:var(--accent);background:#FDF3EE}
+  .slot__head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .slot__name{font-weight:700;font-size:15px;font-family:inherit;color:inherit;background:none;
+    border:0;padding:2px 6px;margin:-2px -6px;border-radius:6px;cursor:pointer;text-align:left;
+    transition:background .12s,color .12s}
+  .slot__name:hover{background:rgba(198,93,58,.10);color:var(--accent)}
+  .slot__name.is-copied{background:rgba(74,124,89,.15);color:#3E6B4A}
+  .slot__name::after{content:' ⧉';opacity:0;font-weight:400;font-size:12px;transition:opacity .12s}
+  .slot__name:hover::after{opacity:.55}
+  .slot__name.is-copied::after{content:' ✓';opacity:1}
+  .slot__file{font-family:'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--soft);
+    background:#F7F1E6;border-radius:6px;padding:2px 7px;border:0;cursor:pointer;
+    transition:background .12s,color .12s}
+  .slot__file:hover{background:#EFE4D2;color:var(--ink)}
+  .slot__file.is-copied{background:rgba(74,124,89,.15);color:#3E6B4A}
+  .slot__body{margin-top:10px}
+  .slot__drop{border:1.5px dashed var(--line);border-radius:10px;padding:14px;text-align:center;
+    color:var(--soft);font-size:14px}
+  .slot__audio{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .slot__audio audio{flex:1 1 240px;height:34px;min-width:200px}
+  .slot__meta{font-family:'SF Mono',Menlo,monospace;font-size:12px;color:var(--soft)}
+  .slot__meta b{color:var(--ink);font-weight:700}
+  .aviso{border-radius:10px;padding:9px 12px;font-size:13.5px;margin-top:10px}
+  .aviso--warn{background:#FBF1DC;border:1px solid #EDD9AC;color:#7A5406}
+  .pie{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);
+    font-size:13px;color:var(--soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Preparar las audioguías</h1>
+  <p class="sub">Arrastra los MP3 sobre el lugar que les corresponde y descárgalos ya renombrados, listos para subir a la carpeta <code>audio/</code> de <strong id="dest">—</strong>. Todo ocurre en tu ordenador: ningún archivo sale de aquí.</p>
+
+  <div class="panel">
+    <h2>Cómo funciona</h2>
+    <ol class="pasos">
+      <li>Carga el <code>index.html</code> de la guía. La herramienta lee sus lugares y deduce sola el nombre que debe llevar cada archivo.</li>
+      <li>Genera los audios con la voz que uses, a partir del archivo <code>audioguias.md</code> que viene con la guía. Da igual cómo se llamen los MP3 al descargarlos.</li>
+      <li>Arrastra cada uno sobre su lugar. Puedes escucharlo aquí mismo antes de darlo por bueno.</li>
+      <li>Descarga el <code>audio.zip</code> y sube su contenido a una carpeta llamada <code>audio/</code>, junto al <code>index.html</code> de la guía en GitHub.</li>
+      <li>Pulsando el <strong>nombre de un lugar</strong> se copia al portapapeles, por si te sirve para buscar información al redactar. El nombre del archivo también se copia al pulsarlo.</li>
+      <li>En la guía, cada lugar con audio subido muestra su reproductor. Los que no lo tengan no dicen nada: el viajero no ve huecos ni promesas incumplidas.</li>
+    </ol>
+  </div>
+
+  <div class="panel" id="tally-panel" hidden>
+    <div class="tally">
+      <span class="tally__n" id="n-listos">0</span>
+      <span class="tally__t">de <span id="n-total">0</span> lugares tienen audio · <span id="peso">0 MB</span> en total</span>
+    </div>
+    <div class="bar"><div class="bar__fill" id="bar"></div></div>
+    <div class="tally__actions">
+      <button class="btn btn-primary" id="zip-btn" disabled>Descargar audio.zip</button>
+      <button class="btn" id="load-btn">Cargar otra guía</button>
+      <input type="file" id="guide-input" accept=".html,text/html">
+    </div>
+    <div id="aviso-peso"></div>
+  </div>
+
+  <div id="slots"></div>
+
+  <div class="panel" id="vacio">
+    <h2>Empieza cargando la guía</h2>
+    <p class="sub" style="margin-bottom:14px">Necesito el archivo <code>index.html</code> de la guía para saber qué lugares tiene y cómo se debe llamar cada audio.</p>
+    <button class="btn btn-primary" id="load-btn-2">Cargar el index.html de la guía</button>
+  </div>
+
+  <p class="pie">Los MP3 se quedan en tu ordenador hasta que descargas el zip. Nada se sube a ningún servidor.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+
+  var GUIDE = null;      // { destino, places: [{day,id,name}] }
+  var audios = {};       // id -> { file, url, dur }
+
+  /* ── ZIP sin librerías, guardando sin comprimir (los mp3 ya lo están) ── */
+  var CRC = (function () {
+    var t = new Uint32Array(256), n, c, k;
+    for (n = 0; n < 256; n++) {
+      c = n;
+      for (k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+  function crc32(u8) {
+    var c = 0xFFFFFFFF;
+    for (var i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+  function dosTime(d) { return (d.getHours() << 11) | (d.getMinutes() << 5) | ((d.getSeconds() / 2) | 0); }
+  function dosDate(d) { return ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate(); }
+
+  function buildZip(entries) {
+    var parts = [], central = [], offset = 0, now = new Date();
+    var tt = dosTime(now), dd = dosDate(now), enc = new TextEncoder();
+    entries.forEach(function (e) {
+      var nb = enc.encode(e.name), crc = crc32(e.u8), size = e.u8.length;
+      var lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true);
+      lh.setUint16(8, 0, true); lh.setUint16(10, tt, true); lh.setUint16(12, dd, true);
+      lh.setUint32(14, crc, true); lh.setUint32(18, size, true); lh.setUint32(22, size, true);
+      lh.setUint16(26, nb.length, true); lh.setUint16(28, 0, true);
+      parts.push(new Uint8Array(lh.buffer), nb, e.u8);
+      var cd = new DataView(new ArrayBuffer(46));
+      cd.setUint32(0, 0x02014b50, true); cd.setUint16(4, 20, true); cd.setUint16(6, 20, true);
+      cd.setUint16(8, 0x0800, true); cd.setUint16(10, 0, true); cd.setUint16(12, tt, true);
+      cd.setUint16(14, dd, true); cd.setUint32(16, crc, true); cd.setUint32(20, size, true);
+      cd.setUint32(24, size, true); cd.setUint16(28, nb.length, true); cd.setUint16(30, 0, true);
+      cd.setUint16(32, 0, true); cd.setUint16(34, 0, true); cd.setUint16(36, 0, true);
+      cd.setUint32(38, 0, true); cd.setUint32(42, offset, true);
+      central.push(new Uint8Array(cd.buffer), nb);
+      offset += 30 + nb.length + size;
+    });
+    var cdSize = central.reduce(function (s, a) { return s + a.length; }, 0);
+    var eo = new DataView(new ArrayBuffer(22));
+    eo.setUint32(0, 0x06054b50, true); eo.setUint16(4, 0, true); eo.setUint16(6, 0, true);
+    eo.setUint16(8, entries.length, true); eo.setUint16(10, entries.length, true);
+    eo.setUint32(12, cdSize, true); eo.setUint32(16, offset, true); eo.setUint16(20, 0, true);
+    return new Blob(parts.concat(central, [new Uint8Array(eo.buffer)]), { type: 'application/zip' });
+  }
+
+  function download(blob, name) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1200);
+  }
+
+  function esc(t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function mb(bytes) { return (bytes / 1048576).toFixed(1) + ' MB'; }
+  function mmss(s) {
+    if (!s || !isFinite(s)) return '—';
+    var m = Math.floor(s / 60), r = Math.round(s % 60);
+    return m + ':' + String(r).padStart(2, '0');
+  }
+
+  /* ── Copiar al portapapeles, con respaldo para archivos locales ── */
+  function copiar(texto) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(texto);
+    }
+    return new Promise(function (ok, falla) {
+      var ta = document.createElement('textarea');
+      ta.value = texto; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var bien = false;
+      try { bien = document.execCommand('copy'); } catch (e) { bien = false; }
+      document.body.removeChild(ta);
+      bien ? ok() : falla();
+    });
+  }
+  function avisarCopiado(b) {
+    var previo = b.textContent;
+    b.classList.add('is-copied');
+    b.textContent = 'Copiado';
+    clearTimeout(b._t);
+    b._t = setTimeout(function () { b.classList.remove('is-copied'); b.textContent = previo; }, 1100);
+  }
+
+  /* ── Pintado ── */
+  var slotsEl = $('#slots');
+
+  function render() {
+    if (!GUIDE) return;
+    $('#vacio').hidden = true;
+    $('#tally-panel').hidden = false;
+
+    var html = '', dia = null;
+    GUIDE.places.forEach(function (p) {
+      if (p.day !== dia) { dia = p.day; html += '<div class="day">Día ' + dia + '</div>'; }
+      var a = audios[p.id];
+      html +=
+        '<div class="slot ' + (a ? 'is-on' : '') + '" data-id="' + esc(p.id) + '">' +
+          '<div class="slot__head">' +
+            '<button type="button" class="slot__name" data-act="copy" data-copy="' + esc(p.name) + '" ' +
+              'title="Pulsa para copiar el nombre">' + esc(p.name) + '</button>' +
+            '<button type="button" class="slot__file" data-act="copy" data-copy="' + esc(p.id) + '.mp3" ' +
+              'title="Pulsa para copiar el nombre del archivo">' + esc(p.id) + '.mp3</button>' +
+          '</div>' +
+          '<div class="slot__body">' +
+            (a
+              ? '<div class="slot__audio">' +
+                  '<audio controls preload="metadata" src="' + a.url + '" data-id="' + esc(p.id) + '"></audio>' +
+                  '<span class="slot__meta"><b>' + mmss(a.dur) + '</b> · ' + mb(a.file.size) + '</span>' +
+                  '<button class="btn btn-mini" data-act="rm" data-id="' + esc(p.id) + '">Quitar</button>' +
+                '</div>' +
+                (a.dur && a.dur < 120 ? '<div class="aviso aviso--warn">Dura menos de dos minutos. Para una audioguía suele quedarse corto: comprueba que el archivo es el completo.</div>' : '') +
+                (a.dur && a.dur > 900 ? '<div class="aviso aviso--warn">Pasa de quince minutos. Nadie escucha eso de pie delante de un monumento: merece la pena partirlo o acortarlo.</div>' : '')
+              : '<div class="slot__drop">Suelta aquí el MP3 o <button class="btn btn-mini" data-act="pick" data-id="' + esc(p.id) + '">elige un archivo</button></div>') +
+          '</div>' +
+        '</div>';
+    });
+    slotsEl.innerHTML = html;
+
+    // Cuando el navegador conoce la duración, se repinta ese dato
+    $$('audio[data-id]', slotsEl).forEach(function (au) {
+      au.addEventListener('loadedmetadata', function () {
+        var id = au.dataset.id;
+        if (audios[id] && !audios[id].dur) { audios[id].dur = au.duration; render(); }
+      }, { once: true });
+    });
+
+    var listos = Object.keys(audios).length, total = GUIDE.places.length;
+    var peso = Object.keys(audios).reduce(function (s, k) { return s + audios[k].file.size; }, 0);
+    $('#n-listos').textContent = listos;
+    $('#n-total').textContent = total;
+    $('#peso').textContent = mb(peso);
+    $('#bar').style.width = total ? (listos / total * 100) + '%' : '0';
+    $('#zip-btn').disabled = !listos;
+    $('#aviso-peso').innerHTML = peso > 60 * 1048576
+      ? '<div class="aviso aviso--warn">El conjunto pasa de 60 MB. GitHub lo admite, pero el viajero se lo descarga entero al preparar la guía sin conexión: conviene exportar los audios a 64 kbps mono, que para voz suena igual y ocupa un tercio.</div>'
+      : '';
+  }
+
+  function addFile(id, file) {
+    if (!file) return;
+    if (!/audio\/(mpeg|mp3)|\.mp3$/i.test(file.type + ' ' + file.name)) {
+      alert('Ese archivo no parece un MP3. La guía solo reproduce mp3, que es lo que entienden todos los móviles.');
+      return;
+    }
+    if (audios[id]) URL.revokeObjectURL(audios[id].url);
+    audios[id] = { file: file, url: URL.createObjectURL(file), dur: 0 };
+    render();
+  }
+
+  /* ── Interacción ── */
+  slotsEl.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-act]');
+    if (!b) return;
+    var act = b.dataset.act, id = b.dataset.id;
+
+    if (act === 'copy') {
+      copiar(b.dataset.copy).then(function () { avisarCopiado(b); }).catch(function () {
+        var r = document.createRange(); r.selectNodeContents(b);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      });
+    } else if (act === 'pick') {
+      var inp = document.createElement('input');
+      inp.type = 'file'; inp.accept = 'audio/mpeg,.mp3';
+      inp.addEventListener('change', function () { addFile(id, inp.files[0]); });
+      inp.click();
+    } else if (act === 'rm') {
+      URL.revokeObjectURL(audios[id].url);
+      delete audios[id];
+      render();
+    }
+  });
+
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    slotsEl.addEventListener(ev, function (e) {
+      var s = e.target.closest('.slot');
+      if (!s) return;
+      e.preventDefault();
+      s.classList.add('is-drag');
+    });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    slotsEl.addEventListener(ev, function (e) {
+      var s = e.target.closest('.slot');
+      if (s) s.classList.remove('is-drag');
+    });
+  });
+  slotsEl.addEventListener('drop', function (e) {
+    var s = e.target.closest('.slot');
+    if (!s) return;
+    e.preventDefault();
+    addFile(s.dataset.id, e.dataTransfer.files[0]);
+  });
+  document.addEventListener('dragover', function (e) { e.preventDefault(); });
+  document.addEventListener('drop', function (e) { e.preventDefault(); });
+
+  $('#zip-btn').addEventListener('click', function () {
+    var ids = Object.keys(audios);
+    if (!ids.length) return;
+    var btn = this;
+    btn.disabled = true; btn.textContent = 'Preparando…';
+    Promise.all(ids.map(function (id) {
+      return audios[id].file.arrayBuffer().then(function (buf) {
+        return { name: 'audio/' + id + '.mp3', u8: new Uint8Array(buf) };
+      });
+    })).then(function (entries) {
+      download(buildZip(entries), 'audio.zip');
+      btn.disabled = false; btn.textContent = 'Descargar audio.zip';
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = 'Descargar audio.zip';
+      alert('No he podido montar el zip. Prueba a recargar la página y volver a añadir los archivos.');
+    });
+  });
+
+  function cargarGuia(f) {
+    var r = new FileReader();
+    r.onload = function () {
+      var m = String(r.result).match(/id="guide-data">([\s\S]*?)<\/script>/);
+      if (!m) { alert('Ese archivo no parece una guía: no encuentro sus datos dentro.'); return; }
+      try {
+        var d = JSON.parse(m[1]), places = [];
+        (d.days || []).forEach(function (day) {
+          (day.places || []).forEach(function (p) {
+            places.push({ day: day.day, id: p.id, name: p.name });
+          });
+        });
+        if (!places.length) { alert('Esa guía no tiene lugares a los que asociar audios.'); return; }
+        GUIDE = { destino: (d.meta && d.meta.destination && d.meta.destination.name) || 'la guía', places: places };
+        Object.keys(audios).forEach(function (k) { URL.revokeObjectURL(audios[k].url); });
+        audios = {};
+        $('#dest').textContent = GUIDE.destino;
+        render();
+      } catch (err) {
+        alert('No he podido leer los datos de esa guía.');
+      }
+    };
+    r.readAsText(f);
+  }
+
+  $('#load-btn').addEventListener('click', function () { $('#guide-input').click(); });
+  $('#load-btn-2').addEventListener('click', function () { $('#guide-input').click(); });
+  $('#guide-input').addEventListener('change', function (e) {
+    if (e.target.files[0]) cargarGuia(e.target.files[0]);
+    e.target.value = '';
+  });
+})();
+</script>
+</body>
+</html>
