@@ -96,6 +96,21 @@
    ========================================================= */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
+
+  /* Tamaño del texto. Las medidas del visor están en píxeles, así que en lugar
+     de tocar 155 reglas se amplía el contenido con zoom, que refluye igual que
+     el zoom del navegador. Se aplica solo a las páginas: la cabecera y la barra
+     inferior mantienen su tamaño, que es lo que se quiere en un móvil. */
+  html[data-fs="m"] main.page { zoom: 1.15; }
+  html[data-fs="l"] main.page { zoom: 1.3; }
+  html[data-fs="xl"] main.page { zoom: 1.5; }
+  /* El mapa de Leaflet se calcula en píxeles reales y el zoom lo descuadra:
+     se queda a tamaño natural y en su lugar se amplía su leyenda. */
+  html[data-fs] #map { zoom: 1; }
+  #icon-font { font-size: 15px; transition: font-size .15s; }
+  html[data-fs="m"] #icon-font { font-size: 16px; }
+  html[data-fs="l"] #icon-font { font-size: 17px; }
+  html[data-fs="xl"] #icon-font { font-size: 18px; }
 body {
   margin: 0;
   font-family: var(--font-body);
@@ -548,7 +563,48 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   font-weight: 700;
   color: var(--accent);
   margin-top: 8px;
+  font-family: inherit;
+  background: none;
+  border: 0;
+  padding: 3px 7px;
+  margin-left: -7px;
+  border-radius: 999px;
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s;
 }
+.tl-item__place:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.tl-item__place:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Al llegar desde la chincheta, la ficha se señala un momento para que el ojo
+   la encuentre sin tener que buscarla entre las demás. */
+@keyframes destacaFicha {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+  100% { box-shadow: 0 0 0 14px transparent; }
+}
+.place-card.is-target { animation: destacaFicha 1.1s ease-out 2; }
+@media (prefers-reduced-motion: reduce) {
+  .place-card.is-target { animation: none; outline: 2px solid var(--accent); outline-offset: 2px; }
+}
+
+/* Audioguía. La tarjeta solo aparece si el mp3 existe de verdad en el
+   repositorio: si no se ha subido, la guía no menciona la audioguía. */
+.audioguia {
+  display: none;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 9%, var(--bg-elev));
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+}
+.audioguia.is-on { display: block; }
+.audioguia__head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700; color: var(--accent);
+  letter-spacing: .02em; margin-bottom: 8px;
+}
+.audioguia__dur { margin-left: auto; font-weight: 500; color: var(--text-soft); font-variant-numeric: tabular-nums; }
+.audioguia audio { width: 100%; height: 36px; display: block; }
 
 /* Ficha de lugar */
 .place-card {
@@ -1186,6 +1242,9 @@ body.is-offline .offline-chip { display: inline-flex; }
     <button class="icon-btn" id="btn-search" aria-label="Buscar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
     </button>
+    <button class="icon-btn" id="btn-font" aria-label="Tamaño del texto" title="Tamaño del texto">
+      <span id="icon-font" style="font-weight:700;letter-spacing:-.5px;line-height:1">Aa</span>
+    </button>
     <button class="icon-btn" id="btn-theme" aria-label="Tema">
       <svg id="icon-theme" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
     </button>
@@ -1379,6 +1438,46 @@ body.is-offline .offline-chip { display: inline-flex; }
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = t === 'dark' ? '#14110E' : (DATA.meta?.theme_color || '#C65D3A');
   }
+  // --- SALTAR DEL ITINERARIO A LA FICHA DEL LUGAR --------------
+  // La chincheta de un hito lleva a la tarjeta de ese lugar, más abajo en la
+  // misma página. Se delega en el documento porque el día se repinta entero
+  // cada vez que se abre.
+  document.addEventListener('click', (ev) => {
+    const b = ev.target.closest('.tl-item__place[data-goto]');
+    if (!b) return;
+    const destino = document.getElementById(b.dataset.goto);
+    if (!destino) return;
+    const cabecera = document.querySelector('.app-header');
+    const alto = cabecera ? cabecera.offsetHeight + 10 : 60;
+    const y = destino.getBoundingClientRect().top + window.scrollY - alto;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+    destino.classList.remove('is-target');
+    void destino.offsetWidth;            // reinicia la animación si se repite
+    destino.classList.add('is-target');
+    setTimeout(() => destino.classList.remove('is-target'), 2600);
+  });
+
+  // --- TAMAÑO DEL TEXTO ---------------------------------------
+  const TALLAS = ['s', 'm', 'l', 'xl'];
+  const NOMBRE_TALLA = { s: 'normal', m: 'grande', l: 'más grande', xl: 'muy grande' };
+  function applyFontSize() {
+    const t = TALLAS.indexOf(store.fontSize) > -1 ? store.fontSize : 's';
+    if (t === 's') delete document.documentElement.dataset.fs;
+    else document.documentElement.dataset.fs = t;
+    const b = el('#btn-font');
+    if (b) b.setAttribute('aria-label', 'Tamaño del texto: ' + NOMBRE_TALLA[t]);
+  }
+  el('#btn-font').addEventListener('click', () => {
+    const i = TALLAS.indexOf(store.fontSize);
+    store.fontSize = TALLAS[(i + 1) % TALLAS.length];
+    saveStore();
+    applyFontSize();
+    toast('Texto ' + NOMBRE_TALLA[store.fontSize]);
+    // El mapa recalcula su tamaño si estaba abierto
+    if (window.mapInstance) setTimeout(() => window.mapInstance.invalidateSize(), 60);
+  });
+  applyFontSize();
+
   el('#btn-theme').addEventListener('click', () => {
     const current = document.documentElement.dataset.theme;
     store.theme = current === 'dark' ? 'light' : 'dark';
@@ -1535,7 +1634,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           </div>
           <div class="tl-item__title">${esc(t.title)}</div>
           <div class="tl-item__description">${esc(t.description)}</div>
-          ${place ? `<div class="tl-item__place">📍 ${esc(place.name)}</div>` : ''}
+          ${place ? `<button type="button" class="tl-item__place" data-goto="place-${esc(place.id)}" title="Ver la ficha de este lugar">📍 ${esc(place.name)}</button>` : ''}
         </div>`;
     }).join('');
 
@@ -1569,6 +1668,10 @@ body.is-offline .offline-chip { display: inline-flex; }
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-1 1.1-.2.2-.4.2-.7.1-.3-.1-1.2-.4-2.3-1.4-.8-.7-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5-.2 0-.4 0-.6 0-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.1 3 .1.2 2 3.1 4.9 4.3 2.9 1.2 2.9.8 3.4.8.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.1-.2-.2-.5-.3zM12 2a10 10 0 0 0-8.7 14.9L2 22l5.3-1.4A10 10 0 1 0 12 2z"/></svg>
               WhatsApp
             </a>
+          </div>
+          <div class="audioguia" data-audio="${esc(p.id)}">
+            <div class="audioguia__head">🎧 Audioguía<span class="audioguia__dur"></span></div>
+            <audio controls preload="none"></audio>
           </div>
           <div class="place-photos" data-place="${esc(p.id)}">
             <div class="place-photos__head">
@@ -1666,6 +1769,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     });
 
     initPlacePhotos(el('#page-day'));
+    initAudioguias(el('#page-day'));
     renderDayDocs(d.day);
 
     el('#header-title').textContent = `Día ${d.day} · ${d.title}`;
@@ -1972,6 +2076,58 @@ body.is-offline .offline-chip { display: inline-flex; }
   // Cualquiera que abra el enlace las ve. Se buscan por convencion de
   // nombre en la carpeta fotos/ del mismo directorio que este index.html:
   //   fotos/<place.id>.jpg   y extras  fotos/<place.id>-2.jpg, -3.jpg...
+  // --- AUDIOGUÍAS ---------------------------------------------
+  // Convención igual que la de las fotos: audio/<place.id>.mp3 junto al
+  // index.html. No hace falta declarar nada en el JSON. Si el archivo no está
+  // subido, la guía no dice ni una palabra de audioguías, que es lo correcto:
+  // prometer algo que no existe es peor que no ofrecerlo.
+  const AUDIO_DIR = 'audio/';
+  const audioProbado = {};          // id -> true/false, para no repetir la comprobación
+
+  function initAudioguias(scope) {
+    (scope || document).querySelectorAll('.audioguia[data-audio]').forEach(caja => {
+      const id = caja.dataset.audio;
+      const src = AUDIO_DIR + id + '.mp3';
+      const audio = caja.querySelector('audio');
+      const dur = caja.querySelector('.audioguia__dur');
+
+      const mostrar = (segundos) => {
+        caja.classList.add('is-on');
+        if (segundos && isFinite(segundos)) {
+          const m = Math.floor(segundos / 60), sg = Math.round(segundos % 60);
+          dur.textContent = m + ':' + String(sg).padStart(2, '0');
+        }
+      };
+
+      if (audioProbado[id] === false) return;          // ya se comprobó: no existe
+      if (audio.dataset.listo) { return; }
+      audio.dataset.listo = '1';
+
+      // Se prueba cargando solo los metadatos: si el archivo no está, salta
+      // 'error' y la tarjeta se queda oculta. Funciona igual sin conexión,
+      // porque el service worker responde desde la caché.
+      audio.preload = 'metadata';
+      audio.src = src;
+      audio.addEventListener('loadedmetadata', () => {
+        audioProbado[id] = true;
+        mostrar(audio.duration);
+      }, { once: true });
+      audio.addEventListener('error', () => {
+        audioProbado[id] = false;
+        caja.classList.remove('is-on');
+        audio.removeAttribute('src');
+      }, { once: true });
+    });
+  }
+
+  // Lista de audios candidatos, para que el botón de preparar sin conexión los
+  // descargue junto con las fotos.
+  function audioUrls() {
+    const ids = [];
+    (DATA.days || []).forEach(d => (d.places || []).forEach(p => ids.push(p.id)));
+    return ids.map(id => AUDIO_DIR + id + '.mp3');
+  }
+
   const REPO_DIR = 'fotos/';
   // Modo autor: añade ?autor al final de la URL para ver, en los lugares que
   // aún no tienen foto, un hueco con el nombre exacto que debe llevar el
@@ -2161,6 +2317,7 @@ body.is-offline .offline-chip { display: inline-flex; }
         });
       });
     });
+    audioUrls().forEach(function (u) { urls.push(u); });
     urls.push(DOCS_DIR + 'index.json');
     (__repoDocs || []).forEach(function (d) { if (!d.link) urls.push(d.url); });
     var ch = new MessageChannel();
