@@ -2082,7 +2082,10 @@ body.is-offline .offline-chip { display: inline-flex; }
   // subido, la guía no dice ni una palabra de audioguías, que es lo correcto:
   // prometer algo que no existe es peor que no ofrecerlo.
   const AUDIO_DIR = 'audio/';
-  const audioProbado = {};          // id -> true/false, para no repetir la comprobación
+  // Solo se recuerdan los aciertos. Un fallo NO se memoriza: puede deberse a una
+  // conexión mala, y si se diera por definitivo el audio no volvería a aparecer
+  // en toda la sesión aunque el archivo exista y la cobertura vuelva.
+  const audioOk = {};
 
   function initAudioguias(scope) {
     (scope || document).querySelectorAll('.audioguia[data-audio]').forEach(caja => {
@@ -2099,26 +2102,31 @@ body.is-offline .offline-chip { display: inline-flex; }
         }
       };
 
-      if (audioProbado[id] === false) return;          // ya se comprobó: no existe
       if (audio.dataset.listo) { return; }
       audio.dataset.listo = '1';
 
-      // Se prueba cargando solo los metadatos: si el archivo no está, salta
-      // 'error' y la tarjeta se queda oculta. Funciona igual sin conexión,
-      // porque el service worker responde desde la caché.
+      // Se prueba cargando solo los metadatos: si el archivo está, aparece el
+      // reproductor; si no, la tarjeta se queda oculta. Sin conexión funciona
+      // igual siempre que el mp3 esté en la caché del service worker.
       audio.preload = 'metadata';
       audio.src = src;
       audio.addEventListener('loadedmetadata', () => {
-        audioProbado[id] = true;
+        audioOk[id] = true;
         mostrar(audio.duration);
       }, { once: true });
       audio.addEventListener('error', () => {
-        audioProbado[id] = false;
         caja.classList.remove('is-on');
         audio.removeAttribute('src');
+        delete audio.dataset.listo;     // se podrá reintentar más adelante
       }, { once: true });
     });
   }
+
+  // Si vuelve la conexión, se reintenta lo que no se pudo comprobar antes.
+  window.addEventListener('online', () => {
+    const dia = el('#page-day');
+    if (dia && dia.classList.contains('is-active')) initAudioguias(dia);
+  });
 
   // Lista de audios candidatos, para que el botón de preparar sin conexión los
   // descargue junto con las fotos.
