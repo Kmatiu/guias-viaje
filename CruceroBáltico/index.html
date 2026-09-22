@@ -1031,7 +1031,7 @@ body.is-offline .offline-chip { display: inline-flex; }
 .expense-list { list-style: none; padding: 0; margin: 0; }
 .expense-item {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   gap: 8px;
   padding: 10px 0;
   border-bottom: 1px solid var(--line);
@@ -1040,7 +1040,65 @@ body.is-offline .offline-chip { display: inline-flex; }
 .expense-item__desc { font-size: 13.5px; }
 .expense-item__cat { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .expense-item__amount { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
-.expense-item__del { color: var(--c-danger); font-size: 12px; font-weight: 700; margin-left: 6px; }
+#guia-toast {
+  position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  max-width: min(92vw, 420px); padding: 10px 16px; border-radius: 12px;
+  background: var(--text); color: var(--bg); font-size: 13.5px; line-height: 1.4;
+  text-align: center; box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 9999;
+  transition: opacity .2s, transform .2s;
+}
+#guia-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) { #guia-toast { transition: none; } }
+
+.expense-item__del,
+.expense-item__edit {
+  font: inherit; font-size: 13px; font-weight: 700; background: none; border: 0; cursor: pointer;
+  width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+  transition: background .15s;
+}
+.expense-item__del { color: var(--c-danger); }
+.expense-item__edit { color: var(--text-muted); }
+.expense-item__del:hover { background: color-mix(in srgb, var(--c-danger) 12%, transparent); }
+.expense-item__edit:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+.expense-item.is-editing { background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 8px; }
+.expense-form.is-editing { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 10px; }
+.exp-cancel {
+  font: inherit; font-size: 13px; background: none; border: 0; color: var(--text-muted);
+  text-decoration: underline; cursor: pointer; padding: 6px 0; margin-top: 4px;
+}
+
+/* Presupuesto: partida, previsto y gastado en tres columnas, con barra */
+.bd-head, .bd-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 76px 78px;
+  gap: 6px;
+  align-items: center;
+}
+.bd-head {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--text-muted); margin-bottom: 4px;
+}
+.bd-head span:nth-child(n+2) { text-align: right; }
+.bd-row { margin-bottom: 2px; row-gap: 3px; }
+.bd-prev input {
+  width: 100%; padding: 5px 6px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--bg); color: var(--text); font-size: 13px; text-align: right; font: inherit;
+}
+.bd-gastado {
+  text-align: right; font-family: var(--font-display); font-weight: 700; font-size: 13.5px;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.bd-gastado.is-near { color: #C9901E; }
+.bd-gastado.is-over { color: var(--c-danger); }
+.bd-barra {
+  grid-column: 1 / -1; height: 3px; border-radius: 99px;
+  background: color-mix(in srgb, var(--text-muted) 16%, transparent); overflow: hidden;
+  margin: 0 0 8px;
+}
+.bd-barra span { display: block; height: 100%; background: var(--c-success); border-radius: 99px; transition: width .3s; }
+.bd-barra span.is-near { background: #C9901E; }
+.bd-barra span.is-over { background: var(--c-danger); }
 
 /* Packing */
 .packing-group { margin-bottom: 16px; }
@@ -1376,11 +1434,57 @@ body.is-offline .offline-chip { display: inline-flex; }
       return { ...defaultStore, ...JSON.parse(raw) };
     } catch (e) { return { ...defaultStore, expenses: seedExpenses() }; }
   }
+  // Aviso flotante breve. Se declara aquí arriba porque lo usan el guardado,
+  // el botón de tamaño de texto y la edición de gastos. Con aria-live para que
+  // los lectores de pantalla también lo anuncien.
+  function toast(mensaje, ms) {
+    let t = document.getElementById('guia-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'guia-toast';
+      t.setAttribute('role', 'status');
+      t.setAttribute('aria-live', 'polite');
+      document.body.appendChild(t);
+    }
+    t.textContent = mensaje;
+    t.classList.add('is-on');
+    clearTimeout(t._fin);
+    t._fin = setTimeout(() => t.classList.remove('is-on'), ms || 2400);
+  }
+
+  // Antes el fallo se silenciaba: el cambio se veía en pantalla pero no se
+  // guardaba, y al reabrir la guía volvía lo borrado. Ahora se avisa, una vez
+  // por sesión, para que el viajero sepa que tiene que liberar espacio.
+  let avisoGuardado = false;
   function saveStore() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {}
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(store));
+      return true;
+    } catch (e) {
+      if (!avisoGuardado) {
+        avisoGuardado = true;
+        toast('No se ha podido guardar el cambio: el móvil está sin espacio para esta web. ' +
+              'Conviene borrar fotos locales o exportar la copia de seguridad.', 7000);
+      }
+      return false;
+    }
+  }
+
+  // Todo gasto necesita un identificador único y de texto. Los datos antiguos
+  // o restaurados de una copia pueden traerlo repetido, numérico o ausente, y
+  // entonces el botón de borrar no encuentra lo que tiene que borrar.
+  function normalizarGastos(lista) {
+    const vistos = new Set();
+    return (lista || []).map((e, i) => {
+      let id = e && e.id != null ? String(e.id) : '';
+      if (!id || vistos.has(id)) id = 'e_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2, 6);
+      vistos.add(id);
+      return Object.assign({}, e, { id, amount: Number(e && e.amount) || 0 });
+    });
   }
 
   const store = loadStore();
+  store.expenses = normalizarGastos(store.expenses);
 
   // ------------------------------------------------------
   // 2. UTILIDADES
@@ -1468,7 +1572,8 @@ body.is-offline .offline-chip { display: inline-flex; }
     if (b) b.setAttribute('aria-label', 'Tamaño del texto: ' + NOMBRE_TALLA[t]);
   }
   el('#btn-font').addEventListener('click', () => {
-    const i = TALLAS.indexOf(store.fontSize);
+    // Sin talla guardada se parte de la normal, para que el primer toque ya amplíe
+    const i = Math.max(0, TALLAS.indexOf(store.fontSize));
     store.fontSize = TALLAS[(i + 1) % TALLAS.length];
     saveStore();
     applyFontSize();
@@ -3971,6 +4076,8 @@ body.is-offline .offline-chip { display: inline-flex; }
     w.outerHTML = '<div id="weather-content"><div class="weather-grid">' + html + '</div>' + notaHTML + '</div>';
   }
 
+  let budgetEditId = null;       // gasto que se está modificando, si lo hay
+
   function renderMeBudget() {
     const paneEl = document.querySelector('[data-me-pane="budget"]');
     if (!paneEl) return;
@@ -4002,19 +4109,36 @@ body.is-offline .offline-chip { display: inline-flex; }
     // Total = suma de partidas (no editable directamente)
     const budgetTotal = bdKeys.reduce((sum, k) => sum + (be.breakdown[k] || 0), 0);
     const totalExp = totalExpenses();
+    // Lo gastado en cada partida, para saber cuánto lleva cada una sin sumar a mano
+    const gastadoPor = {};
+    bdKeys.forEach(k => { gastadoPor[k] = 0; });
+    store.expenses.forEach(e => {
+      const k = bdKeys.indexOf(e.category) > -1 ? e.category : 'other';
+      gastadoPor[k] += Number(e.amount) || 0;
+    });
+    const editando = store.expenses.find(e => e.id === budgetEditId) || null;
 
 
     const budgetHTML = `
       <div class="budget-summary">
         <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:0 0 10px">Presupuesto estimado</div>
-        ${bdKeys.map(k => `
-          <div class="budget-row" style="margin-bottom:4px">
+        <div class="bd-head">
+          <span>Partida</span><span>Previsto</span><span>Gastado</span>
+        </div>
+        ${bdKeys.map(k => {
+          const prev = Number(be.breakdown[k]) || 0, gast = gastadoPor[k];
+          const pct = prev ? Math.min(100, gast / prev * 100) : (gast ? 100 : 0);
+          const estado = gast > prev ? 'is-over' : (prev && gast / prev >= 0.85 ? 'is-near' : '');
+          return `
+          <div class="bd-row">
             <input type="text" class="bd-label-input" data-bd-label="${k}" value="${esc(bdLabels[k])}" aria-label="Nombre de la partida">
-            <div style="display:flex;align-items:center;gap:4px">
-              <input type="text" inputmode="decimal" data-bd-key="${k}" value="${be.breakdown[k] || 0}" style="width:75px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;text-align:right">
-              <span style="font-size:11px;color:var(--text-muted)">€</span>
+            <div class="bd-prev">
+              <input type="text" inputmode="decimal" data-bd-key="${k}" value="${prev}" aria-label="Previsto para ${esc(bdLabels[k])}">
             </div>
-          </div>`).join('')}
+            <div class="bd-gastado ${estado}" data-bd-gastado="${k}">${fmtMoney(gast, curr)}</div>
+            <div class="bd-barra"><span class="${estado}" style="width:${pct}%"></span></div>
+          </div>`;
+        }).join('')}
 
         <hr class="divider" style="margin:12px 0 10px">
         <div class="budget-row">
@@ -4034,23 +4158,25 @@ body.is-offline .offline-chip { display: inline-flex; }
         </div>
       </div>
 
-      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:20px 0 8px">Añadir gasto</div>
-      <div class="expense-form">
-        <input id="exp-desc" placeholder="Concepto">
-        <input id="exp-amount" type="text" inputmode="decimal" placeholder="€ (admite 23,60 o 23.60)">
-        <select id="exp-cat">${bdKeys.map(k => `<option value="${k}">${esc(bdLabels[k])}</option>`).join('')}</select>
-        <button id="exp-add">+</button>
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:20px 0 8px">${editando ? 'Modificar gasto' : 'Añadir gasto'}</div>
+      <div class="expense-form ${editando ? 'is-editing' : ''}">
+        <input id="exp-desc" placeholder="Concepto" value="${editando ? esc(editando.desc) : ''}">
+        <input id="exp-amount" type="text" inputmode="decimal" placeholder="€ (admite 23,60 o 23.60)" value="${editando ? String(editando.amount).replace('.', ',') : ''}">
+        <select id="exp-cat">${bdKeys.map(k => `<option value="${k}" ${editando && editando.category === k ? 'selected' : ''}>${esc(bdLabels[k])}</option>`).join('')}</select>
+        <button id="exp-add" aria-label="${editando ? 'Guardar cambios' : 'Añadir gasto'}">${editando ? '✓' : '+'}</button>
       </div>
+      ${editando ? '<button type="button" id="exp-cancel" class="exp-cancel">Cancelar la modificación</button>' : ''}
       <ul class="expense-list" id="exp-list">
         ${store.expenses.length === 0 ? '<li class="empty-state">Aún no has añadido gastos.</li>' : ''}
         ${store.expenses.slice().reverse().map(e => `
-          <li class="expense-item">
+          <li class="expense-item ${e.id === budgetEditId ? 'is-editing' : ''}">
             <div>
               <div class="expense-item__desc">${esc(e.desc)}</div>
               <div class="expense-item__cat">${esc(bdLabels[e.category] || e.category)}</div>
             </div>
             <span class="expense-item__amount">${fmtMoney(e.amount, curr)}</span>
-            <button class="expense-item__del" data-del="${e.id}">✕</button>
+            <button class="expense-item__edit" data-edit="${esc(e.id)}" aria-label="Modificar ${esc(e.desc)}">✎</button>
+            <button class="expense-item__del" data-del="${esc(e.id)}" aria-label="Borrar ${esc(e.desc)}">✕</button>
           </li>`).join('')}
       </ul>
     `;
@@ -4244,22 +4370,47 @@ body.is-offline .offline-chip { display: inline-flex; }
     });
 
     // --- Listeners para gastos personales ---
+    const repintar = () => { saveStore(); renderMeBudget(); renderMeOverview(); };
+
     document.getElementById('exp-add').addEventListener('click', () => {
       const desc = document.getElementById('exp-desc').value.trim();
       const amount = numDec(document.getElementById('exp-amount').value);
       const category = document.getElementById('exp-cat').value;
       if (!desc || !amount || isNaN(amount)) return;
-      store.expenses.push({ id: 'e_' + Date.now(), desc, amount, category, date: todayISO() });
-      saveStore();
-      renderMeBudget();
-      renderMeOverview();
+      if (budgetEditId) {
+        // Modificar conserva el identificador y la fecha original del gasto
+        store.expenses = store.expenses.map(e =>
+          e.id === budgetEditId ? Object.assign({}, e, { desc, amount, category }) : e);
+        budgetEditId = null;
+        toast('Gasto modificado');
+      } else {
+        store.expenses.push({ id: 'e_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                              desc, amount, category, date: todayISO() });
+      }
+      repintar();
     });
+
+    const cancelar = document.getElementById('exp-cancel');
+    if (cancelar) cancelar.addEventListener('click', () => { budgetEditId = null; renderMeBudget(); });
+
+    document.querySelectorAll('[data-edit]').forEach(b => {
+      b.addEventListener('click', () => {
+        budgetEditId = String(b.dataset.edit);
+        renderMeBudget();
+        const f = document.getElementById('exp-desc');
+        if (f) { f.scrollIntoView({ block: 'center', behavior: 'smooth' }); f.focus(); }
+      });
+    });
+
     document.querySelectorAll('[data-del]').forEach(b => {
       b.addEventListener('click', () => {
-        store.expenses = store.expenses.filter(e => e.id !== b.dataset.del);
-        saveStore();
-        renderMeBudget();
-        renderMeOverview();
+        const id = String(b.dataset.del);
+        const gasto = store.expenses.find(e => String(e.id) === id);
+        if (!gasto) return;
+        if (!confirm('¿Borrar «' + gasto.desc + '» (' + fmtMoney(gasto.amount, curr) + ')?')) return;
+        store.expenses = store.expenses.filter(e => String(e.id) !== id);
+        if (budgetEditId === id) budgetEditId = null;
+        repintar();
       });
     });
 
