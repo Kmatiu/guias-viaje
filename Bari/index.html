@@ -96,6 +96,21 @@
    ========================================================= */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
+
+  /* Tamaño del texto. Las medidas del visor están en píxeles, así que en lugar
+     de tocar 155 reglas se amplía el contenido con zoom, que refluye igual que
+     el zoom del navegador. Se aplica solo a las páginas: la cabecera y la barra
+     inferior mantienen su tamaño, que es lo que se quiere en un móvil. */
+  html[data-fs="m"] main.page { zoom: 1.15; }
+  html[data-fs="l"] main.page { zoom: 1.3; }
+  html[data-fs="xl"] main.page { zoom: 1.5; }
+  /* El mapa de Leaflet se calcula en píxeles reales y el zoom lo descuadra:
+     se queda a tamaño natural y en su lugar se amplía su leyenda. */
+  html[data-fs] #map { zoom: 1; }
+  #icon-font { font-size: 15px; transition: font-size .15s; }
+  html[data-fs="m"] #icon-font { font-size: 16px; }
+  html[data-fs="l"] #icon-font { font-size: 17px; }
+  html[data-fs="xl"] #icon-font { font-size: 18px; }
 body {
   margin: 0;
   font-family: var(--font-body);
@@ -548,7 +563,48 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   font-weight: 700;
   color: var(--accent);
   margin-top: 8px;
+  font-family: inherit;
+  background: none;
+  border: 0;
+  padding: 3px 7px;
+  margin-left: -7px;
+  border-radius: 999px;
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s;
 }
+.tl-item__place:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.tl-item__place:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Al llegar desde la chincheta, la ficha se señala un momento para que el ojo
+   la encuentre sin tener que buscarla entre las demás. */
+@keyframes destacaFicha {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+  100% { box-shadow: 0 0 0 14px transparent; }
+}
+.place-card.is-target { animation: destacaFicha 1.1s ease-out 2; }
+@media (prefers-reduced-motion: reduce) {
+  .place-card.is-target { animation: none; outline: 2px solid var(--accent); outline-offset: 2px; }
+}
+
+/* Audioguía. La tarjeta solo aparece si el mp3 existe de verdad en el
+   repositorio: si no se ha subido, la guía no menciona la audioguía. */
+.audioguia {
+  display: none;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 9%, var(--bg-elev));
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+}
+.audioguia.is-on { display: block; }
+.audioguia__head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700; color: var(--accent);
+  letter-spacing: .02em; margin-bottom: 8px;
+}
+.audioguia__dur { margin-left: auto; font-weight: 500; color: var(--text-soft); font-variant-numeric: tabular-nums; }
+.audioguia audio { width: 100%; height: 36px; display: block; }
 
 /* Ficha de lugar */
 .place-card {
@@ -558,6 +614,28 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   margin-top: 14px;
 }
 .place-card__name { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+button.place-card__name--link {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
+  color: inherit; padding: 3px 7px; margin: -3px -7px 6px; border-radius: 8px;
+  transition: background .15s;
+}
+button.place-card__name--link:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+button.place-card__name--link:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.place-card__back {
+  font-family: var(--font-body); font-size: 11px; font-weight: 500; color: var(--accent);
+  opacity: .8; white-space: nowrap;
+}
+
+/* Al llegar desde la ficha, el hito se señala igual que la ficha al revés */
+@keyframes destacaHito {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 50%, transparent); }
+  100% { box-shadow: 0 0 0 12px transparent; }
+}
+.tl-item.is-target { animation: destacaHito 1.1s ease-out 2; border-radius: 10px; }
+@media (prefers-reduced-motion: reduce) {
+  .tl-item.is-target { animation: none; outline: 2px solid var(--accent); outline-offset: 2px; }
+}
 .place-card__review { font-size: 13px; color: var(--text-soft); line-height: 1.55; margin-bottom: 10px; }
 .place-card__meta { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 12.5px; margin-bottom: 10px; }
 .place-card__meta-item { display: flex; gap: 6px; }
@@ -975,7 +1053,7 @@ body.is-offline .offline-chip { display: inline-flex; }
 .expense-list { list-style: none; padding: 0; margin: 0; }
 .expense-item {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   gap: 8px;
   padding: 10px 0;
   border-bottom: 1px solid var(--line);
@@ -984,7 +1062,84 @@ body.is-offline .offline-chip { display: inline-flex; }
 .expense-item__desc { font-size: 13.5px; }
 .expense-item__cat { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .expense-item__amount { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
-.expense-item__del { color: var(--c-danger); font-size: 12px; font-weight: 700; margin-left: 6px; }
+#ver-banner {
+  position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 20px); opacity: 0;
+  display: flex; align-items: center; gap: 10px;
+  max-width: min(94vw, 460px); padding: 10px 12px 10px 16px; border-radius: 14px;
+  background: var(--accent); color: #fff; font-size: 13.5px; line-height: 1.35;
+  box-shadow: 0 6px 24px rgba(0,0,0,.3); z-index: 9998;
+  transition: opacity .25s, transform .25s;
+}
+#ver-banner.is-on { opacity: 1; transform: translate(-50%, 0); }
+#ver-banner span { flex: 1; min-width: 0; }
+#ver-banner button {
+  font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  border: 0; border-radius: 99px; padding: 7px 14px;
+  background: #fff; color: var(--accent); white-space: nowrap;
+}
+#ver-banner #ver-later { background: transparent; color: #fff; padding: 7px 4px; font-weight: 400; opacity: .85; }
+@media (prefers-reduced-motion: reduce) { #ver-banner { transition: none; } }
+
+#guia-toast {
+  position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  max-width: min(92vw, 420px); padding: 10px 16px; border-radius: 12px;
+  background: var(--text); color: var(--bg); font-size: 13.5px; line-height: 1.4;
+  text-align: center; box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 9999;
+  transition: opacity .2s, transform .2s;
+}
+#guia-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) { #guia-toast { transition: none; } }
+
+.expense-item__del,
+.expense-item__edit {
+  font: inherit; font-size: 13px; font-weight: 700; background: none; border: 0; cursor: pointer;
+  width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+  transition: background .15s;
+}
+.expense-item__del { color: var(--c-danger); }
+.expense-item__edit { color: var(--text-muted); }
+.expense-item__del:hover { background: color-mix(in srgb, var(--c-danger) 12%, transparent); }
+.expense-item__edit:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+.expense-item.is-editing { background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 8px; }
+.expense-form.is-editing { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 10px; }
+.exp-cancel {
+  font: inherit; font-size: 13px; background: none; border: 0; color: var(--text-muted);
+  text-decoration: underline; cursor: pointer; padding: 6px 0; margin-top: 4px;
+}
+
+/* Presupuesto: partida, previsto y gastado en tres columnas, con barra */
+.bd-head, .bd-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 76px 78px;
+  gap: 6px;
+  align-items: center;
+}
+.bd-head {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--text-muted); margin-bottom: 4px;
+}
+.bd-head span:nth-child(n+2) { text-align: right; }
+.bd-row { margin-bottom: 2px; row-gap: 3px; }
+.bd-prev input {
+  width: 100%; padding: 5px 6px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--bg); color: var(--text); font-size: 13px; text-align: right; font: inherit;
+}
+.bd-gastado {
+  text-align: right; font-family: var(--font-display); font-weight: 700; font-size: 13.5px;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.bd-gastado.is-near { color: #C9901E; }
+.bd-gastado.is-over { color: var(--c-danger); }
+.bd-barra {
+  grid-column: 1 / -1; height: 3px; border-radius: 99px;
+  background: color-mix(in srgb, var(--text-muted) 16%, transparent); overflow: hidden;
+  margin: 0 0 8px;
+}
+.bd-barra span { display: block; height: 100%; background: var(--c-success); border-radius: 99px; transition: width .3s; }
+.bd-barra span.is-near { background: #C9901E; }
+.bd-barra span.is-over { background: var(--c-danger); }
 
 /* Packing */
 .packing-group { margin-bottom: 16px; }
@@ -1186,6 +1341,9 @@ body.is-offline .offline-chip { display: inline-flex; }
     <button class="icon-btn" id="btn-search" aria-label="Buscar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
     </button>
+    <button class="icon-btn" id="btn-font" aria-label="Tamaño del texto" title="Tamaño del texto">
+      <span id="icon-font" style="font-weight:700;letter-spacing:-.5px;line-height:1">Aa</span>
+    </button>
     <button class="icon-btn" id="btn-theme" aria-label="Tema">
       <svg id="icon-theme" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
     </button>
@@ -1267,14 +1425,14 @@ body.is-offline .offline-chip { display: inline-flex; }
   "schema_version": "1.2",
   "meta": {
     "title": "Puglia y Matera: cuatro días entre trulli, ciudades blancas y piedra excavada",
-    "subtitle": "Escapada de pareja desde Valencia, del 20 al 23 de noviembre de 2026",
+    "subtitle": "Escapada de pareja desde Alicante, del 20 al 23 de noviembre de 2026",
     "destination": {
       "name": "Puglia y Matera",
       "country": "Italia",
       "region": "Apulia y Basilicata"
     },
     "origin": {
-      "city": "Valencia",
+      "city": "Alicante",
       "country": "España"
     },
     "dates": {
@@ -1288,7 +1446,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       "children_ages": []
     },
     "budget": {
-      "level": "economico",
+      "level": "bajo",
       "total_estimated": 1200,
       "breakdown": {
         "flights": 393,
@@ -1305,7 +1463,7 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       "prepaid": [
         {
-          "desc": "Vuelos Valencia–Bari, ida y vuelta",
+          "desc": "Vuelos Alicante–Bari, ida y vuelta",
           "category": "flights",
           "amount": 393
         },
@@ -1592,6 +1750,14 @@ body.is-offline .offline-chip { display: inline-flex; }
       },
       {
         "day": 4,
+        "name": "Sasso Barisano",
+        "coords": {
+          "lat": 40.6679654,
+          "lng": 16.6103894
+        }
+      },
+      {
+        "day": 4,
         "name": "Basílica de San Nicola, Bari",
         "coords": {
           "lat": 41.1303137,
@@ -1781,7 +1947,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Amanecer y vuelo de dron sobre el Rione Monti",
           "description": "El belvedere de Piazza Giangirolamo domina las mil quinientas cúpulas del Rione Monti. A esta hora no hay nadie y la luz rasante marca la sombra de cada cono, que es exactamente lo que hace reconocible un plano aéreo de Alberobello. La altura que mejor funciona aquí está entre 40 y 60 metros: por encima, los trulli se aplanan y parecen una alfombra gris.",
           "type": "activity",
-          "duration_min": 55
+          "duration_min": 55,
+          "place_id": "alberobello-belvedere-monti"
         },
         {
           "time": "07:40",
@@ -1789,7 +1956,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Rione Monti a pie, todavía vacío",
           "description": "Callejear cuesta arriba entre los trulli sin una sola tienda abierta. Es la única franja del día en que se puede fotografiar la calle limpia; a partir de las diez esto se llena de autocares.",
           "type": "visit",
-          "duration_min": 65
+          "duration_min": 65,
+          "place_id": "alberobello-rione-monti"
         },
         {
           "time": "08:45",
@@ -1805,7 +1973,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Trullo Sovrano y Rione Aia Piccola",
           "description": "El único trullo de dos plantas que existe, y justo al lado el barrio de Aia Piccola, que sigue habitado y donde no hay tiendas de imanes. Es el contraste que explica Alberobello mejor que ninguna guía.",
           "type": "visit",
-          "duration_min": 40
+          "duration_min": 40,
+          "place_id": "alberobello-trullo-sovrano"
         },
         {
           "time": "09:55",
@@ -1821,7 +1990,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Locorotondo, el pueblo redondo",
           "description": "Casco antiguo de planta circular, casas blancas con tejado a dos aguas y balcones cargados de geranios incluso en noviembre. El belvedere de Via Nannavecchia mira sobre el valle entero. Aquí es donde merece la pena mirar artesanía: hay dos o tres talleres de verdad entre las tiendas.",
           "type": "visit",
-          "duration_min": 90
+          "duration_min": 90,
+          "place_id": "locorotondo-centro"
         },
         {
           "time": "11:45",
@@ -1837,7 +2007,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Puerto viejo y casco antiguo de Monopoli",
           "description": "Las gozzi azules varadas en la cala, la muralla aragonesa y el laberinto de callejuelas encaladas detrás. Monopoli es el pueblo costero menos fotografiado de los tres y el que conserva más vida propia.",
           "type": "visit",
-          "duration_min": 65
+          "duration_min": 65,
+          "place_id": "monopoli-porto-antico"
         },
         {
           "time": "13:30",
@@ -1861,7 +2032,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Polignano a Mare, casco antiguo",
           "description": "Los balcones colgados sobre el acantilado, el arco de la Porta Vecchia y las terrazas naturales que asoman al Adriático. En noviembre, con la mitad de los turistas, se puede caminar sin esquivar a nadie.",
           "type": "visit",
-          "duration_min": 75
+          "duration_min": 75,
+          "place_id": "polignano-lama-monachile"
         },
         {
           "time": "16:20",
@@ -1869,7 +2041,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Atardecer en Lama Monachile",
           "description": "El sol se pone sobre las 16:25. Desde el puente borbónico se ve la cala encajada entre dos paredes de roca, y en esos veinte minutos la piedra pasa de blanca a naranja. Después viene la hora azul, que en esta cala funciona todavía mejor que el propio atardecer.",
           "type": "activity",
-          "duration_min": 55
+          "duration_min": 55,
+          "place_id": "polignano-lama-monachile"
         },
         {
           "time": "17:15",
@@ -2053,7 +2226,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Amanecer en Cisternino",
           "description": "Casco antiguo de callejones encalados, arcos y escaleras exteriores, encaramado al borde de la meseta. Es el pueblo del Valle d'Itria que menos se ha rendido al turismo, y a esta hora solo se cruza uno con quien va a por el pan. Desde la terraza junto a la Chiesa Madre se ve la valle entera abrirse hacia el mar.",
           "type": "visit",
-          "duration_min": 100
+          "duration_min": 100,
+          "place_id": "cisternino-centro"
         },
         {
           "time": "08:15",
@@ -2069,7 +2243,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Ostuni desde el mirador de la Ciudad Blanca",
           "description": "El punto panorámico de Piazzetta Martiri delle Foibe, sobre el Corso Vittorio Emanuele, encuadra la ciudad blanca entera con la catedral en la cima. Con el sol todavía bajo, la cal coge un tono cálido que a mediodía desaparece por completo y lo deja todo plano.",
           "type": "activity",
-          "duration_min": 55
+          "duration_min": 55,
+          "place_id": "ostuni-mirador-blanca"
         },
         {
           "time": "09:45",
@@ -2077,7 +2252,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Casco antiguo y concatedral",
           "description": "Subida a pie por el laberinto de callejones hasta la concatedral de Santa Maria Assunta, gótico tardío con un rosetón de veinticuatro radios que no se parece a nada más en Puglia. El casco antiguo se recorre entero en poco más de una hora, y merece la pena perderse a propósito por las escaleras laterales.",
           "type": "visit",
-          "duration_min": 135
+          "duration_min": 135,
+          "place_id": "ostuni-concatedral"
         },
         {
           "time": "12:00",
@@ -2110,7 +2286,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Primer paseo por el Sasso Caveoso",
           "description": "Bajada por Via Bruno Buozzi hacia el Sasso Caveoso, el más antiguo y el que conserva mejor el aspecto de barrio excavado. Sin prisa y sin objetivo concreto: se trata de llegar al mirador con tiempo.",
           "type": "visit",
-          "duration_min": 50
+          "duration_min": 50,
+          "place_id": "matera-belvedere-pascoli"
         },
         {
           "time": "16:25",
@@ -2118,7 +2295,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Atardecer desde el Belvedere de Piazzetta Pascoli",
           "description": "El momento por el que se viene a Matera. El sol se pone a vuestra espalda sobre las 16:31 y los Sassi, que miran al este, se encienden de oro de abajo arriba. Después, la ciudad enciende las luces una a una y empieza la hora azul, que aquí es tan buena como el atardecer.",
           "type": "activity",
-          "duration_min": 55
+          "duration_min": 55,
+          "place_id": "matera-belvedere-pascoli"
         },
         {
           "time": "17:20",
@@ -2289,7 +2467,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Subida al Belvedere de Murgia Timone",
           "description": "Ocho kilómetros por la carretera de la Murgia, rodeando la gravina hasta el otro lado del cañón. Es el único momento del día en que hace falta el coche.",
           "type": "transport",
-          "duration_min": 25
+          "duration_min": 25,
+          "place_id": "matera-belvedere-murgia-timone"
         },
         {
           "time": "06:45",
@@ -2297,7 +2476,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Amanecer sobre los Sassi",
           "description": "El sol sale sobre las 06:51 justo a vuestra espalda y va encendiendo la ciudad de arriba abajo, empezando por el campanario de la catedral. Es el plano que todo el mundo reconoce de Matera y el único momento del día en que la ciudad se ve iluminada de frente y sin contraluz. Media hora antes ya merece la pena estar allí, con el cielo todavía morado.",
           "type": "activity",
-          "duration_min": 60
+          "duration_min": 60,
+          "place_id": "matera-belvedere-murgia-timone"
         },
         {
           "time": "07:45",
@@ -2321,7 +2501,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Casa Grotta di Vico Solitario",
           "description": "Una casa cueva amueblada tal como estaba en los años cincuenta, justo antes del desalojo: la cama alta, el pesebre del mulo dentro de la vivienda, la cisterna bajo el suelo. Cuesta poco, se ve en cuarenta minutos con audioguía en el móvil y es lo que convierte todo lo que habéis fotografiado en algo que se entiende.",
           "type": "visit",
-          "duration_min": 60
+          "duration_min": 60,
+          "place_id": "matera-casa-grotta"
         },
         {
           "time": "09:50",
@@ -2329,7 +2510,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Sasso Barisano y últimas compras",
           "description": "El otro barrio excavado, más restaurado y con las mejores tiendas de la ciudad. Aquí sí quedan talleres de cerámica y de cuerno, y los cucù, silbatos de barro con forma de gallo, son el recuerdo local de verdad y no un invento reciente.",
           "type": "visit",
-          "duration_min": 60
+          "duration_min": 60,
+          "place_id": "matera-sasso-barisano"
         },
         {
           "time": "10:50",
@@ -2353,7 +2535,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Basílica de San Nicola",
           "description": "La mole románica que guarda los huesos de San Nicolás desde 1087, cuando unos marineros de Bari los robaron en la actual Turquía. La cripta, de columnas todas distintas entre sí, es lugar de peregrinación tanto católica como ortodoxa, y suele haber liturgia en griego o en ruso. Entrada libre.",
           "type": "visit",
-          "duration_min": 60
+          "duration_min": 60,
+          "place_id": "bari-basilica-san-nicola"
         },
         {
           "time": "13:45",
@@ -2361,7 +2544,8 @@ body.is-offline .offline-chip { display: inline-flex; }
           "title": "Strada delle Orecchiette y Bari Vecchia",
           "description": "El callejón donde las mujeres del barrio hacen orecchiette a mano en mesas puestas en la calle. Por la tarde hay menos puestos que por la mañana, y también menos gente mirando, lo que tiene su parte buena. Alrededor, el laberinto de Bari Vecchia con la catedral de San Sabino y Piazza Mercantile.",
           "type": "visit",
-          "duration_min": 75
+          "duration_min": 75,
+          "place_id": "bari-strada-orecchiette"
         },
         {
           "time": "15:00",
@@ -2398,7 +2582,7 @@ body.is-offline .offline-chip { display: inline-flex; }
         {
           "time": "20:20",
           "icon": "✈️",
-          "title": "Vuelo de vuelta a Valencia",
+          "title": "Vuelo de vuelta a Alicante",
           "description": "Salida a las 20:20 y llegada a casa sobre las 22:50.",
           "type": "transport",
           "duration_min": 150
@@ -2431,6 +2615,20 @@ body.is-offline .offline-chip { display: inline-flex; }
           "price": "Alrededor de 5 € por persona",
           "tips": "Lo que impresiona no es la cueva sino el dato que la acompaña: en estas viviendas llegaron a convivir familias de diez personas con sus animales, y la mortalidad infantil superó el cuarenta por ciento. Merece la pena quedarse al vídeo del final, que es más informativo de lo que aparenta. Hay auriculares propios recomendables para no depender del altavoz del móvil.",
           "gmaps_url": "https://www.google.com/maps/search/?api=1&query=40.6637768,16.6122649",
+          "verified_at": null
+        },
+        {
+          "id": "matera-sasso-barisano",
+          "name": "Sasso Barisano",
+          "coords": {
+            "lat": 40.6679654,
+            "lng": 16.6103894
+          },
+          "review": "El otro barrio excavado de Matera, más restaurado que el Caveoso y orientado al norte, lo que a media mañana lo deja con la luz de frente. Es donde se concentran los talleres que siguen trabajando: cerámica, cuerno y los cucù, los silbatos de barro con forma de gallo que son el recuerdo local con más historia detrás. Alrededor de la plaza de San Pietro Barisano y de Via Fiorentini hay obradores con el torno a la vista, que es la forma rápida de distinguir lo hecho a mano de la resina de importación. La iglesia rupestre de San Pietro Barisano, la mayor de la ciudad, queda a dos minutos y conserva una cripta que impresiona.",
+          "hours": "Calles abiertas siempre. Los talleres abren sobre las 09:30.",
+          "price": "Gratis pasear. Un cucù de barro ronda los 8–15 €.",
+          "tips": "El marcador está anclado en la plaza de San Pietro Barisano, que es el centro del barrio; el Sasso Barisano es un barrio entero y no un punto concreto. Es la última ocasión del viaje para comprar artesanía de verdad, porque el domingo estaba casi todo cerrado en el Valle d'Itria. La bajada desde Piazza Vittorio Veneto se hace en cinco minutos, pero la vuelta es cuesta arriba con escalones altos: conviene contar diez.",
+          "gmaps_url": "https://www.google.com/maps/search/?api=1&query=40.6679654,16.6103894",
           "verified_at": null
         },
         {
@@ -2983,11 +3181,11 @@ body.is-offline .offline-chip { display: inline-flex; }
     }
   ],
   "generation_metadata": {
-    "generated_at": "2026-08-07T00:00:00Z",
+    "generated_at": "2026-09-27T12:00:00Z",
     "schema_version": "1.2",
-    "claude_model": "Claude Opus 4.6",
+    "claude_model": "Claude Opus 5",
     "web_search_count": 11,
-    "verification_note": "Coordenadas de los 17 puntos verificadas una a una con la herramienta de lugares. Horarios de Cibus, Il Mantesino, La Locanda dei Mercanti, Vicolo Cieco, Osteria Belvedere al Vecchio Frantoio, Panificio Fiore, Casa Grotta di Vico Solitario, Basílica de San Nicola, concatedral de Ostuni y Trullo Sovrano consultados en agosto de 2026: al ser noviembre y temporada baja, conviene reconfirmar los de las dos iglesias y los del Trullo Sovrano la semana antes. Sin confirmar: el precio exacto del coche de alquiler, todavía sin reservar; el posible cobro de acceso peatonal al Parco della Murgia Materana, que no afecta llegando en coche; la programación de música en directo de Vicolo Cieco para el domingo 22, que se anuncia con pocos días; y las tarifas de aparcamiento, que cambian por temporada. Todos los precios de comida son estimaciones de rango, no cifras de carta."
+    "verification_note": "Coordenadas de los 18 puntos verificadas una a una con la herramienta de lugares; la del Sasso Barisano está anclada en la plaza de San Pietro Barisano, porque es un barrio y no un punto. Horarios de Cibus, Il Mantesino, La Locanda dei Mercanti, Vicolo Cieco, Osteria Belvedere al Vecchio Frantoio, Panificio Fiore, Casa Grotta di Vico Solitario, Basílica de San Nicola, concatedral de Ostuni y Trullo Sovrano consultados en agosto de 2026: al ser noviembre y temporada baja, conviene reconfirmar los de las dos iglesias y los del Trullo Sovrano la semana antes. Sin confirmar: el precio exacto del coche de alquiler, todavía sin reservar; el posible cobro de acceso peatonal al Parco della Murgia Materana, que no afecta llegando en coche; la programación de música en directo de Vicolo Cieco para el domingo 22, que se anuncia con pocos días; y las tarifas de aparcamiento, que cambian por temporada. Todos los precios de comida son estimaciones de rango, no cifras de carta."
   }
 }
 </script>
@@ -3043,11 +3241,57 @@ body.is-offline .offline-chip { display: inline-flex; }
       return { ...defaultStore, ...JSON.parse(raw) };
     } catch (e) { return { ...defaultStore, expenses: seedExpenses() }; }
   }
+  // Aviso flotante breve. Se declara aquí arriba porque lo usan el guardado,
+  // el botón de tamaño de texto y la edición de gastos. Con aria-live para que
+  // los lectores de pantalla también lo anuncien.
+  function toast(mensaje, ms) {
+    let t = document.getElementById('guia-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'guia-toast';
+      t.setAttribute('role', 'status');
+      t.setAttribute('aria-live', 'polite');
+      document.body.appendChild(t);
+    }
+    t.textContent = mensaje;
+    t.classList.add('is-on');
+    clearTimeout(t._fin);
+    t._fin = setTimeout(() => t.classList.remove('is-on'), ms || 2400);
+  }
+
+  // Antes el fallo se silenciaba: el cambio se veía en pantalla pero no se
+  // guardaba, y al reabrir la guía volvía lo borrado. Ahora se avisa, una vez
+  // por sesión, para que el viajero sepa que tiene que liberar espacio.
+  let avisoGuardado = false;
   function saveStore() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {}
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(store));
+      return true;
+    } catch (e) {
+      if (!avisoGuardado) {
+        avisoGuardado = true;
+        toast('No se ha podido guardar el cambio: el móvil está sin espacio para esta web. ' +
+              'Conviene borrar fotos locales o exportar la copia de seguridad.', 7000);
+      }
+      return false;
+    }
+  }
+
+  // Todo gasto necesita un identificador único y de texto. Los datos antiguos
+  // o restaurados de una copia pueden traerlo repetido, numérico o ausente, y
+  // entonces el botón de borrar no encuentra lo que tiene que borrar.
+  function normalizarGastos(lista) {
+    const vistos = new Set();
+    return (lista || []).map((e, i) => {
+      let id = e && e.id != null ? String(e.id) : '';
+      if (!id || vistos.has(id)) id = 'e_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2, 6);
+      vistos.add(id);
+      return Object.assign({}, e, { id, amount: Number(e && e.amount) || 0 });
+    });
   }
 
   const store = loadStore();
+  store.expenses = normalizarGastos(store.expenses);
 
   // ------------------------------------------------------
   // 2. UTILIDADES
@@ -3056,8 +3300,32 @@ body.is-offline .offline-chip { display: inline-flex; }
     const d = new Date(isoDate + 'T00:00:00');
     return d.toLocaleDateString('es-ES', opts);
   };
+  // Los importes con decimales se muestran con dos; los redondos, sin ninguno.
+  // Antes se truncaba siempre a cero decimales y un gasto de 23,60 € se veia como 24 €.
+  // El teclado espanol escribe coma y el navegador espera punto: se admiten los dos.
+  const numDec = (v) => {
+    if (typeof v === 'number') return isNaN(v) ? 0 : Math.round(v * 100) / 100;
+    let t = String(v == null ? '' : v).trim().replace(/[\s€]/g, '');
+    if (!t) return 0;
+    if (t.indexOf(',') > -1) {
+      // Hay coma: es el separador decimal y los puntos son de millar (1.234,50).
+      t = t.replace(/\./g, '').replace(',', '.');
+    } else {
+      // Solo puntos: es decimal si hay uno y deja una o dos cifras detras (23.6);
+      // en cualquier otro caso son separadores de millar (1.234 o 1.234.567).
+      const p = t.split('.');
+      t = (p.length === 2 && p[1].length <= 2) ? t : p.join('');
+    }
+    const n = parseFloat(t);
+    return isNaN(n) ? 0 : Math.round(n * 100) / 100;
+  };
+
   const fmtMoney = (n, currency = 'EUR') => {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+    const v = Number(n) || 0;
+    const dec = Math.abs(v - Math.round(v)) < 0.005 ? 0 : 2;
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency', currency, minimumFractionDigits: dec, maximumFractionDigits: dec
+    }).format(v);
   };
   const el = (sel) => document.querySelector(sel);
   const esc = (s) => String(s == null ? '' : s)
@@ -3081,6 +3349,51 @@ body.is-offline .offline-chip { display: inline-flex; }
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = t === 'dark' ? '#14110E' : (DATA.meta?.theme_color || '#C65D3A');
   }
+  // --- SALTAR DEL ITINERARIO A LA FICHA DEL LUGAR --------------
+  // La chincheta de un hito lleva a la tarjeta de ese lugar, más abajo en la
+  // misma página. Se delega en el documento porque el día se repinta entero
+  // cada vez que se abre.
+  document.addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-goto]');
+    if (!b) return;
+    const destino = document.getElementById(b.dataset.goto);
+    if (!destino) return;
+    const cabecera = document.querySelector('.app-header');
+    const alto = cabecera ? cabecera.offsetHeight + 10 : 60;
+    const y = destino.getBoundingClientRect().top + window.scrollY - alto;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+    destino.classList.remove('is-target');
+    void destino.offsetWidth;            // reinicia la animación si se repite
+    destino.classList.add('is-target');
+    setTimeout(() => destino.classList.remove('is-target'), 2600);
+  });
+
+  // --- TAMAÑO DEL TEXTO ---------------------------------------
+  const TALLAS = ['s', 'm', 'l', 'xl'];
+  const NOMBRE_TALLA = { s: 'normal', m: 'grande', l: 'más grande', xl: 'muy grande' };
+  function applyFontSize() {
+    const t = TALLAS.indexOf(store.fontSize) > -1 ? store.fontSize : 's';
+    if (t === 's') delete document.documentElement.dataset.fs;
+    else document.documentElement.dataset.fs = t;
+    const b = el('#btn-font');
+    if (b) b.setAttribute('aria-label', 'Tamaño del texto: ' + NOMBRE_TALLA[t]);
+  }
+  el('#btn-font').addEventListener('click', () => {
+    // Sin talla guardada se parte de la normal, para que el primer toque ya amplíe
+    const i = Math.max(0, TALLAS.indexOf(store.fontSize));
+    store.fontSize = TALLAS[(i + 1) % TALLAS.length];
+    saveStore();
+    applyFontSize();
+    toast('Texto ' + NOMBRE_TALLA[store.fontSize]);
+    // El mapa recalcula su tamaño si estaba abierto
+    if (window.mapInstance) setTimeout(() => window.mapInstance.invalidateSize(), 60);
+  });
+  applyFontSize();
+
+  // Al abrir la guía se mira una sola vez si hay algo más reciente publicado.
+  // Con unos segundos de margen, para no competir con la carga de la página.
+  window.addEventListener('load', () => setTimeout(() => comprobarVersion(false), 4000));
+
   el('#btn-theme').addEventListener('click', () => {
     const current = document.documentElement.dataset.theme;
     store.theme = current === 'dark' ? 'light' : 'dark';
@@ -3219,6 +3532,13 @@ body.is-offline .offline-chip { display: inline-flex; }
     const d = DATA.days.find(x => x.day === dayNum);
     if (!d) { el('#page-day').innerHTML = '<p>Día no encontrado.</p>'; return; }
 
+    // Primer hito del itinerario que habla de cada lugar: es al que se vuelve
+    // desde la ficha. Si un lugar aparece en dos hitos, manda el primero.
+    const hitoDe = {};
+    (d.timeline || []).forEach((t, idx) => {
+      if (t.place_id && !hitoDe[t.place_id]) hitoDe[t.place_id] = `d${d.day}_t${idx}`;
+    });
+
     const timelineHTML = (d.timeline || []).map((t, idx) => {
       const key = `d${d.day}_t${idx}`;
       const done = !!store.checklist[key];
@@ -3230,14 +3550,14 @@ body.is-offline .offline-chip { display: inline-flex; }
         ? `<span class="tl-item__dur ${isMove ? 'tl-item__dur--move' : ''}" title="${isMove ? 'Tiempo de trayecto' : 'Duración aproximada'}">${isMove ? '🚙' : '⏱'} ${esc(durTxt)}</span>`
         : '';
       return `
-        <div class="tl-item ${done ? 'is-done' : ''}" data-icon="${esc(t.icon || '•')}" data-key="${key}">
+        <div class="tl-item ${done ? 'is-done' : ''}" id="tl-${key}" data-icon="${esc(t.icon || '•')}" data-key="${key}">
           <div class="tl-item__head">
             <span class="tl-item__when"><span class="tl-item__time">${esc(t.time)}</span>${durHTML}</span>
             <button class="tl-item__check" onclick="window.__actions.toggleChecklist('${key}')"></button>
           </div>
           <div class="tl-item__title">${esc(t.title)}</div>
           <div class="tl-item__description">${esc(t.description)}</div>
-          ${place ? `<div class="tl-item__place">📍 ${esc(place.name)}</div>` : ''}
+          ${place ? `<button type="button" class="tl-item__place" data-goto="place-${esc(place.id)}" title="Ver la ficha de este lugar">📍 ${esc(place.name)}</button>` : ''}
         </div>`;
     }).join('');
 
@@ -3254,7 +3574,9 @@ body.is-offline .offline-chip { display: inline-flex; }
       const waShare = `https://wa.me/?text=${encodeURIComponent(p.name + ' — ' + gmaps)}`;
       return `
         <div class="place-card" id="place-${esc(p.id)}">
-          <div class="place-card__name">📍 ${esc(p.name)}</div>
+          ${hitoDe[p.id]
+            ? `<button type="button" class="place-card__name place-card__name--link" data-goto="tl-${hitoDe[p.id]}" title="Ver este lugar en el itinerario del día">📍 ${esc(p.name)}<span class="place-card__back">↑ en el itinerario</span></button>`
+            : `<div class="place-card__name">📍 ${esc(p.name)}</div>`}
           ${p.review ? `<p class="place-card__review">${esc(p.review)}</p>` : ''}
           <div class="place-card__meta">
             ${p.hours ? `<div class="place-card__meta-item"><span class="place-card__meta-label">🕐</span> ${esc(p.hours)}</div>` : ''}
@@ -3271,6 +3593,10 @@ body.is-offline .offline-chip { display: inline-flex; }
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-1 1.1-.2.2-.4.2-.7.1-.3-.1-1.2-.4-2.3-1.4-.8-.7-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5-.2 0-.4 0-.6 0-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.1 3 .1.2 2 3.1 4.9 4.3 2.9 1.2 2.9.8 3.4.8.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.1-.2-.2-.5-.3zM12 2a10 10 0 0 0-8.7 14.9L2 22l5.3-1.4A10 10 0 1 0 12 2z"/></svg>
               WhatsApp
             </a>
+          </div>
+          <div class="audioguia" data-audio="${esc(p.id)}">
+            <div class="audioguia__head">🎧 Audioguía<span class="audioguia__dur"></span></div>
+            <audio controls preload="none"></audio>
           </div>
           <div class="place-photos" data-place="${esc(p.id)}">
             <div class="place-photos__head">
@@ -3368,6 +3694,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     });
 
     initPlacePhotos(el('#page-day'));
+    initAudioguias(el('#page-day'));
     renderDayDocs(d.day);
 
     el('#header-title').textContent = `Día ${d.day} · ${d.title}`;
@@ -3480,10 +3807,10 @@ body.is-offline .offline-chip { display: inline-flex; }
     const img = document.createElement('img'); img.alt = 'Foto del lugar';
     const prev = document.createElement('button');
     prev.type = 'button'; prev.className = 'photo-lightbox__nav photo-lightbox__nav--prev';
-    prev.setAttribute('aria-label', 'Foto anterior'); prev.textContent = '\u2039';
+    prev.setAttribute('aria-label', 'Foto anterior'); prev.textContent = '‹';
     const next = document.createElement('button');
     next.type = 'button'; next.className = 'photo-lightbox__nav photo-lightbox__nav--next';
-    next.setAttribute('aria-label', 'Foto siguiente'); next.textContent = '\u203a';
+    next.setAttribute('aria-label', 'Foto siguiente'); next.textContent = '›';
     stage.appendChild(prev); stage.appendChild(img); stage.appendChild(next);
 
     const count = document.createElement('div'); count.className = 'photo-lightbox__count';
@@ -3674,6 +4001,66 @@ body.is-offline .offline-chip { display: inline-flex; }
   // Cualquiera que abra el enlace las ve. Se buscan por convencion de
   // nombre en la carpeta fotos/ del mismo directorio que este index.html:
   //   fotos/<place.id>.jpg   y extras  fotos/<place.id>-2.jpg, -3.jpg...
+  // --- AUDIOGUÍAS ---------------------------------------------
+  // Convención igual que la de las fotos: audio/<place.id>.mp3 junto al
+  // index.html. No hace falta declarar nada en el JSON. Si el archivo no está
+  // subido, la guía no dice ni una palabra de audioguías, que es lo correcto:
+  // prometer algo que no existe es peor que no ofrecerlo.
+  const AUDIO_DIR = 'audio/';
+  // Solo se recuerdan los aciertos. Un fallo NO se memoriza: puede deberse a una
+  // conexión mala, y si se diera por definitivo el audio no volvería a aparecer
+  // en toda la sesión aunque el archivo exista y la cobertura vuelva.
+  const audioOk = {};
+
+  function initAudioguias(scope) {
+    (scope || document).querySelectorAll('.audioguia[data-audio]').forEach(caja => {
+      const id = caja.dataset.audio;
+      const src = AUDIO_DIR + id + '.mp3';
+      const audio = caja.querySelector('audio');
+      const dur = caja.querySelector('.audioguia__dur');
+
+      const mostrar = (segundos) => {
+        caja.classList.add('is-on');
+        if (segundos && isFinite(segundos)) {
+          const m = Math.floor(segundos / 60), sg = Math.round(segundos % 60);
+          dur.textContent = m + ':' + String(sg).padStart(2, '0');
+        }
+      };
+
+      if (audio.dataset.listo) { return; }
+      audio.dataset.listo = '1';
+
+      // Se prueba cargando solo los metadatos: si el archivo está, aparece el
+      // reproductor; si no, la tarjeta se queda oculta. Sin conexión funciona
+      // igual siempre que el mp3 esté en la caché del service worker.
+      audio.preload = 'metadata';
+      audio.src = src;
+      audio.addEventListener('loadedmetadata', () => {
+        audioOk[id] = true;
+        mostrar(audio.duration);
+      }, { once: true });
+      audio.addEventListener('error', () => {
+        caja.classList.remove('is-on');
+        audio.removeAttribute('src');
+        delete audio.dataset.listo;     // se podrá reintentar más adelante
+      }, { once: true });
+    });
+  }
+
+  // Si vuelve la conexión, se reintenta lo que no se pudo comprobar antes.
+  window.addEventListener('online', () => {
+    const dia = el('#page-day');
+    if (dia && dia.classList.contains('is-active')) initAudioguias(dia);
+  });
+
+  // Lista de audios candidatos, para que el botón de preparar sin conexión los
+  // descargue junto con las fotos.
+  function audioUrls() {
+    const ids = [];
+    (DATA.days || []).forEach(d => (d.places || []).forEach(p => ids.push(p.id)));
+    return ids.map(id => AUDIO_DIR + id + '.mp3');
+  }
+
   const REPO_DIR = 'fotos/';
   // Modo autor: añade ?autor al final de la URL para ver, en los lugares que
   // aún no tienen foto, un hueco con el nombre exacto que debe llevar el
@@ -3863,6 +4250,7 @@ body.is-offline .offline-chip { display: inline-flex; }
         });
       });
     });
+    audioUrls().forEach(function (u) { urls.push(u); });
     urls.push(DOCS_DIR + 'index.json');
     (__repoDocs || []).forEach(function (d) { if (!d.link) urls.push(d.url); });
     var ch = new MessageChannel();
@@ -4032,9 +4420,76 @@ body.is-offline .offline-chip { display: inline-flex; }
           «Preparar para usar sin conexión» descarga la guía y las fotos compartidas para que se abra en modo avión; el mapa
           guardará además los tiles que hayas mirado. Hazlo con wifi antes de salir.
         </p>
+      </div>
+      <div class="tool-card">
+        <div class="tool-card__title">🔄 Versión de la guía</div>
+        <p style="font-size:13px;color:var(--text-soft);line-height:1.55;margin-bottom:10px">
+          Cuando se corrige o se amplía una guía, el móvil puede seguir mostrando la copia que ya tenía guardada.
+          Aquí se comprueba si hay una versión más reciente publicada.
+        </p>
+        <div class="backup-row">
+          <button class="btn btn--ghost btn--sm" id="ver-check">Comprobar si hay una versión nueva</button>
+        </div>
+        <div class="backup-note" id="ver-status">Esta copia es del <strong>${esc(fechaBuild())}</strong>.</div>
       </div>`;
   }
+
+  // --- VERSIÓN DE LA GUÍA -------------------------------------
+  // La marca de versión es la fecha de generación que ya viaja en el JSON, así
+  // que no hace falta inventarse ningún número: cada vez que se regenera la
+  // guía cambia sola.
+  const BUILD = (DATA.generation_metadata && DATA.generation_metadata.generated_at) || '';
+  function fechaBuild() {
+    if (!BUILD) return 'fecha desconocida';
+    const d = new Date(BUILD);
+    if (isNaN(d)) return BUILD;
+    return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function bannerActualizacion() {
+    if (document.getElementById('ver-banner')) return;
+    const b = document.createElement('div');
+    b.id = 'ver-banner';
+    b.innerHTML = '<span>Hay una versión más reciente de esta guía.</span>' +
+                  '<button type="button" id="ver-now">Actualizar</button>' +
+                  '<button type="button" id="ver-later" aria-label="Ahora no">✕</button>';
+    document.body.appendChild(b);
+    requestAnimationFrame(() => b.classList.add('is-on'));
+    document.getElementById('ver-later').addEventListener('click', () => b.remove());
+    document.getElementById('ver-now').addEventListener('click', () => {
+      document.getElementById('ver-now').textContent = 'Actualizando…';
+      // El service worker pide siempre la página a la red antes que a la caché,
+      // así que basta con recargar estando en línea para quedarse con la nueva.
+      setTimeout(() => location.reload(), 150);
+    });
+  }
+
+  function comprobarVersion(manual) {
+    const st = document.getElementById('ver-status');
+    const decir = (t) => { if (st) st.innerHTML = t; };
+    if (!navigator.onLine) {
+      if (manual) decir('Sin conexión: no se puede comprobar ahora. Esta copia es del <strong>' + esc(fechaBuild()) + '</strong>.');
+      return;
+    }
+    if (manual) decir('Comprobando…');
+    fetch('./index.html', { cache: 'no-store' })
+      .then(r => r.ok ? r.text() : Promise.reject(new Error('respuesta ' + r.status)))
+      .then(txt => {
+        const m = txt.match(/"generated_at"\s*:\s*"([^"]+)"/);
+        if (!m || !BUILD) { if (manual) decir('No se ha podido determinar la versión publicada.'); return; }
+        if (m[1] !== BUILD) {
+          bannerActualizacion();
+          if (manual) decir('Hay una versión más reciente. Pulsa «Actualizar» en el aviso de abajo.');
+        } else if (manual) {
+          decir('Ya tienes la última versión, del <strong>' + esc(fechaBuild()) + '</strong>.');
+        }
+      })
+      .catch(() => { if (manual) decir('No se ha podido comprobar. Inténtalo con mejor cobertura.'); });
+  }
+
   function wireBackupCard() {
+    var chk = document.getElementById('ver-check');
+    if (chk) chk.addEventListener('click', function () { comprobarVersion(true); });
     var ex = document.getElementById('bk-export');
     if (!ex) return;
     var st = document.getElementById('bk-status');
@@ -5090,7 +5545,7 @@ body.is-offline .offline-chip { display: inline-flex; }
   }
 
   function slugFile(s) {
-    return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
       .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'recordatorio';
   }
 
@@ -5508,6 +5963,8 @@ body.is-offline .offline-chip { display: inline-flex; }
     w.outerHTML = '<div id="weather-content"><div class="weather-grid">' + html + '</div>' + notaHTML + '</div>';
   }
 
+  let budgetEditId = null;       // gasto que se está modificando, si lo hay
+
   function renderMeBudget() {
     const paneEl = document.querySelector('[data-me-pane="budget"]');
     if (!paneEl) return;
@@ -5539,19 +5996,36 @@ body.is-offline .offline-chip { display: inline-flex; }
     // Total = suma de partidas (no editable directamente)
     const budgetTotal = bdKeys.reduce((sum, k) => sum + (be.breakdown[k] || 0), 0);
     const totalExp = totalExpenses();
+    // Lo gastado en cada partida, para saber cuánto lleva cada una sin sumar a mano
+    const gastadoPor = {};
+    bdKeys.forEach(k => { gastadoPor[k] = 0; });
+    store.expenses.forEach(e => {
+      const k = bdKeys.indexOf(e.category) > -1 ? e.category : 'other';
+      gastadoPor[k] += Number(e.amount) || 0;
+    });
+    const editando = store.expenses.find(e => e.id === budgetEditId) || null;
 
 
     const budgetHTML = `
       <div class="budget-summary">
         <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:0 0 10px">Presupuesto estimado</div>
-        ${bdKeys.map(k => `
-          <div class="budget-row" style="margin-bottom:4px">
+        <div class="bd-head">
+          <span>Partida</span><span>Previsto</span><span>Gastado</span>
+        </div>
+        ${bdKeys.map(k => {
+          const prev = Number(be.breakdown[k]) || 0, gast = gastadoPor[k];
+          const pct = prev ? Math.min(100, gast / prev * 100) : (gast ? 100 : 0);
+          const estado = gast > prev ? 'is-over' : (prev && gast / prev >= 0.85 ? 'is-near' : '');
+          return `
+          <div class="bd-row">
             <input type="text" class="bd-label-input" data-bd-label="${k}" value="${esc(bdLabels[k])}" aria-label="Nombre de la partida">
-            <div style="display:flex;align-items:center;gap:4px">
-              <input type="number" data-bd-key="${k}" value="${be.breakdown[k] || 0}" style="width:75px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;text-align:right">
-              <span style="font-size:11px;color:var(--text-muted)">€</span>
+            <div class="bd-prev">
+              <input type="text" inputmode="decimal" data-bd-key="${k}" value="${prev}" aria-label="Previsto para ${esc(bdLabels[k])}">
             </div>
-          </div>`).join('')}
+            <div class="bd-gastado ${estado}" data-bd-gastado="${k}">${fmtMoney(gast, curr)}</div>
+            <div class="bd-barra"><span class="${estado}" style="width:${pct}%"></span></div>
+          </div>`;
+        }).join('')}
 
         <hr class="divider" style="margin:12px 0 10px">
         <div class="budget-row">
@@ -5571,23 +6045,25 @@ body.is-offline .offline-chip { display: inline-flex; }
         </div>
       </div>
 
-      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:20px 0 8px">Añadir gasto</div>
-      <div class="expense-form">
-        <input id="exp-desc" placeholder="Concepto">
-        <input id="exp-amount" type="number" step="0.01" placeholder="€">
-        <select id="exp-cat">${bdKeys.map(k => `<option value="${k}">${esc(bdLabels[k])}</option>`).join('')}</select>
-        <button id="exp-add">+</button>
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:20px 0 8px">${editando ? 'Modificar gasto' : 'Añadir gasto'}</div>
+      <div class="expense-form ${editando ? 'is-editing' : ''}">
+        <input id="exp-desc" placeholder="Concepto" value="${editando ? esc(editando.desc) : ''}">
+        <input id="exp-amount" type="text" inputmode="decimal" placeholder="€ (admite 23,60 o 23.60)" value="${editando ? String(editando.amount).replace('.', ',') : ''}">
+        <select id="exp-cat">${bdKeys.map(k => `<option value="${k}" ${editando && editando.category === k ? 'selected' : ''}>${esc(bdLabels[k])}</option>`).join('')}</select>
+        <button id="exp-add" aria-label="${editando ? 'Guardar cambios' : 'Añadir gasto'}">${editando ? '✓' : '+'}</button>
       </div>
+      ${editando ? '<button type="button" id="exp-cancel" class="exp-cancel">Cancelar la modificación</button>' : ''}
       <ul class="expense-list" id="exp-list">
         ${store.expenses.length === 0 ? '<li class="empty-state">Aún no has añadido gastos.</li>' : ''}
         ${store.expenses.slice().reverse().map(e => `
-          <li class="expense-item">
+          <li class="expense-item ${e.id === budgetEditId ? 'is-editing' : ''}">
             <div>
               <div class="expense-item__desc">${esc(e.desc)}</div>
               <div class="expense-item__cat">${esc(bdLabels[e.category] || e.category)}</div>
             </div>
             <span class="expense-item__amount">${fmtMoney(e.amount, curr)}</span>
-            <button class="expense-item__del" data-del="${e.id}">✕</button>
+            <button class="expense-item__edit" data-edit="${esc(e.id)}" aria-label="Modificar ${esc(e.desc)}">✎</button>
+            <button class="expense-item__del" data-del="${esc(e.id)}" aria-label="Borrar ${esc(e.desc)}">✕</button>
           </li>`).join('')}
       </ul>
     `;
@@ -5671,7 +6147,7 @@ body.is-offline .offline-chip { display: inline-flex; }
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px">Registrar pago</div>
           <div style="display:grid;grid-template-columns:1fr 70px;gap:6px;margin-bottom:6px">
             <input id="split-desc" placeholder="Concepto" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;min-width:0">
-            <input id="split-amount" type="number" step="0.01" placeholder="€" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
+            <input id="split-amount" type="text" inputmode="decimal" placeholder="€" style="padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px">
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center">
             <div>
@@ -5771,7 +6247,7 @@ body.is-offline .offline-chip { display: inline-flex; }
 
     document.querySelectorAll('[data-bd-key]').forEach(inp => {
       inp.addEventListener('change', () => {
-        store.budget_edit.breakdown[inp.dataset.bdKey] = parseFloat(inp.value) || 0;
+        store.budget_edit.breakdown[inp.dataset.bdKey] = numDec(inp.value);
         saveStore();
         const newTotal = bdKeys.reduce((s, k) => s + (store.budget_edit.breakdown[k] || 0), 0);
         const totalEl = document.getElementById('budget-auto-total');
@@ -5781,22 +6257,47 @@ body.is-offline .offline-chip { display: inline-flex; }
     });
 
     // --- Listeners para gastos personales ---
+    const repintar = () => { saveStore(); renderMeBudget(); renderMeOverview(); };
+
     document.getElementById('exp-add').addEventListener('click', () => {
       const desc = document.getElementById('exp-desc').value.trim();
-      const amount = parseFloat(document.getElementById('exp-amount').value);
+      const amount = numDec(document.getElementById('exp-amount').value);
       const category = document.getElementById('exp-cat').value;
       if (!desc || !amount || isNaN(amount)) return;
-      store.expenses.push({ id: 'e_' + Date.now(), desc, amount, category, date: todayISO() });
-      saveStore();
-      renderMeBudget();
-      renderMeOverview();
+      if (budgetEditId) {
+        // Modificar conserva el identificador y la fecha original del gasto
+        store.expenses = store.expenses.map(e =>
+          e.id === budgetEditId ? Object.assign({}, e, { desc, amount, category }) : e);
+        budgetEditId = null;
+        toast('Gasto modificado');
+      } else {
+        store.expenses.push({ id: 'e_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                              desc, amount, category, date: todayISO() });
+      }
+      repintar();
     });
+
+    const cancelar = document.getElementById('exp-cancel');
+    if (cancelar) cancelar.addEventListener('click', () => { budgetEditId = null; renderMeBudget(); });
+
+    document.querySelectorAll('[data-edit]').forEach(b => {
+      b.addEventListener('click', () => {
+        budgetEditId = String(b.dataset.edit);
+        renderMeBudget();
+        const f = document.getElementById('exp-desc');
+        if (f) { f.scrollIntoView({ block: 'center', behavior: 'smooth' }); f.focus(); }
+      });
+    });
+
     document.querySelectorAll('[data-del]').forEach(b => {
       b.addEventListener('click', () => {
-        store.expenses = store.expenses.filter(e => e.id !== b.dataset.del);
-        saveStore();
-        renderMeBudget();
-        renderMeOverview();
+        const id = String(b.dataset.del);
+        const gasto = store.expenses.find(e => String(e.id) === id);
+        if (!gasto) return;
+        if (!confirm('¿Borrar «' + gasto.desc + '» (' + fmtMoney(gasto.amount, curr) + ')?')) return;
+        store.expenses = store.expenses.filter(e => String(e.id) !== id);
+        if (budgetEditId === id) budgetEditId = null;
+        repintar();
       });
     });
 
@@ -5834,7 +6335,7 @@ body.is-offline .offline-chip { display: inline-flex; }
     if (addSplitBtn) {
       addSplitBtn.addEventListener('click', () => {
         const desc = document.getElementById('split-desc').value.trim();
-        const amount = parseFloat(document.getElementById('split-amount').value);
+        const amount = numDec(document.getElementById('split-amount').value);
         const who = document.getElementById('split-who').value;
         const date = document.getElementById('split-date').value || todayISO();
         // Leer beneficiarios seleccionados
@@ -6014,14 +6515,14 @@ body.is-offline .offline-chip { display: inline-flex; }
 
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em">${esc(destCurr)} → EUR</div>
         <div class="tool-card__row" style="margin-bottom:4px">
-          <input id="conv-local" type="number" placeholder="${esc(destCurr)}" value="100">
+          <input id="conv-local" type="text" inputmode="decimal" placeholder="${esc(destCurr)}" value="100">
           <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">${esc(destCurr)}</div>
         </div>
         <div class="tool-card__result" id="conv-result-rev">—</div>
 
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:0.06em">EUR → ${esc(destCurr)}</div>
         <div class="tool-card__row" style="margin-bottom:4px">
-          <input id="conv-eur" type="number" placeholder="Euros" value="">
+          <input id="conv-eur" type="text" inputmode="decimal" placeholder="Euros" value="">
           <div style="align-self:center;font-weight:700;font-size:14px;color:var(--accent)">EUR</div>
         </div>
         <div class="tool-card__result" id="conv-result-fwd">—</div>
@@ -6081,17 +6582,17 @@ body.is-offline .offline-chip { display: inline-flex; }
       }
 
       async function convertFwd() {
-        const a = parseFloat(eurInput.value) || 0;
+        const a = numDec(eurInput.value);
         const rate = await fetchRate();
         if (rate) {
           const result = a * rate;
-          resFwd.textContent = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(result) + ' ' + destCurr;
+          resFwd.textContent = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(result) + ' ' + destCurr;
         } else {
           resFwd.textContent = 'Error';
         }
       }
       async function convertRev() {
-        const a = parseFloat(localInput.value) || 0;
+        const a = numDec(localInput.value);
         const rate = await fetchRate();
         if (rate) {
           const result = a / rate;
@@ -6180,7 +6681,7 @@ body.is-offline .offline-chip { display: inline-flex; }
   });
   el('#search-close').addEventListener('click', () => searchOverlay.classList.remove('is-open'));
 
-  function normalize(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+  function normalize(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
 
   searchInput.addEventListener('input', () => {
     const q = normalize(searchInput.value.trim());
