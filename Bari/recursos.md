@@ -14,13 +14,19 @@ Aquí solo va documentación **pública, sin ningún dato personal**. El motivo 
 
 ### Transversales (aplican a todo el viaje)
 
-**1. Resumen de la normativa ENAC UAS-IT para drones** · página web / PDF
-Es la referencia oficial italiana, y va más allá de la europea en dos puntos que sorprenden a quien vuela habitualmente en España: el registro es obligatorio también para drones de menos de 250 gramos si llevan cámara, y el seguro de responsabilidad civil de 920.000 € es obligatorio sin excepción por peso. Tener el resumen guardado sirve para responder en el sitio si alguien pregunta.
-Dónde: `https://www.enac.gov.it/sicurezza-aerea/droni/operatori-di-droni-uas/normativa-droni/`
+**1. Respuesta del Service Desk de D-Flight (ticket DFFEU-70717)** · captura de pantalla o PDF
+El documento más valioso de toda la lista, porque responde por escrito a la única duda regulatoria que tenía este viaje. D-Flight confirma que el código de operador EASA válido es solamente el del país de residencia habitual, que no hace falta pedir otro en Italia, que en el dron va el identificador expedido por el país de origen y que en categoría abierta no se requiere ninguna acción adicional. Es la justificación de por qué el dron lleva una etiqueta española volando en Puglia, y conviene llevarla en el móvil junto al número de operador.
+Dónde: en el propio portal, `https://dronesd.atlassian.net/servicedesk/customer/portals`, abriendo el ticket DFFEU-70717 y exportando la página a PDF o capturándola.
 → `dia`: sin día (transversal) · **imprescindible**
 
+**1 bis. Página «Operatori esteri» de ENAC** · página web
+El respaldo oficial de lo anterior, esta vez de la autoridad y no de la plataforma: dice expresamente que el registro del operador es válido en todos los países de la UE y en Suiza, y que los residentes en la Unión se registran ante la autoridad de su país de residencia. Dos párrafos que caben en una captura.
+Dónde: `https://www.enac.gov.it/sicurezza-aerea/droni/operatori-di-droni-uas/operatori-esteri/`
+→ `dia`: sin día (transversal)
+
 **2. Captura de las geozonas de D-Flight de los dos puntos de vuelo** · imagen que os hacéis vosotros
-La comprobación en D-Flight es preceptiva antes de cada vuelo y la plataforma necesita conexión. Una captura de pantalla del mapa con el estado de las coordenadas del belvedere de Alberobello y del mirador de Ostuni, hecha la semana antes, sirve como respaldo si a las siete de la mañana el móvil se queda sin datos. La captura no sustituye a la comprobación, pero documenta que se hizo.
+La comprobación en D-Flight es preceptiva antes de cada vuelo y la plataforma necesita conexión. Una captura de pantalla con el estado de las coordenadas del belvedere de Alberobello y del mirador de Ostuni, hecha la semana antes, sirve como respaldo si a las siete de la mañana el móvil se queda sin datos. La captura no sustituye a la comprobación, pero documenta que se hizo.
+Conviene que la captura no sea solo del mapa de colores: pinchando encima de la zona se abre una ficha con el nombre, la altura máxima y las condiciones, y es esa ficha la que de verdad sirve de respaldo. La capa que interesa es ATM09, la de altura máxima permitida. La consulta de octubre de 2026 dio 60 metros en Alberobello, ningún límite propio —y por tanto los 120 generales— en Ostuni, Cisternino, Monopoli y Polignano, Locorotondo repartido entre 120 y 60 según el punto, y altura cero en Bari, en Gioia del Colle y en el polígono que cubre Matera. Son las cifras que ya están escritas en la guía; esta captura es la de la comprobación definitiva.
 Dónde: en `d-flight.it`, sección de mapa de geozonas, introduciendo las coordenadas 40.7835, 17.2380 (Alberobello) y 40.7298, 17.5835 (Ostuni). Explicación del código de colores en `https://easa.europa.eu/en/light/topics/geo-zones-know-where-fly-your-drone`
 → `dia`: sin día (transversal) · **imprescindible**
 
